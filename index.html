@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.9</title>
+  <title>RPG Prompt Builder Ultimate v4.10</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -15,20 +15,26 @@
   </style>
 </head>
 <body class="min-h-screen bg-gray-50 py-4 sm:py-8 relative">
-<div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+  <button onclick="openNotesModal()" class="absolute top-5 left-5 sm:top-8 sm:left-10 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg transition-colors font-bold shadow-sm">
+    Notatki
+  </button>
+  <button onclick="resetToDefaults()" class="absolute top-5 right-5 sm:top-8 sm:right-10 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors font-bold shadow-sm">
+    Default
+  </button>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20">
   <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
     
-    <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8 relative">
+    <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
-      <button onclick="resetToDefaults()" class="absolute top-5 right-5 sm:top-8 sm:right-8 text-xs bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-1.5 rounded-lg transition-colors font-semibold z-10 shadow-sm">
-        Default
-      </button>
-
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mt-8 sm:mt-0">RPG Prompt Builder v4.9</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.10</h1>
         
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-4 bg-gray-100 p-2 rounded-2xl w-max mx-auto border border-gray-200 max-w-full">
-          <button onclick="openSaveModal()" class="p-2 bg-white rounded-xl shadow-sm hover:bg-blue-50 text-blue-600 transition-colors" title="Zapisz aktualny preset">
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-4 bg-gray-100 p-2 rounded-2xl w-full mx-auto border border-gray-200">
+          <button onclick="openSaveModal()" class="p-2 bg-white rounded-xl shadow-sm hover:bg-blue-50 text-blue-600 transition-colors shrink-0" title="Zapisz aktualny preset">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
               <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -36,13 +42,24 @@
             </svg>
           </button>
           <div class="w-px h-6 bg-gray-300 mx-1"></div>
-          <div class="p-1 text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></div>
-          <button onclick="loadPreset(1)" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-sm transition-colors text-gray-600">1</button>
-          <button onclick="loadPreset(2)" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-sm transition-colors text-gray-600">2</button>
-          <button onclick="loadPreset(3)" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-sm transition-colors text-gray-600">3</button>
-          <button onclick="loadPreset(4)" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-sm transition-colors text-gray-600">4</button>
-          <button onclick="loadPreset(5)" class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-sm transition-colors text-gray-600">5</button>
+          <div class="flex flex-wrap justify-center gap-1.5">
+            <button onclick="loadPreset(1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">1</button>
+            <button onclick="loadPreset(2)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">2</button>
+            <button onclick="loadPreset(3)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">3</button>
+            <button onclick="loadPreset(4)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">4</button>
+            <button onclick="loadPreset(5)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">5</button>
+            <button onclick="loadPreset(6)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">6</button>
+            <button onclick="loadPreset(7)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">7</button>
+            <button onclick="loadPreset(8)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">8</button>
+            <button onclick="loadPreset(9)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">9</button>
+            <button onclick="loadPreset(10)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">10</button>
+          </div>
         </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Nazwa Projektu</label>
+        <input id="projectName" type="text" placeholder="Np. Wojownik z lasu..." class="w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700 bg-gray-50">
       </div>
       
       <div>
@@ -50,7 +67,7 @@
           <label class="font-semibold text-gray-700">Scena</label>
           <button onclick="translateText('scene')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">PL ➜ EN</button>
         </div>
-        <textarea id="scene" class="w-full h-28 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y">The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.</textarea>
+        <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y">The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.</textarea>
       </div>
 
       <div class="bg-gray-50 p-5 rounded-3xl border border-gray-200 space-y-6">
@@ -87,7 +104,8 @@
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Styl</label>
             <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500">
               <option value="none">brak</option>
-              <option value="hyperrealism" selected>hyperrealism (domyślny)</option>
+              <option value="hyperrealism" selected>hyperrealism</option>
+              <option value="illustrationWow">Illustration WOW</option>
               <option value="painterlySprite">painterly</option>
               <option value="pixelArtGame">pixel game</option>
               <option value="pixelIllustration">pixel illustration</option>
@@ -124,44 +142,38 @@
             <label class="flex items-center gap-2 text-xs cursor-pointer hover:text-blue-600">
               <input type="checkbox" value="none" id="effect-none" class="effect-check" onchange="clearEffects(this)"> <span class="font-bold">brak</span>
             </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="tilt-shift" class="effect-item effect-check"> tilt-shift
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="golden-hour" class="effect-item effect-check"> golden hour
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="bokeh" class="effect-item effect-check"> bokeh
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="soft-focus" class="effect-item effect-check"> soft focus
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="dof" class="effect-item effect-check"> depth of field
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="chromatic" class="effect-item effect-check"> chromatic abb.
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="light-leaks" class="effect-item effect-check"> light leaks
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="rear-projection" class="effect-item effect-check"> rear projection
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="lens-flare" class="effect-item effect-check"> lens flare
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="long-exposure" class="effect-item effect-check"> long exposure
-            </label>
-            <label class="flex items-center gap-2 text-xs cursor-pointer">
-              <input type="checkbox" value="silhouette" class="effect-item effect-check"> silhouette
-            </label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="tilt-shift" class="effect-item effect-check"> tilt-shift</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="golden-hour" class="effect-item effect-check"> golden hour</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="bokeh" class="effect-item effect-check"> bokeh</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="soft-focus" class="effect-item effect-check"> soft focus</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="dof" class="effect-item effect-check"> depth of field</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="chromatic" class="effect-item effect-check"> chromatic abb.</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="light-leaks" class="effect-item effect-check"> light leaks</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="rear-projection" class="effect-item effect-check"> rear proj.</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="lens-flare" class="effect-item effect-check"> lens flare</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="long-exposure" class="effect-item effect-check"> long exposure</label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" value="silhouette" class="effect-item effect-check"> silhouette</label>
           </div>
         </div>
       </div>
 
+      <div class="bg-indigo-50 p-4 rounded-3xl border border-indigo-100 space-y-3">
+        <h3 class="font-bold text-indigo-800 border-b border-indigo-200 pb-2">Dodaj postać</h3>
+        <p class="text-xs text-indigo-600 mb-2">Jeśli skopiowałeś postać z innego projektu, możesz ją tu dodać.</p>
+        <div id="addedCharactersList" class="space-y-2">
+          </div>
+      </div>
+
       <div class="bg-gray-100 p-4 rounded-2xl border border-gray-200 space-y-4">
+        
+        <div class="border-b border-gray-200 pb-4">
+          <label class="block font-semibold mb-2 text-gray-700">Dodatkowe cechy (blizny, detale)</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="additionalFeatures" type="text" placeholder="np. blizna na oku, zamknięte oczy..." class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <button onclick="translateText('additionalFeatures')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+          </div>
+        </div>
+
         <div>
           <label class="block font-semibold mb-2">Nagość / Ubiór</label>
           <select id="nudity" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
@@ -550,11 +562,16 @@
 
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 flex flex-col h-full sticky top-8 max-h-[90vh]">
       <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">Wygenerowany Prompt</h2>
-      <textarea id="promptOutput" readonly class="flex-1 w-full min-h-[250px] sm:min-h-[150px] rounded-2xl border border-gray-300 p-4 sm:p-6 text-sm resize-y font-mono focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed"></textarea>
+      <textarea id="promptOutput" readonly class="flex-1 w-full min-h-[300px] sm:min-h-[200px] rounded-2xl border border-gray-300 p-4 sm:p-6 text-sm resize-y font-mono focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed"></textarea>
       
-      <button onclick="copyPrompt()" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg">
-        Kopiuj Prompt do Schowka
-      </button>
+      <div class="mt-6 flex flex-col gap-3">
+        <button onclick="copyPrompt()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg text-lg">
+          Kopiuj Prompt do Schowka
+        </button>
+        <button onclick="copyCharacter()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 font-bold py-3 px-8 rounded-2xl transition-all">
+          Kopiuj postać
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -562,14 +579,31 @@
 <div id="saveModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
     <h3 class="text-xl font-bold mb-4">Zapisz preset</h3>
-    <div class="flex justify-center gap-3 mb-6">
-      <button onclick="savePreset(1)" class="w-12 h-12 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors">1</button>
-      <button onclick="savePreset(2)" class="w-12 h-12 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors">2</button>
-      <button onclick="savePreset(3)" class="w-12 h-12 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors">3</button>
-      <button onclick="savePreset(4)" class="w-12 h-12 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors">4</button>
-      <button onclick="savePreset(5)" class="w-12 h-12 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors">5</button>
+    <div class="grid grid-cols-5 gap-3 mb-6">
+      <button onclick="savePreset(1)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">1</button>
+      <button onclick="savePreset(2)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">2</button>
+      <button onclick="savePreset(3)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">3</button>
+      <button onclick="savePreset(4)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">4</button>
+      <button onclick="savePreset(5)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">5</button>
+      <button onclick="savePreset(6)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">6</button>
+      <button onclick="savePreset(7)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">7</button>
+      <button onclick="savePreset(8)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">8</button>
+      <button onclick="savePreset(9)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">9</button>
+      <button onclick="savePreset(10)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">10</button>
     </div>
     <button onclick="closeSaveModal()" class="w-full py-2 text-gray-500 font-semibold">Anuluj</button>
+  </div>
+</div>
+
+<div id="notesModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl flex flex-col h-[50vh]">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-gray-800">Notatki</h3>
+      <button onclick="closeNotesModal()" class="text-gray-400 hover:text-gray-600 font-bold text-2xl leading-none">&times;</button>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">Te notatki nie wchodzą do wygenerowanego promptu. Zapiszą się razem z presetem.</p>
+    <textarea id="notes" class="flex-1 w-full rounded-xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-4" placeholder="Wpisz tutaj swoje prywatne notatki..."></textarea>
+    <button onclick="closeNotesModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors">Zamknij</button>
   </div>
 </div>
 
@@ -580,6 +614,7 @@ const hyperTagBlock = `(sharp focus, smooth, aesthetic, extremely detailed, octa
 
 const styles = {
   hyperrealism: { full: `Create a highly photorealistic image captured with a modern full-frame mirrorless camera, using a 50mm prime lens at f/1.8. Emphasize contemporary editorial outdoor photography aesthetics with natural dynamic range, lifelike skin micro-texture, realistic atmospheric depth, subtle lens breathing, gentle background separation, and physically accurate lighting. Include authentic real-world details such as slight fabric imperfections, natural environmental haze, fine sensor grain, and modern cinematic color grading with balanced contrast, true-to-life tones, and crisp highlight rolloff.` },
+  illustrationWow: { full: `Stylized fantasy character illustration, highly plastic and malleable forms, soft sculpted shapes, exaggerated mass and weight distribution, squash-and-stretch influence, elastic anatomy, gesture-driven design, bold readable silhouette, dynamic shape rhythm, appealing asymmetry cartoon-rooted stylization with semi-realistic rendering, simplified but expressive anatomy, slightly exaggerated proportions, organic flowing shapes instead of rigid structure painterly digital art, soft brush strokes, visible brush energy, subtle texture brushwork, smooth but lively gradients, soft painterly shading, forms defined by light rather than hard edges warm cinematic lighting, soft volumetric glow, rich color transitions, saturated but natural palette, gentle rim light, atmospheric depth whimsical yet mature fantasy aesthetic, expressive and tactile form language, cute but grounded proportions, animated film concept art with realistic lighting depth.` },
   painterlySprite: { full: "a stylized fantasy illustration with visible brush texture and painterly shading." },
   pixelArtGame: { full: "a crisp pixel art game scene with 8-bit aesthetic." },
   pixelIllustration: { full: "ultra-high resolution pixel art illustration with complex lighting." },
@@ -592,25 +627,13 @@ const styles = {
 };
 
 const shots = {
-  portrait: "Camera: Close-up portrait shot",
-  bust: "Camera: Medium bust shot",
-  fullBody: "Camera: Wide cinematic full shot",
-  "high-angle": "Camera: high-angle shot",
-  "low-angle": "Camera: low-angle shot",
-  "worm-eye": "Camera: Extreme worm’s-eye view from very low ground level looking upward",
-  "dramatic-wide": "Camera: dramatic wide-lens perspective",
-  "dramatic-extreme": "Camera: dramatic angle, extreme angle shot",
-  "close-up": "Camera: close-up shot",
-  "extreme-close-up": "Camera: extreme close-up",
-  "aerial": "Camera: aerial shot",
-  "close-up-portrait": "Camera: close-up portrait",
-  "macro": "Camera: macro shot",
-  "wide-angle": "Camera: wide-angle shot",
-  "establishing": "Camera: establishing shot",
-  "over-the-shoulder": "Camera: over-the-shoulder shot",
-  "telephoto": "Camera: telephoto shot",
-  "handheld": "Camera: handheld shot",
-  "panoramic": "Camera: panoramic shot"
+  portrait: "Camera: Close-up portrait shot", bust: "Camera: Medium bust shot", fullBody: "Camera: Wide cinematic full shot",
+  "high-angle": "Camera: high-angle shot", "low-angle": "Camera: low-angle shot", "worm-eye": "Camera: Extreme worm’s-eye view",
+  "dramatic-wide": "Camera: dramatic wide-lens perspective", "dramatic-extreme": "Camera: dramatic angle, extreme angle shot",
+  "close-up": "Camera: close-up shot", "extreme-close-up": "Camera: extreme close-up", "aerial": "Camera: aerial shot",
+  "close-up-portrait": "Camera: close-up portrait", "macro": "Camera: macro shot", "wide-angle": "Camera: wide-angle shot",
+  "establishing": "Camera: establishing shot", "over-the-shoulder": "Camera: over-the-shoulder shot", "telephoto": "Camera: telephoto shot",
+  "handheld": "Camera: handheld shot", "panoramic": "Camera: panoramic shot"
 };
 
 const effectsMap = {
@@ -621,21 +644,21 @@ const effectsMap = {
 };
 
 const colorsMap = {
-  "neon": "neon color grading", "cool-toned-sterile": "cool-toned sterile colors",
-  "vibrant": "vibrant color grading", "warm": "warm color grading",
-  "cool-toned": "cool-toned color grading", "pastel": "pastel color grading",
-  "duotone": "duotone color grading", "monochrome": "monochrome",
-  "bright": "bright color grading", "muted": "muted color grading"
+  "neon": "neon color grading", "cool-toned-sterile": "cool-toned sterile colors", "vibrant": "vibrant color grading",
+  "warm": "warm color grading", "cool-toned": "cool-toned color grading", "pastel": "pastel color grading",
+  "duotone": "duotone color grading", "monochrome": "monochrome", "bright": "bright color grading", "muted": "muted color grading"
 };
 
 const inputIds = [
-  'scene', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'color',
+  'projectName', 'notes', 'scene', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'color',
   'gender', 'age', 'skinTone', 'tan', 'stubble', 'beard', 'moustache', 
   'ears', 'eyeColor', 'emotion', 'teeth', 'eyebrows', 'freckles', 
   'hairColor', 'hairLength', 'hairLengthCustomDesc', 'hairType', 
   'hairStyle', 'hairCustomDesc', 'bangs', 'sidelocks', 
   'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'feet'
 ];
+
+let addedCharacters = [];
 
 function getValue(id) { return document.getElementById(id).value; }
 
@@ -667,13 +690,13 @@ function showToast(message, isSuccess = true) {
   const t = document.getElementById('dynamicToast');
   t.innerHTML = message;
   t.classList.add('show');
-  setTimeout(() => { t.classList.remove('show'); }, 2000);
+  setTimeout(() => { t.classList.remove('show'); }, 2500);
 }
 
 function resetToDefaults() {
   const def = {
-    scene: 'The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.',
-    nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', style: 'hyperrealism', color: 'none',
+    projectName: '', notes: '', scene: 'The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.',
+    additionalFeatures: '', nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', style: 'hyperrealism', color: 'none',
     gender: 'female', age: 'adult', skinTone: 'fair', tan: 'none', ears: 'human', eyeColor: 'blue',
     emotion: 'neutral', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
     hairColor: 'black', hairLength: 'medium', hairType: 'straight', hairStyle: 'loose', bangs: 'none', sidelocks: 'none', 
@@ -684,13 +707,17 @@ function resetToDefaults() {
   Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
   document.getElementById('glowingEyes').checked = false;
   document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
+  addedCharacters = [];
   
-  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); generatePrompt();
+  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); renderAddedCharacters(); generatePrompt();
   showToast('Przywrócono domyślne');
 }
 
+// Modale zapisu i notatek
 function openSaveModal() { document.getElementById('saveModal').classList.remove('hidden'); }
 function closeSaveModal() { document.getElementById('saveModal').classList.add('hidden'); }
+function openNotesModal() { document.getElementById('notesModal').classList.remove('hidden'); }
+function closeNotesModal() { document.getElementById('notesModal').classList.add('hidden'); }
 
 function savePreset(slot) {
   const state = {};
@@ -699,6 +726,7 @@ function savePreset(slot) {
   const selectedEff = [];
   document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEff.push(cb.value));
   state.effects = selectedEff;
+  state.addedCharacters = addedCharacters;
   
   localStorage.setItem('rpg_preset_' + slot, JSON.stringify(state));
   closeSaveModal();
@@ -709,14 +737,16 @@ function loadPreset(slot) {
   const data = localStorage.getItem('rpg_preset_' + slot);
   if(data) {
     const state = JSON.parse(data);
-    inputIds.forEach(id => { if(state[id] !== undefined) document.getElementById(id).value = state[id]; });
+    inputIds.forEach(id => { if(state[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = state[id]; });
     document.getElementById('glowingEyes').checked = state.glowingEyes || false;
     
     document.querySelectorAll('.effect-item').forEach(cb => {
       cb.checked = state.effects ? state.effects.includes(cb.value) : false;
     });
     
-    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); generatePrompt();
+    addedCharacters = state.addedCharacters || [];
+    
+    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); renderAddedCharacters(); generatePrompt();
     showToast(`Wczytano preset ${slot}`);
   }
 }
@@ -735,39 +765,75 @@ async function translateText(inputId) {
   } catch (e) { showToast("Błąd tłumaczenia", false); }
 }
 
-function generatePrompt() {
+// Sekcja dodawania postaci
+function renderAddedCharacters() {
+  const container = document.getElementById('addedCharactersList');
+  container.innerHTML = '';
+
+  // Renderujemy już dodane postacie
+  addedCharacters.forEach((char, index) => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-2';
+    row.innerHTML = `
+      <button onclick="removeCharacter(${index})" class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 font-bold text-lg leading-none transition-colors" title="Usuń postać">-</button>
+      <input type="text" value="${char.name}" disabled class="flex-1 bg-white rounded-xl border border-indigo-200 p-2 text-sm text-indigo-900 font-semibold cursor-not-allowed">
+    `;
+    container.appendChild(row);
+  });
+
+  // Renderujemy jedno puste/aktywne pole z plusem na końcu
+  const addRow = document.createElement('div');
+  addRow.className = 'flex items-center gap-2';
+  addRow.innerHTML = `
+    <button onclick="addCharacter()" class="w-8 h-8 flex items-center justify-center bg-green-100 text-green-600 rounded-full hover:bg-green-200 font-bold text-lg leading-none transition-colors" title="Dodaj skopiowaną postać">+</button>
+    <input type="text" placeholder="${localStorage.getItem('copiedCharacter') ? 'Kliknij +, aby wkleić ze schowka' : 'Brak skopiowanej postaci'}" disabled class="flex-1 bg-indigo-50/50 rounded-xl border border-indigo-100 p-2 text-sm text-indigo-400 cursor-not-allowed italic">
+  `;
+  container.appendChild(addRow);
+}
+
+function addCharacter() {
+  const copiedDataStr = localStorage.getItem('copiedCharacter');
+  if (!copiedDataStr) {
+    showToast('Jeszcze nie skopiowałeś żadnej postaci', false);
+    return;
+  }
+  try {
+    const copiedData = JSON.parse(copiedDataStr);
+    addedCharacters.push({ name: copiedData.projectName || 'Nieznany projekt', text: copiedData.characterText });
+    renderAddedCharacters();
+    generatePrompt();
+  } catch(e) {
+    showToast('Błąd odczytu skopiowanej postaci', false);
+  }
+}
+
+function removeCharacter(index) {
+  addedCharacters.splice(index, 1);
+  renderAddedCharacters();
+  generatePrompt();
+}
+
+function copyCharacter() {
+  const currentPromptText = getCharacterBlock(); 
+  const projName = getValue('projectName') || 'Projekt bez nazwy';
+
+  const dataToSave = {
+    projectName: projName,
+    characterText: currentPromptText
+  };
+
+  localStorage.setItem('copiedCharacter', JSON.stringify(dataToSave));
+  renderAddedCharacters(); // Odśwież UI "plusa", by zaktualizować placeholder
+  showToast('Skopiowano postać!');
+}
+
+function getCharacterBlock() {
   const nudity = getValue('nudity');
   const gender = getValue('gender');
-  const styleKey = getValue('style');
-  const shotKey = getValue('shot');
-  const colorKey = getValue('color');
   const subj = (gender === 'female' || gender === 'none') ? 'She' : 'He';
   const objPos = (gender === 'female' || gender === 'none') ? 'Her' : 'His';
 
-  document.getElementById('intimateHairContainer').classList.toggle('hidden', nudity === 'dressed' || nudity === 'none');
-  document.getElementById('outfitContainer').classList.toggle('hidden', nudity !== 'dressed');
-
-  // BLOK 1: SCENA, EFEKTY, KOLORY
-  let sceneBlock = `Setting: ${getValue('scene')}`;
-  
-  const selectedEffects = [];
-  document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
-  if (selectedEffects.length > 0) {
-    sceneBlock += `\neffect: ${selectedEffects.join(', ')}`;
-  }
-  
-  if (colorKey !== 'none') {
-    sceneBlock += `\ncolor: ${colorsMap[colorKey]}`;
-  }
-
-  // BLOK 2: STYLE, TAGI, KAMERA
-  let styleBlockArr = [];
-  if(styleKey === 'hyperrealism') styleBlockArr.push(hyperTagBlock);
-  if(shotKey !== 'none') styleBlockArr.push(shots[shotKey]);
-  if(styleKey !== 'none') styleBlockArr.push(styles[styleKey].full);
-  let styleBlock = styleBlockArr.join('\n\n');
-
-  // BLOK 3: TWARZ
+  // TWARZ
   let faceParts = [];
   if(getValue('age') !== 'none') faceParts.push(`${getValue('age')} ${gender !== 'none' ? gender : 'character'}`);
   let face = `The character is ${faceParts.join(' ')}. `;
@@ -790,7 +856,7 @@ function generatePrompt() {
     if (getValue('moustache') !== 'none') face += `${subj} has a ${getValue('moustache')}. `;
   }
 
-  // BLOK 4: WŁOSY
+  // WŁOSY
   let hairStr = "";
   if (getValue('hairLength') === 'bald' || getValue('hairStyle') === 'bald') {
     hairStr = `${subj} is bald.`;
@@ -807,38 +873,19 @@ function generatePrompt() {
   if (getValue('bangs') !== 'none' && getValue('hairLength') !== 'bald') hairStr += `${subj} has ${getValue('bangs')}. `;
   if (getValue('sidelocks') !== 'none') hairStr += `${subj} features ${getValue('sidelocks')}.`;
 
-  // BLOK 5: CIAŁO
+  // CIAŁO
   let bodyDetails = [];
   if(getValue('height') !== 'none') {
-    const heightMap = {
-      "very short": "very short, with compact, shortstack-like proportions and shorter limbs",
-      "short": "short, with slightly shorter limbs",
-      "normal": "of average height",
-      "tall": "tall, with elongated, slender proportions",
-      "very tall": "very tall, with highly elongated, thin, elf-like proportions"
-    };
+    const heightMap = { "very short": "very short proportions", "short": "short", "normal": "of average height", "tall": "tall", "very tall": "very tall" };
     bodyDetails.push(heightMap[getValue('height')]);
   }
   if(getValue('headSize') !== 'none') {
-    const headMap = {
-      "normal": "head 1/6 of total body height",
-      "large": "head 1/5 of total body height",
-      "very large": "head 1/4 of total body height"
-    };
+    const headMap = { "normal": "head 1/6 of height", "large": "head 1/5 of height", "very large": "head 1/4 of height" };
     bodyDetails.push(headMap[getValue('headSize')]);
   }
   if(getValue('body') !== 'none') bodyDetails.push(`body type: ${getValue('body')}`);
   
-  if(gender === 'female' && getValue('chest') !== 'none') {
-    const chestMap = {
-      "flat chest": "flat chest (minimal breast volume, nearly straight torso silhouette)",
-      "small breasts": "small breasts (subtle natural volume, soft rounded shape)",
-      "medium breasts": "medium breasts (balanced natural fullness, proportional soft volume)",
-      "large breasts": "large breasts (pronounced rounded fullness, heavier soft mass, visible natural weight)",
-      "very large breasts": "very large breasts (exaggerated anime-style fullness, overflowing bra effect, heavy rounded volume, dramatic soft weight, enhanced upper body curves)"
-    };
-    bodyDetails.push(chestMap[getValue('chest')]);
-  }
+  if(gender === 'female' && getValue('chest') !== 'none') bodyDetails.push(getValue('chest'));
   if(getValue('hips') !== 'none') bodyDetails.push(getValue('hips'));
   if(getValue('thighs') !== 'none') bodyDetails.push(getValue('thighs'));
   if(getValue('feet') !== 'none') bodyDetails.push(getValue('feet'));
@@ -846,7 +893,7 @@ function generatePrompt() {
   let bodyStr = bodyDetails.length > 0 ? bodyDetails.join(', ') + ". " : "";
   if (getValue('tail') !== 'none') bodyStr += `${subj} has a ${getValue('tail')}.`;
 
-  // BLOK 6: UBRANIE / NAGOŚĆ
+  // UBRANIE / NAGOŚĆ
   let cloth = "";
   if (nudity === 'dressed') {
     cloth = `${subj} is ${getValue('outfit')}.`;
@@ -858,18 +905,67 @@ function generatePrompt() {
     cloth = `${subj} is ${nudity}.${getValue('intimateHair') !== 'none' ? ' Intimate area is ' + getValue('intimateHair') + '.' : ''}`;
   }
 
-  // SKLEJANIE OSTATECZNEGO PROMPTU BEZ PODWÓJNYCH KROPEK I PUSTYCH PÓL
-  const allBlocks = [sceneBlock, styleBlock, face, hairStr, bodyStr, cloth];
-  
-  let finalPrompt = allBlocks
-    .map(block => block.trim())
-    .filter(block => block.length > 0)
-    .join('\n\n');
+  // DODATKOWE CECHY
+  let additional = getValue('additionalFeatures').trim();
+  if (additional) additional = `Additional features: ${additional}.`;
 
-  // Filtracja: zamiana spacji przed kropką na kropkę, usuwanie wielokrotnych kropek
-  finalPrompt = finalPrompt
-    .replace(/\s+\./g, '.')
-    .replace(/\.{2,}/g, '.');
+  // SKLEJANIE
+  let block = [face, hairStr, bodyStr, cloth, additional]
+    .map(b => b.trim())
+    .filter(b => b.length > 0)
+    .join(' ');
+    
+  return block.replace(/\s+\./g, '.').replace(/\.{2,}/g, '.');
+}
+
+function generatePrompt() {
+  const nudity = getValue('nudity');
+  document.getElementById('intimateHairContainer').classList.toggle('hidden', nudity === 'dressed' || nudity === 'none');
+  document.getElementById('outfitContainer').classList.toggle('hidden', nudity !== 'dressed');
+
+  // 1. SETTING
+  let settingBlock = `Setting: ${getValue('scene')}`;
+  const colorKey = getValue('color');
+  if (colorKey !== 'none') {
+    settingBlock += `\nColor: ${colorsMap[colorKey]}`;
+  }
+
+  // 2. CHARACTER(S)
+  let char1Text = getCharacterBlock();
+  let charactersBlock = `Character 1: ${char1Text}`;
+  addedCharacters.forEach((char, idx) => {
+      charactersBlock += `\nCharacter ${idx + 2}: ${char.text}`;
+  });
+
+  // 3. STYLE
+  const styleKey = getValue('style');
+  let styleBlock = "";
+  if(styleKey !== 'none') {
+    styleBlock = "Style:\n";
+    if(styleKey === 'hyperrealism') styleBlock += hyperTagBlock + "\n";
+    styleBlock += styles[styleKey].full;
+  }
+
+  // 4. EFFECT
+  let effectsBlock = "";
+  const selectedEffects = [];
+  document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
+  if (selectedEffects.length > 0) {
+    effectsBlock = `Effect: ${selectedEffects.join(', ')}`;
+  }
+
+  // 5. CAMERA
+  let cameraBlock = "";
+  const shotKey = getValue('shot');
+  if(shotKey !== 'none') {
+    cameraBlock = shots[shotKey]; // Słownik 'shots' zawiera już prefiks "Camera: "
+  }
+
+  // FINAL ASSEMBLY
+  let finalPrompt = [settingBlock, charactersBlock, styleBlock, effectsBlock, cameraBlock]
+    .map(b => b.trim())
+    .filter(b => b.length > 0)
+    .join('\n\n');
 
   document.getElementById('promptOutput').value = finalPrompt;
 }
@@ -878,11 +974,14 @@ function copyPrompt() {
   const output = document.getElementById('promptOutput');
   output.select();
   document.execCommand('copy');
-  showToast('Skopiowano!');
+  showToast('Skopiowano prompt!');
 }
 
 window.onload = () => {
+  renderAddedCharacters();
   document.querySelectorAll('select, textarea, input').forEach(el => {
+    if (el.id === 'notes' || el.id === 'projectName') return; // Notatki i nazwa nie generują od razu promptu (choć można to zmienić)
+    
     el.addEventListener('change', () => {
       if (el.classList.contains('effect-item')) {
         document.getElementById('effect-none').checked = false;
@@ -893,6 +992,11 @@ window.onload = () => {
       el.addEventListener('input', generatePrompt);
     }
   });
+  // Event listeners for text inputs that should update prompt
+  ['scene', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc'].forEach(id => {
+    document.getElementById(id).addEventListener('input', generatePrompt);
+  });
+  
   generatePrompt();
 };
 </script>

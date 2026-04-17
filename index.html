@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.10</title>
+  <title>RPG Prompt Builder Ultimate v4.12</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -12,48 +12,60 @@
     .toast.show { opacity: 1; transition: none; }
     .glow-checkbox { accent-color: #f59e0b; width: 1.1rem; height: 1.1rem; cursor: pointer; }
     .effect-check { accent-color: #2563eb; width: 1rem; height: 1rem; cursor: pointer; }
+    /* Zapobiega domyślnemu menu kontekstowemu przytrzymania na mobile dla slotów */
+    .preset-btn { -webkit-touch-callout: none; user-select: none; }
   </style>
 </head>
-<body class="min-h-screen bg-gray-50 py-4 sm:py-8 relative">
+<body class="min-h-screen bg-gray-50 py-4 sm:py-6 relative">
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
-  <button onclick="openNotesModal()" class="absolute top-5 left-5 sm:top-8 sm:left-10 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg transition-colors font-bold shadow-sm">
+<div id="customTooltip" class="hidden fixed bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg -translate-x-1/2 -translate-y-full z-[60] pointer-events-none shadow-xl whitespace-nowrap mb-2 transition-opacity"></div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+  <button onclick="openNotesModal()" class="w-full sm:w-auto text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-5 py-2.5 rounded-xl transition-colors font-bold shadow-sm text-center">
     Notatki
   </button>
-  <button onclick="resetToDefaults()" class="absolute top-5 right-5 sm:top-8 sm:right-10 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors font-bold shadow-sm">
+  <button onclick="openDeleteModal()" class="w-full sm:w-auto text-xs bg-red-100 hover:bg-red-200 text-red-700 px-5 py-2.5 rounded-xl transition-colors font-bold shadow-sm text-center">
+    Wyczyść wybrany zapis
+  </button>
+  <button onclick="resetToDefaults()" class="w-full sm:w-auto text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2.5 rounded-xl transition-colors font-bold shadow-sm text-center">
     Default
   </button>
 </div>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20">
+<div class="max-w-6xl mx-auto px-4 sm:px-6">
   <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
     
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.10</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.12</h1>
         
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-4 bg-gray-100 p-2 rounded-2xl w-full mx-auto border border-gray-200">
-          <button onclick="openSaveModal()" class="p-2 bg-white rounded-xl shadow-sm hover:bg-blue-50 text-blue-600 transition-colors shrink-0" title="Zapisz aktualny preset">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-              <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-          </button>
-          <div class="w-px h-6 bg-gray-300 mx-1"></div>
-          <div class="flex flex-wrap justify-center gap-1.5">
-            <button onclick="loadPreset(1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">1</button>
-            <button onclick="loadPreset(2)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">2</button>
-            <button onclick="loadPreset(3)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">3</button>
-            <button onclick="loadPreset(4)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">4</button>
-            <button onclick="loadPreset(5)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">5</button>
-            <button onclick="loadPreset(6)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">6</button>
-            <button onclick="loadPreset(7)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">7</button>
-            <button onclick="loadPreset(8)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">8</button>
-            <button onclick="loadPreset(9)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">9</button>
-            <button onclick="loadPreset(10)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-blue-50 hover:text-blue-600 font-bold text-xs sm:text-sm transition-colors text-gray-600">10</button>
+        <div class="flex items-center justify-between gap-4 mt-6 bg-gray-100 p-4 rounded-2xl w-full border border-gray-200 shadow-inner">
+          <div class="flex items-center gap-4">
+            <button onclick="openSaveModal()" class="shrink-0 w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-300 hover:bg-blue-50 text-blue-600 transition-all hover:scale-105" title="Zapisz aktualny preset">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </button>
+            
+            <div class="w-px h-12 bg-gray-300 mx-1"></div>
+            
+            <div class="grid grid-cols-5 gap-2 sm:gap-3">
+              <button id="load-btn-1" data-slot="1" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">1</button>
+              <button id="load-btn-2" data-slot="2" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">2</button>
+              <button id="load-btn-3" data-slot="3" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">3</button>
+              <button id="load-btn-4" data-slot="4" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">4</button>
+              <button id="load-btn-5" data-slot="5" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">5</button>
+              <button id="load-btn-6" data-slot="6" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">6</button>
+              <button id="load-btn-7" data-slot="7" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">7</button>
+              <button id="load-btn-8" data-slot="8" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">8</button>
+              <button id="load-btn-9" data-slot="9" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">9</button>
+              <button id="load-btn-10" data-slot="10" class="preset-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-sm border border-gray-200 font-bold text-sm transition-all text-gray-600">10</button>
+            </div>
           </div>
+          <span class="text-xs font-black text-gray-400 uppercase tracking-widest text-right leading-tight max-w-[70px]">Wczytaj prompt</span>
         </div>
       </div>
 
@@ -76,7 +88,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Ujęcie</label>
-            <select id="shot" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500">
+            <select id="shot" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none">brak</option>
               <option value="portrait">portret</option>
               <option value="bust">popiersie</option>
@@ -102,7 +114,7 @@
 
           <div>
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Styl</label>
-            <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500">
+            <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomStyle()">
               <option value="none">brak</option>
               <option value="hyperrealism" selected>hyperrealism</option>
               <option value="illustrationWow">Illustration WOW</option>
@@ -115,12 +127,26 @@
               <option value="pixar">pixar</option>
               <option value="anime">anime</option>
               <option value="cartoon2d">2d cartoon</option>
+              <option value="pencil">Pencil</option>
+              <option value="cursetPhoto">Curset Photo</option>
+              <option value="claymation">Claymation</option>
+              <option value="crayon">Crayon drawing</option>
+              <option value="disney2d">Disney 2D</option>
+              <option value="disney3d">Disney 3D</option>
+              <option value="disneySketch">Disney sketch</option>
+              <option value="conceptSketch">Concept sketch</option>
+              <option value="conceptArt">Concept Art</option>
+              <option value="oilPainting">Oil Painting</option>
+              <option value="stylizedFantasy">Stylized fantasy</option>
+              <option value="frazzeta">Frazzeta</option>
+              <option value="barok">Barok</option>
+              <option value="custom">własny (opisz niżej)</option>
             </select>
           </div>
 
           <div>
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Kolor</label>
-            <select id="color" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500">
+            <select id="color" class="w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
               <option value="neon">neon</option>
               <option value="cool-toned-sterile">cool-toned sterile</option>
@@ -133,6 +159,14 @@
               <option value="bright">bright</option>
               <option value="muted">muted</option>
             </select>
+          </div>
+        </div>
+
+        <div id="customStyleContainer" class="hidden">
+          <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Twój opis stylu</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="styleCustomDesc" type="text" placeholder="np. dark fantasy oil painting..." class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <button onclick="translateText('styleCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors">PL ➜ EN</button>
           </div>
         </div>
 
@@ -169,14 +203,14 @@
         <div class="border-b border-gray-200 pb-4">
           <label class="block font-semibold mb-2 text-gray-700">Dodatkowe cechy (blizny, detale)</label>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="additionalFeatures" type="text" placeholder="np. blizna na oku, zamknięte oczy..." class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <input id="additionalFeatures" type="text" placeholder="np. blizna na oku, zamknięte oczy..." class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
             <button onclick="translateText('additionalFeatures')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
 
         <div>
-          <label class="block font-semibold mb-2">Nagość / Ubiór</label>
-          <select id="nudity" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+          <label class="block font-semibold mb-2 text-gray-700">Nagość / Ubiór</label>
+          <select id="nudity" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
             <option value="none">brak</option>
             <option value="dressed" selected>ubrany (dressed)</option>
             <option value="nude">nude</option>
@@ -186,7 +220,7 @@
         </div>
         <div id="intimateHairContainer" class="hidden">
           <label class="block font-semibold mb-2 text-gray-700">Owłosienie intymne</label>
-          <select id="intimateHair" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+          <select id="intimateHair" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
             <option value="none">brak</option>
             <option value="shaved" selected>gładkie (shaved)</option>
             <option value="hair">naturalne owłosienie</option>
@@ -195,7 +229,7 @@
         <div id="outfitContainer">
           <label class="block font-semibold mb-2 text-gray-700">Opis stroju</label>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="outfit" type="text" value="wearing a full armour" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <input id="outfit" type="text" value="wearing a full armour" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
             <button onclick="translateText('outfit')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
@@ -205,16 +239,16 @@
         <h3 class="font-bold text-lg mb-4 text-blue-600">Podstawy Postaci</h3>
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label class="block font-semibold mb-2">Płeć</label>
-            <select id="gender" class="w-full rounded-2xl border border-gray-300 p-3 text-sm" onchange="toggleGenderUI()">
+            <label class="block font-semibold mb-2 text-gray-700">Płeć</label>
+            <select id="gender" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleGenderUI()">
               <option value="none">brak</option>
               <option value="female" selected>kobieta</option>
               <option value="male">mężczyzna</option>
             </select>
           </div>
           <div>
-            <label class="block font-semibold mb-2">Wiek</label>
-            <select id="age" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <label class="block font-semibold mb-2 text-gray-700">Wiek</label>
+            <select id="age" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="child">dziecko</option>
               <option value="young adult">młody dorosły</option>
@@ -226,7 +260,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Kolor skóry</label>
-            <select id="skinTone" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="skinTone" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="fair" selected>fair</option>
               <option value="medium">medium</option>
@@ -243,7 +277,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Opalenizna</label>
-            <select id="tan" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="tan" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none" selected>brak</option>
               <option value="light tan">light tan</option>
               <option value="summer tan">summer tan</option>
@@ -257,16 +291,16 @@
         <h3 class="font-bold text-lg mb-4 text-blue-600">Zarost</h3>
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-semibold mb-1">Zarost</label>
-            <select id="stubble" class="w-full rounded-xl border border-gray-300 p-2 text-xs">
+            <label class="block text-xs font-semibold mb-1 text-gray-700">Zarost</label>
+            <select id="stubble" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
               <option value="none" selected>brak</option>
               <option value="one-day stubble">jednodniowy</option>
               <option value="multi-day stubble">kilkudniowy</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1">Broda</label>
-            <select id="beard" class="w-full rounded-xl border border-gray-300 p-2 text-xs">
+            <label class="block text-xs font-semibold mb-1 text-gray-700">Broda</label>
+            <select id="beard" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
               <option value="none" selected>brak</option>
               <option value="short beard">krótka</option>
               <option value="long beard">długa</option>
@@ -274,8 +308,8 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1">Wąsy</label>
-            <select id="moustache" class="w-full rounded-xl border border-gray-300 p-2 text-xs">
+            <label class="block text-xs font-semibold mb-1 text-gray-700">Wąsy</label>
+            <select id="moustache" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
               <option value="none" selected>brak</option>
               <option value="short moustache">krótkie</option>
               <option value="long moustache">długie</option>
@@ -297,7 +331,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Uszy</label>
-            <select id="ears" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="ears" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="human" selected>ludzkie</option>
               <option value="elven">elfie</option>
@@ -307,7 +341,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Kolor oczu</label>
-            <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="blue" selected>niebieskie</option>
               <option value="green">zielone</option>
@@ -323,7 +357,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Emocje</label>
-            <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="neutral" selected>neutralność</option>
               <option value="smile">uśmiech</option>
@@ -337,7 +371,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Zęby</label>
-            <select id="teeth" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="teeth" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal teeth" selected>normalne</option>
               <option value="small sharp fangs">małe kły</option>
@@ -349,7 +383,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Brwi</label>
-            <select id="eyebrows" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="eyebrows" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal" selected>normalne</option>
               <option value="no">brak</option>
@@ -359,7 +393,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Piegi</label>
-            <select id="freckles" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="freckles" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none" selected>brak</option>
               <option value="a few freckles on face">mało</option>
               <option value="many prominent freckles on face">dużo</option>
@@ -373,7 +407,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Kolor</label>
-            <select id="hairColor" class="w-full rounded-xl border border-gray-300 p-2 text-sm">
+            <select id="hairColor" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
               <option value="none">brak</option>
               <option value="black" selected>czarne</option>
               <option value="blonde">blond</option>
@@ -390,7 +424,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Długość</label>
-            <select id="hairLength" class="w-full rounded-xl border border-gray-300 p-2 text-sm" onchange="toggleCustomLength()">
+            <select id="hairLength" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomLength()">
               <option value="none">brak</option>
               <option value="medium" selected>średnie</option>
               <option value="short">krótkie</option>
@@ -404,13 +438,13 @@
           <label class="block font-semibold mb-2 text-gray-700">Własny opis długości</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="hairLengthCustomDesc" type="text" placeholder="np. do samej ziemi" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="translateText('hairLengthCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <button onclick="translateText('hairLengthCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Rodzaj</label>
-            <select id="hairType" class="w-full rounded-xl border border-gray-300 p-2 text-sm">
+            <select id="hairType" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
               <option value="none">brak</option>
               <option value="straight" selected>proste</option>
               <option value="wavy">falowane</option>
@@ -419,7 +453,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Fryzura</label>
-            <select id="hairStyle" class="w-full rounded-xl border border-gray-300 p-2 text-sm" onchange="toggleCustomHair()">
+            <select id="hairStyle" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomHair()">
               <option value="none">brak</option>
               <option value="loose" selected>rozpuszczone</option>
               <option value="messy">niechlujne</option>
@@ -437,13 +471,13 @@
           <label class="block font-semibold mb-2 text-gray-700">Twój opis fryzury</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="hairCustomDesc" type="text" placeholder="np. irokez z kolcami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="translateText('hairCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <button onclick="translateText('hairCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Grzywka</label>
-            <select id="bangs" class="w-full rounded-xl border border-gray-300 p-2 text-sm">
+            <select id="bangs" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
               <option value="none" selected>brak</option>
               <option value="straight bangs">prosta</option>
               <option value="curtain bangs">kurtyna</option>
@@ -453,7 +487,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Sidelocks</label>
-            <select id="sidelocks" class="w-full rounded-xl border border-gray-300 p-2 text-sm">
+            <select id="sidelocks" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
               <option value="none" selected>brak</option>
               <option value="short left sidelock">short left</option>
               <option value="short right sidelock">short right</option>
@@ -472,7 +506,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Wzrost</label>
-            <select id="height" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="height" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="very short">bardzo niski</option>
               <option value="short">niski</option>
@@ -483,7 +517,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Wielkość głowy</label>
-            <select id="headSize" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="headSize" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal" selected>normalna (1/6)</option>
               <option value="large">Duża (1/5)</option>
@@ -495,7 +529,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Typ ciała</label>
-            <select id="body" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="body" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal" selected>normalne</option>
               <option value="skinny">chude</option>
@@ -507,7 +541,7 @@
           </div>
           <div id="chestContainer">
             <label class="block font-semibold mb-2 text-gray-700">Klatka / Piersi</label>
-            <select id="chest" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="chest" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="flat chest">płaska</option>
               <option value="small breasts">mała</option>
@@ -521,7 +555,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Biodra</label>
-            <select id="hips" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="hips" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal hips" selected>normalne</option>
               <option value="wide hips">szerokie</option>
@@ -529,7 +563,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Uda</label>
-            <select id="thighs" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="thighs" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal thighs" selected>normalne</option>
               <option value="massive thighs">masywne</option>
@@ -541,7 +575,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Ogon</label>
-            <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none" selected>brak</option>
               <option value="cat tail">koci</option>
               <option value="bunny tail">króliczy</option>
@@ -550,7 +584,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Stopy</label>
-            <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm">
+            <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
               <option value="normal feet" selected>normalne</option>
               <option value="small dainty feet">małe</option>
@@ -562,7 +596,7 @@
 
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 flex flex-col h-full sticky top-8 max-h-[90vh]">
       <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">Wygenerowany Prompt</h2>
-      <textarea id="promptOutput" readonly class="flex-1 w-full min-h-[300px] sm:min-h-[200px] rounded-2xl border border-gray-300 p-4 sm:p-6 text-sm resize-y font-mono focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed"></textarea>
+      <textarea id="promptOutput" readonly class="flex-1 w-full min-h-[300px] sm:min-h-[200px] rounded-2xl border border-gray-300 p-4 sm:p-6 text-sm resize-y font-mono focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed bg-gray-50"></textarea>
       
       <div class="mt-6 flex flex-col gap-3">
         <button onclick="copyPrompt()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg text-lg">
@@ -576,26 +610,39 @@
   </div>
 </div>
 
-<div id="saveModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+<div id="saveModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
-    <h3 class="text-xl font-bold mb-4">Zapisz preset</h3>
+    <h3 class="text-xl font-bold mb-4 text-gray-800">Zapisz preset</h3>
     <div class="grid grid-cols-5 gap-3 mb-6">
-      <button onclick="savePreset(1)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">1</button>
-      <button onclick="savePreset(2)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">2</button>
-      <button onclick="savePreset(3)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">3</button>
-      <button onclick="savePreset(4)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">4</button>
-      <button onclick="savePreset(5)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">5</button>
-      <button onclick="savePreset(6)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">6</button>
-      <button onclick="savePreset(7)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">7</button>
-      <button onclick="savePreset(8)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">8</button>
-      <button onclick="savePreset(9)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">9</button>
-      <button onclick="savePreset(10)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto">10</button>
+      <button onclick="savePreset(1)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">1</button>
+      <button onclick="savePreset(2)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">2</button>
+      <button onclick="savePreset(3)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">3</button>
+      <button onclick="savePreset(4)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">4</button>
+      <button onclick="savePreset(5)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">5</button>
+      <button onclick="savePreset(6)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">6</button>
+      <button onclick="savePreset(7)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">7</button>
+      <button onclick="savePreset(8)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">8</button>
+      <button onclick="savePreset(9)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">9</button>
+      <button onclick="savePreset(10)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-600 hover:text-white font-bold transition-colors mx-auto text-blue-800">10</button>
     </div>
-    <button onclick="closeSaveModal()" class="w-full py-2 text-gray-500 font-semibold">Anuluj</button>
+    <button onclick="closeSaveModal()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-semibold transition-colors">Anuluj</button>
   </div>
 </div>
 
-<div id="notesModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-xl">
+    <h3 class="text-xl font-bold mb-4 text-gray-800">Wyczyść zapisy</h3>
+    <p class="text-xs text-gray-500 mb-4">Wybierz sloty do usunięcia (podświetlone są zajęte).</p>
+    <div class="grid grid-cols-5 gap-3 mb-6" id="deleteModalGrid">
+      </div>
+    <div class="flex gap-2">
+      <button onclick="confirmDelete()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors shadow-sm">Usuń wybrane</button>
+      <button onclick="closeDeleteModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold transition-colors">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<div id="notesModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl flex flex-col h-[50vh]">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-xl font-bold text-gray-800">Notatki</h3>
@@ -607,7 +654,7 @@
   </div>
 </div>
 
-<div id="dynamicToast" class="toast fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-3"></div>
+<div id="dynamicToast" class="toast fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-[80] flex items-center gap-3"></div>
 
 <script>
 const hyperTagBlock = `(sharp focus, smooth, aesthetic, extremely detailed, octane render, solo, cinematic light, intricate detail, highly detailed, high res, detailed facial features, Ultrarealistic Photography, trending on Flickr, trending on pinterest, insanely detailed and intricate, Lifelike, Authentic, True-to-life, Genuine, Natural, Cinematic Lighting, Dramatic, Theatrical, Atmospheric, Evocative, Mood-setting, Award Winning Photography, Acclaimed, Recognized, Celebrated, Honored, Prize-winning, Sharp Focus, Crisp, Clear, Precise, Well-defined, Distinct, Masterpiece, Ultra-Realistic Model, Iconic, Exceptional, Extraordinary, Stunning, Magnificent, Studio Photography, Controlled, Polished, Professional, Refined, Perfected, Nikon, High-quality, Reliable, Durable, Precision-engineered, Cutting-edge, No Filter Photography, Natural-looking, Unedited, Raw, Authentic, True-to-life, 8K Photography, High-resolution, Crystal-clear, Ultra-detailed, Immersive, Cutting-edge, Realistic Skin Texture, Lifelike, Natural-looking, Authentic, True-to-life, Genuine, Photorealistic, Hyper-realistic, True-to-life, Natural-looking, Authentic, Realistic, Hyper Realism, Ultra-detailed, Intensely realistic, Extremely lifelike, Highly precise, Stunningly accurate, Highly Detailed, Intricate, Elaborate, Meticulous, Comprehensive, Thorough, Flattering, Intimate, Personal, Impressive, Captivating, Professional Studio Lighting, Expertly lit, Skillfully crafted, Perfectly balanced, Impeccably executed, Artfully arranged, Million dollar Photoshoot, Memorable.)`;
@@ -623,7 +670,20 @@ const styles = {
   waifu: { full: "a semi-realistic anime waifu illustration with soft lighting." },
   pixar: { full: "a detailed 3D Pixar-style render with expressive features." },
   anime: { full: "clean high-quality anime art with traditional cel-shading." },
-  cartoon2d: { full: "a clean 2D cartoon illustration with bold outlines." }
+  cartoon2d: { full: "a clean 2D cartoon illustration with bold outlines." },
+  pencil: { full: "Black and white, breathtaking pencil illustration, highly detailed, 4k, textured paper, pencil texture, sketch." },
+  cursetPhoto: { full: "Unsettling photo, cursed_thing, cursedimages, no context, cursed image, bad photo, weird photo, very strange, color photo, creepy photo, nightmare fuel." },
+  claymation: { full: "Claymation, incredible claymation style, kubo and the two strings style art, Missing Link 2019 art style, clay texture, clay animation, stop-motion clay." },
+  crayon: { full: "Crayon drawing." },
+  disney2d: { full: "Overall, it's an absolute world-class masterpiece 2D Disney-inspired Character. It's an aesthetically pleasing 2D Disney-inspired piece with impeccable attention to detail and impressive composition." },
+  disney3d: { full: "Overall, it's an absolute world-class masterpiece 3D Disney-inspired Character. It's an aesthetically pleasing 3D Disney-inspired piece with impeccable attention to detail and impressive composition." },
+  disneySketch: { full: "Overall, it's an charmingly aesthetic and well-composed Disney-style sketch." },
+  conceptSketch: { full: "Overall, it's a charmingly aesthetic and well-composed concept sketch." },
+  conceptArt: { full: "Overall, it's absolute world-class masterpiece concept art. It's an aesthetically pleasing concept art with impeccable attention to detail and impressive composition." },
+  oilPainting: { full: "Overall, it's an absolute world-class masterpiece realism oil painting. It's an aesthetically pleasing realism oil painting with impeccable attention to detail and impressive composition." },
+  stylizedFantasy: { full: "A stylized fantasy illustration with visible brush texture and painterly shading., d&d, fantasy, highly detailed, digital painting, artstation, sharp focus, fantasy art, illustration, 8k, in the style of greg rutkowski. It's an absolute world-class masterpiece artwork. It's an aesthetically pleasing artwork with impeccable attention to detail and impressive composition." },
+  frazzeta: { full: "Raw, primal fantasy illustration, dynamic composition frozen mid-action, exaggerated anatomy with powerful musculature, bodies twisted in tension, thick painterly brushstrokes, visible texture, oil painting feel, dramatic chiaroscuro lighting, deep shadows swallowing parts of the scene, warm earthy palette (burnt sienna, ochre, deep reds, dirty gold), subtle desaturation, sweat, grime, and imperfection on skin, wild untamed hair, minimal background with smoky or abstract atmosphere, sense of heat and dust in the air, aggressive poses, sensual but savage energy, heroic yet brutal tone, asymmetrical composition, strong contrast, cinematic but chaotic, 1970s fantasy illustration vibe, no clean lines, no digital smoothness, tactile paint surface." },
+  barok: { full: "Dramatic baroque fantasy painting, intense chiaroscuro lighting, single strong directional light source cutting through deep darkness, figures emerging from shadow, theatrical composition, diagonal movement, dynamic and emotional poses, rich but controlled color palette (deep reds, warm golds, dark browns, black shadows), oil painting texture with visible brushwork, high contrast between illuminated skin and dark background, sense of depth through darkness, sacred and violent atmosphere, sensual realism, expressive faces filled with tension or ecstasy, fabric with heavy folds and weight, subtle ornamentation but not decorative overload, composition focused on light and gesture, cinematic intensity, classical baroque painting style, no modern digital smoothness." }
 };
 
 const shots = {
@@ -650,7 +710,7 @@ const colorsMap = {
 };
 
 const inputIds = [
-  'projectName', 'notes', 'scene', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'color',
+  'projectName', 'notes', 'scene', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'styleCustomDesc', 'color',
   'gender', 'age', 'skinTone', 'tan', 'stubble', 'beard', 'moustache', 
   'ears', 'eyeColor', 'emotion', 'teeth', 'eyebrows', 'freckles', 
   'hairColor', 'hairLength', 'hairLengthCustomDesc', 'hairType', 
@@ -659,8 +719,9 @@ const inputIds = [
 ];
 
 let addedCharacters = [];
+let deleteSelection = new Set();
 
-function getValue(id) { return document.getElementById(id).value; }
+function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
 
 function clearEffects(noneCheckbox) {
   if (noneCheckbox.checked) {
@@ -673,6 +734,15 @@ function toggleGenderUI() {
   const gender = getValue('gender');
   document.getElementById('facialHairSection').classList.toggle('hidden', gender !== 'male');
   document.getElementById('chestContainer').classList.toggle('hidden', gender === 'male');
+  generatePrompt();
+}
+
+function toggleCustomStyle() {
+  const style = getValue('style');
+  const container = document.getElementById('customStyleContainer');
+  if(container) {
+    container.classList.toggle('hidden', style !== 'custom');
+  }
   generatePrompt();
 }
 
@@ -696,7 +766,7 @@ function showToast(message, isSuccess = true) {
 function resetToDefaults() {
   const def = {
     projectName: '', notes: '', scene: 'The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.',
-    additionalFeatures: '', nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', style: 'hyperrealism', color: 'none',
+    additionalFeatures: '', nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
     gender: 'female', age: 'adult', skinTone: 'fair', tan: 'none', ears: 'human', eyeColor: 'blue',
     emotion: 'neutral', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
     hairColor: 'black', hairLength: 'medium', hairType: 'straight', hairStyle: 'loose', bangs: 'none', sidelocks: 'none', 
@@ -709,16 +779,172 @@ function resetToDefaults() {
   document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
   addedCharacters = [];
   
-  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); renderAddedCharacters(); generatePrompt();
+  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); renderAddedCharacters(); generatePrompt();
   showToast('Przywrócono domyślne');
 }
 
-// Modale zapisu i notatek
+// Logika przycisków Presetów (kolory i stany)
+function updatePresetButtons() {
+  for(let i=1; i<=10; i++) {
+    const btn = document.getElementById('load-btn-' + i);
+    if(!btn) continue;
+    const data = localStorage.getItem('rpg_preset_' + i);
+    if(data) {
+      btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+      btn.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+    } else {
+      btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+      btn.classList.remove('bg-green-100', 'text-green-700', 'border-green-300');
+    }
+  }
+}
+
+// Zdarzenia przycisków Load (Long press, Hover, Click)
+function setupPresetButtonInteractions() {
+  const tooltip = document.getElementById('customTooltip');
+  
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    let timer;
+    let isFired = false;
+    const slot = btn.getAttribute('data-slot');
+
+    const showT = () => {
+      const data = localStorage.getItem('rpg_preset_' + slot);
+      if(!data) return;
+      const parsed = JSON.parse(data);
+      tooltip.innerText = parsed.projectName || 'Zapis ' + slot;
+      const rect = btn.getBoundingClientRect();
+      tooltip.style.left = rect.left + (rect.width / 2) + 'px';
+      tooltip.style.top = rect.top - 8 + 'px';
+      tooltip.classList.remove('hidden');
+    };
+    
+    const hideT = () => tooltip.classList.add('hidden');
+
+    btn.addEventListener('mouseenter', showT);
+    btn.addEventListener('mouseleave', hideT);
+
+    // Mobile
+    btn.addEventListener('touchstart', (e) => {
+      isFired = false;
+      timer = setTimeout(() => {
+        isFired = true;
+        showT();
+      }, 500); // 0.5s = długie naciśnięcie
+    }, {passive: true});
+
+    btn.addEventListener('touchend', (e) => {
+      clearTimeout(timer);
+      hideT();
+      if (!isFired) {
+        e.preventDefault(); 
+        loadPreset(slot);
+      }
+    });
+
+    btn.addEventListener('touchmove', () => {
+      clearTimeout(timer);
+      hideT();
+    });
+
+    // PC Click
+    btn.addEventListener('click', (e) => {
+      if (e.pointerType === "mouse" || e.pointerType === "") {
+        loadPreset(slot);
+      }
+    });
+  });
+}
+
+// Modale
 function openSaveModal() { document.getElementById('saveModal').classList.remove('hidden'); }
 function closeSaveModal() { document.getElementById('saveModal').classList.add('hidden'); }
 function openNotesModal() { document.getElementById('notesModal').classList.remove('hidden'); }
 function closeNotesModal() { document.getElementById('notesModal').classList.add('hidden'); }
 
+// Manager Usuwania
+function buildDeleteModalGrid() {
+  const grid = document.getElementById('deleteModalGrid');
+  grid.innerHTML = '';
+  for(let i=1; i<=10; i++) {
+    const btn = document.createElement('button');
+    btn.id = 'del-btn-' + i;
+    btn.className = 'w-10 h-10 rounded-full font-bold transition-all mx-auto';
+    btn.innerText = i;
+    btn.onclick = () => toggleDeleteSlot(i);
+    
+    // Tooltip do usuwania
+    btn.onmouseenter = (e) => {
+       const data = localStorage.getItem('rpg_preset_' + i);
+       if(!data) return;
+       const tooltip = document.getElementById('customTooltip');
+       tooltip.innerText = JSON.parse(data).projectName || 'Zapis ' + i;
+       const rect = btn.getBoundingClientRect();
+       tooltip.style.left = rect.left + (rect.width / 2) + 'px';
+       tooltip.style.top = rect.top - 8 + 'px';
+       tooltip.classList.remove('hidden');
+    };
+    btn.onmouseleave = () => document.getElementById('customTooltip').classList.add('hidden');
+    
+    grid.appendChild(btn);
+  }
+}
+
+function openDeleteModal() {
+  deleteSelection.clear();
+  buildDeleteModalGrid();
+  updateDeleteModalButtons();
+  document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() { document.getElementById('deleteModal').classList.add('hidden'); }
+
+function toggleDeleteSlot(slot) {
+  const data = localStorage.getItem('rpg_preset_' + slot);
+  if(!data) return; // Można usunąć tylko zajęte sloty
+  
+  if(deleteSelection.has(slot)) {
+    deleteSelection.delete(slot);
+  } else {
+    deleteSelection.add(slot);
+  }
+  updateDeleteModalButtons();
+}
+
+function updateDeleteModalButtons() {
+  for(let i=1; i<=10; i++) {
+    const btn = document.getElementById('del-btn-' + i);
+    if(!btn) continue;
+    const data = localStorage.getItem('rpg_preset_' + i);
+    
+    if(data) {
+      btn.classList.remove('opacity-50', 'bg-gray-100', 'text-gray-400');
+      btn.classList.add('bg-green-100', 'text-green-700');
+    } else {
+      btn.classList.add('opacity-50', 'bg-gray-100', 'text-gray-400');
+      btn.classList.remove('bg-green-100', 'text-green-700', 'ring-4', 'ring-red-500');
+    }
+
+    if(deleteSelection.has(i)) {
+      btn.classList.add('ring-4', 'ring-red-500', 'bg-red-50');
+      btn.classList.remove('bg-green-100');
+    } else {
+      btn.classList.remove('ring-4', 'ring-red-500', 'bg-red-50');
+    }
+  }
+}
+
+function confirmDelete() {
+  if(deleteSelection.size === 0) return;
+  deleteSelection.forEach(slot => {
+    localStorage.removeItem('rpg_preset_' + slot);
+  });
+  showToast('Usunięto wybrane zapisy!');
+  updatePresetButtons();
+  closeDeleteModal();
+}
+
+// System Zapisu / Odczytu
 function savePreset(slot) {
   const state = {};
   inputIds.forEach(id => { state[id] = getValue(id); });
@@ -729,6 +955,7 @@ function savePreset(slot) {
   state.addedCharacters = addedCharacters;
   
   localStorage.setItem('rpg_preset_' + slot, JSON.stringify(state));
+  updatePresetButtons();
   closeSaveModal();
   showToast(`Zapisano preset ${slot}`);
 }
@@ -746,7 +973,7 @@ function loadPreset(slot) {
     
     addedCharacters = state.addedCharacters || [];
     
-    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); renderAddedCharacters(); generatePrompt();
+    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); renderAddedCharacters(); generatePrompt();
     showToast(`Wczytano preset ${slot}`);
   }
 }
@@ -770,7 +997,6 @@ function renderAddedCharacters() {
   const container = document.getElementById('addedCharactersList');
   container.innerHTML = '';
 
-  // Renderujemy już dodane postacie
   addedCharacters.forEach((char, index) => {
     const row = document.createElement('div');
     row.className = 'flex items-center gap-2';
@@ -781,7 +1007,6 @@ function renderAddedCharacters() {
     container.appendChild(row);
   });
 
-  // Renderujemy jedno puste/aktywne pole z plusem na końcu
   const addRow = document.createElement('div');
   addRow.className = 'flex items-center gap-2';
   addRow.innerHTML = `
@@ -823,7 +1048,7 @@ function copyCharacter() {
   };
 
   localStorage.setItem('copiedCharacter', JSON.stringify(dataToSave));
-  renderAddedCharacters(); // Odśwież UI "plusa", by zaktualizować placeholder
+  renderAddedCharacters(); 
   showToast('Skopiowano postać!');
 }
 
@@ -940,7 +1165,10 @@ function generatePrompt() {
   // 3. STYLE
   const styleKey = getValue('style');
   let styleBlock = "";
-  if(styleKey !== 'none') {
+  if(styleKey === 'custom') {
+    const customDesc = getValue('styleCustomDesc').trim();
+    if(customDesc) styleBlock = `Style:\n${customDesc}`;
+  } else if(styleKey !== 'none') {
     styleBlock = "Style:\n";
     if(styleKey === 'hyperrealism') styleBlock += hyperTagBlock + "\n";
     styleBlock += styles[styleKey].full;
@@ -958,7 +1186,7 @@ function generatePrompt() {
   let cameraBlock = "";
   const shotKey = getValue('shot');
   if(shotKey !== 'none') {
-    cameraBlock = shots[shotKey]; // Słownik 'shots' zawiera już prefiks "Camera: "
+    cameraBlock = shots[shotKey];
   }
 
   // FINAL ASSEMBLY
@@ -979,8 +1207,10 @@ function copyPrompt() {
 
 window.onload = () => {
   renderAddedCharacters();
+  updatePresetButtons();
+  setupPresetButtonInteractions();
   document.querySelectorAll('select, textarea, input').forEach(el => {
-    if (el.id === 'notes' || el.id === 'projectName') return; // Notatki i nazwa nie generują od razu promptu (choć można to zmienić)
+    if (el.id === 'notes' || el.id === 'projectName') return; 
     
     el.addEventListener('change', () => {
       if (el.classList.contains('effect-item')) {
@@ -992,8 +1222,7 @@ window.onload = () => {
       el.addEventListener('input', generatePrompt);
     }
   });
-  // Event listeners for text inputs that should update prompt
-  ['scene', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc'].forEach(id => {
+  ['scene', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc'].forEach(id => {
     document.getElementById(id).addEventListener('input', generatePrompt);
   });
   

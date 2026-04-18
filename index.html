@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.13</title>
+  <title>RPG Prompt Builder Ultimate v4.14</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -12,36 +12,36 @@
     .toast.show { opacity: 1; transition: none; }
     .glow-checkbox { accent-color: #f59e0b; width: 1.1rem; height: 1.1rem; cursor: pointer; }
     .effect-check { accent-color: #2563eb; width: 1rem; height: 1rem; cursor: pointer; }
-    .preset-btn { -webkit-touch-callout: none; user-select: none; }
+    .preset-btn, .save-slot-btn { -webkit-touch-callout: none; user-select: none; }
 
-    /* ULEPSZONY KONTENER ZAPISU - SZTYWNA SIATKA 2x5 */
+    /* ULEPSZONY KONTENER ZAPISU - ZABEZPIECZONY PRZED UCINANIEM */
     .save-load-wrapper {
       position: relative;
       display: flex;
       align-items: center;
       background-color: #f3f4f6;
-      padding: 16px 48px 16px 16px; /* Miejsce na ikonkę po prawej */
+      padding: 16px 36px 16px 16px; 
       border-radius: 16px;
       border: 1px solid #e5e7eb;
       max-width: 100%;
       width: fit-content;
-      margin: 0 auto; /* Centrowanie kontenera */
+      margin: 0 auto;
       box-sizing: border-box;
     }
     .slots-container {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* Wymusza dokładnie 5 kolumn (więc 10 elementów utworzy 2 rzędy) */
-      gap: 8px; /* Stały odstęp */
-      margin-left: 16px;
+      grid-template-columns: repeat(5, 1fr); 
+      gap: clamp(4px, 1.5vw, 8px); /* Dynamiczny odstęp */
+      margin-left: 12px;
     }
     .slot-btn {
-      width: 38px;
-      height: 38px;
+      width: clamp(28px, 8vw, 38px); /* Płynne skalowanie na mniejszych ekranach */
+      height: clamp(28px, 8vw, 38px);
       border-radius: 50%;
       border: 1px solid #e5e7eb;
       background: white;
       font-weight: 700;
-      font-size: 15px;
+      font-size: clamp(12px, 3.5vw, 15px);
       cursor: pointer;
       display: flex;
       justify-content: center;
@@ -50,10 +50,10 @@
     }
     .small-load-icon {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 6px; /* W prawym górnym rogu wewnątrz ramki */
+      right: 6px;
       cursor: help;
-      padding: 6px;
+      padding: 4px;
       border-radius: 50%;
       transition: all 0.2s;
     }
@@ -72,29 +72,12 @@
       transition: all 0.2s;
     }
     .action-btn:hover { background-color: #f9fafb; }
-
-    /* DOPASOWANIE DLA BARDZO MAŁYCH EKRANÓW KOMÓREK */
-    @media (max-width: 420px) {
-      .save-load-wrapper {
-        padding: 12px 40px 12px 12px;
-      }
-      .slots-container {
-        gap: 5px; /* Zmniejszamy przerwy */
-        margin-left: 10px;
-      }
-      .slot-btn {
-        width: 32px; /* Pomniejszamy kółeczka */
-        height: 32px;
-        font-size: 13px;
-      }
-    }
-
     select { position: relative; }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50 py-4 sm:py-6 relative">
 
-<div id="customTooltip" class="hidden fixed bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg -translate-x-1/2 -translate-y-full z-[60] pointer-events-none shadow-xl whitespace-nowrap mb-2 transition-opacity"></div>
+<div id="customTooltip" class="hidden fixed bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg -translate-x-1/2 -translate-y-full z-[80] pointer-events-none shadow-xl whitespace-nowrap mb-2 transition-opacity"></div>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-6">
   <div class="flex flex-wrap gap-3 items-center justify-between">
@@ -117,21 +100,19 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.13</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.14</h1>
       </div>
 
       <div class="mt-4">
         <div class="save-load-wrapper">
-          <button onclick="openSaveModal()" class="shrink-0 w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-300 hover:bg-blue-50 text-blue-600 transition-all hover:scale-105" title="Zapisz aktualny preset">
+          <button onclick="openSaveModal()" class="shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-300 hover:bg-blue-50 text-blue-600 transition-all hover:scale-105" title="Zapisz aktualny preset">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
               <polyline points="17 21 17 13 7 13 7 21"></polyline>
               <polyline points="7 3 7 8 15 8"></polyline>
             </svg>
           </button>
-
-          <div class="w-px h-12 bg-gray-300 mx-2"></div>
-
+          <div class="w-px h-10 bg-gray-300 mx-2"></div>
           <div class="slots-container">
             <button id="load-btn-1" data-slot="1" class="preset-btn slot-btn text-gray-600">1</button>
             <button id="load-btn-2" data-slot="2" class="preset-btn slot-btn text-gray-600">2</button>
@@ -144,9 +125,8 @@
             <button id="load-btn-9" data-slot="9" class="preset-btn slot-btn text-gray-600">9</button>
             <button id="load-btn-10" data-slot="10" class="preset-btn slot-btn text-gray-600">10</button>
           </div>
-
-          <div class="small-load-icon" title="Wczytaj profil z wybranego slotu">
-            <svg width="22" height="22" fill="none" stroke="#9ca3af" stroke-width="2.5" viewBox="0 0 24 24">
+          <div class="small-load-icon" title="Wczytaj profil">
+            <svg width="20" height="20" fill="none" stroke="#9ca3af" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
             </svg>
           </div>
@@ -159,11 +139,31 @@
       </div>
       
       <div>
-        <div class="flex justify-between items-end mb-2">
-          <label class="font-semibold text-gray-700">Scena</label>
-          <button onclick="translateText('scene')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">PL ➜ EN</button>
+        <div class="flex items-center gap-2 mb-3">
+          <button id="tabScene" onclick="setSceneMode('scene')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-colors bg-blue-600 text-white">Scena</button>
+          <button id="tabPlanes" onclick="setSceneMode('planes')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">Plany</button>
         </div>
-        <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y">The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.</textarea>
+        
+        <div id="sceneModeContainer">
+          <div class="flex justify-end mb-2">
+            <button onclick="translateText('scene')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">PL ➜ EN</button>
+          </div>
+          <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y">The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.</textarea>
+        </div>
+
+        <div id="planesModeContainer" class="hidden bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-4">
+          <div id="planesList" class="space-y-3"></div>
+          <button onclick="addPlane()" class="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">+ Dodaj plan</button>
+          <div class="pt-3 border-t border-gray-300">
+            <div class="flex justify-between items-end mb-1">
+              <label class="text-xs font-bold text-gray-500">Tło</label>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="planeBackground" placeholder="Opis tła..." class="flex-1 rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+              <button onclick="translateText('planeBackground')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0">PL ➜ EN</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="bg-gray-50 p-5 rounded-3xl border border-gray-200 space-y-6">
@@ -418,7 +418,7 @@
           </div>
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Kolor oczu</label>
-            <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+            <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEyeColor()">
               <option value="none">brak</option>
               <option value="blue" selected>niebieskie</option>
               <option value="green">zielone</option>
@@ -428,13 +428,23 @@
               <option value="purple">fioletowe</option>
               <option value="red">czerwone</option>
               <option value="gold">złote</option>
+              <option value="custom">własne (opisz niżej)</option>
             </select>
           </div>
         </div>
+        
+        <div id="customEyeColorContainer" class="hidden mb-4">
+          <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="eyeColorCustomDesc" type="text" placeholder="np. jedno niebieskie drugie czerwone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Emocje</label>
-            <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+            <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEmotion()">
               <option value="none">brak</option>
               <option value="neutral" selected>neutralność</option>
               <option value="smile">uśmiech</option>
@@ -444,6 +454,7 @@
               <option value="shyness">nieśmiałość</option>
               <option value="excitement">ekscytacja</option>
               <option value="anger">złość</option>
+              <option value="custom">własne (opisz niżej)</option>
             </select>
           </div>
           <div>
@@ -457,6 +468,15 @@
             </select>
           </div>
         </div>
+
+        <div id="customEmotionContainer" class="hidden mb-4">
+          <label class="block font-semibold mb-2 text-gray-700">Własna emocja</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="emotionCustomDesc" type="text" placeholder="np. lekko zdezorientowany uśmiech" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Brwi</label>
@@ -691,16 +711,16 @@
   <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-xl">
     <h3 class="text-xl font-bold mb-4 text-gray-800">Zapisz preset</h3>
     <div class="grid grid-cols-5 gap-3 mb-6" id="saveModalGrid">
-      <button onclick="savePreset(1)" id="save-btn-1" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">1</button>
-      <button onclick="savePreset(2)" id="save-btn-2" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">2</button>
-      <button onclick="savePreset(3)" id="save-btn-3" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">3</button>
-      <button onclick="savePreset(4)" id="save-btn-4" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">4</button>
-      <button onclick="savePreset(5)" id="save-btn-5" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">5</button>
-      <button onclick="savePreset(6)" id="save-btn-6" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">6</button>
-      <button onclick="savePreset(7)" id="save-btn-7" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">7</button>
-      <button onclick="savePreset(8)" id="save-btn-8" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">8</button>
-      <button onclick="savePreset(9)" id="save-btn-9" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">9</button>
-      <button onclick="savePreset(10)" id="save-btn-10" class="w-10 h-10 rounded-full font-bold transition-colors mx-auto">10</button>
+      <button onclick="savePreset(1)" id="save-btn-1" data-slot="1" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">1</button>
+      <button onclick="savePreset(2)" id="save-btn-2" data-slot="2" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">2</button>
+      <button onclick="savePreset(3)" id="save-btn-3" data-slot="3" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">3</button>
+      <button onclick="savePreset(4)" id="save-btn-4" data-slot="4" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">4</button>
+      <button onclick="savePreset(5)" id="save-btn-5" data-slot="5" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">5</button>
+      <button onclick="savePreset(6)" id="save-btn-6" data-slot="6" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">6</button>
+      <button onclick="savePreset(7)" id="save-btn-7" data-slot="7" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">7</button>
+      <button onclick="savePreset(8)" id="save-btn-8" data-slot="8" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">8</button>
+      <button onclick="savePreset(9)" id="save-btn-9" data-slot="9" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">9</button>
+      <button onclick="savePreset(10)" id="save-btn-10" data-slot="10" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">10</button>
     </div>
     <button onclick="closeSaveModal()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-semibold transition-colors">Anuluj</button>
   </div>
@@ -730,7 +750,7 @@
   </div>
 </div>
 
-<div id="dynamicToast" class="toast fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-[80] flex items-center gap-3"></div>
+<div id="dynamicToast" class="toast fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-[90] flex items-center gap-3"></div>
 <script>
 const hyperTagBlock = `(sharp focus, smooth, aesthetic, extremely detailed, octane render, solo, cinematic light, intricate detail, highly detailed, high res, detailed facial features, Ultrarealistic Photography, trending on Flickr, trending on pinterest, insanely detailed and intricate, Lifelike, Authentic, True-to-life, Genuine, Natural, Cinematic Lighting, Dramatic, Theatrical, Atmospheric, Evocative, Mood-setting, Award Winning Photography, Acclaimed, Recognized, Celebrated, Honored, Prize-winning, Sharp Focus, Crisp, Clear, Precise, Well-defined, Distinct, Masterpiece, Ultra-Realistic Model, Iconic, Exceptional, Extraordinary, Stunning, Magnificent, Studio Photography, Controlled, Polished, Professional, Refined, Perfected, Nikon, High-quality, Reliable, Durable, Precision-engineered, Cutting-edge, No Filter Photography, Natural-looking, Unedited, Raw, Authentic, True-to-life, 8K Photography, High-resolution, Crystal-clear, Ultra-detailed, Immersive, Cutting-edge, Realistic Skin Texture, Lifelike, Natural-looking, Authentic, True-to-life, Genuine, Photorealistic, Hyper-realistic, True-to-life, Natural-looking, Authentic, Realistic, Hyper Realism, Ultra-detailed, Intensely realistic, Extremely lifelike, Highly precise, Stunningly accurate, Highly Detailed, Intricate, Elaborate, Meticulous, Comprehensive, Thorough, Flattering, Intimate, Personal, Impressive, Captivating, Professional Studio Lighting, Expertly lit, Skillfully crafted, Perfectly balanced, Impeccably executed, Artfully arranged, Million dollar Photoshoot, Memorable.)`;
 
@@ -785,9 +805,9 @@ const colorsMap = {
 };
 
 const inputIds = [
-  'projectName', 'notes', 'scene', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'styleCustomDesc', 'color',
+  'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'styleCustomDesc', 'color',
   'gender', 'age', 'skinTone', 'tan', 'stubble', 'beard', 'moustache',
-  'ears', 'eyeColor', 'emotion', 'teeth', 'eyebrows', 'freckles',
+  'ears', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'freckles',
   'hairColor', 'hairLength', 'hairLengthCustomDesc', 'hairType',
   'hairStyle', 'hairCustomDesc', 'bangs', 'sidelocks',
   'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'feet'
@@ -795,6 +815,10 @@ const inputIds = [
 
 let addedCharacters = [];
 let deleteSelection = new Set();
+
+// PLANY - STATE
+let currentSceneMode = 'scene'; 
+let planesData = ['']; // Tablica planów (domyślnie jeden pusty)
 
 function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
 
@@ -829,6 +853,16 @@ function toggleCustomLength() {
   generatePrompt();
 }
 
+function toggleCustomEmotion() {
+  if(document.getElementById('customEmotionContainer')) document.getElementById('customEmotionContainer').classList.toggle('hidden', getValue('emotion') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomEyeColor() {
+  if(document.getElementById('customEyeColorContainer')) document.getElementById('customEyeColorContainer').classList.toggle('hidden', getValue('eyeColor') !== 'custom');
+  generatePrompt();
+}
+
 function showToast(message, isSuccess = true) {
   const t = document.getElementById('dynamicToast');
   if(t) {
@@ -838,12 +872,92 @@ function showToast(message, isSuccess = true) {
   }
 }
 
+// Obsługa Plany
+function setSceneMode(mode) {
+  currentSceneMode = mode;
+  document.getElementById('tabScene').classList.toggle('bg-blue-600', mode === 'scene');
+  document.getElementById('tabScene').classList.toggle('text-white', mode === 'scene');
+  document.getElementById('tabScene').classList.toggle('bg-gray-200', mode !== 'scene');
+  document.getElementById('tabScene').classList.toggle('text-gray-700', mode !== 'scene');
+
+  document.getElementById('tabPlanes').classList.toggle('bg-blue-600', mode === 'planes');
+  document.getElementById('tabPlanes').classList.toggle('text-white', mode === 'planes');
+  document.getElementById('tabPlanes').classList.toggle('bg-gray-200', mode !== 'planes');
+  document.getElementById('tabPlanes').classList.toggle('text-gray-700', mode !== 'planes');
+
+  document.getElementById('sceneModeContainer').classList.toggle('hidden', mode !== 'scene');
+  document.getElementById('planesModeContainer').classList.toggle('hidden', mode !== 'planes');
+  
+  if (mode === 'planes') renderPlanes();
+  generatePrompt();
+}
+
+function renderPlanes() {
+  const container = document.getElementById('planesList');
+  if(!container) return;
+  container.innerHTML = '';
+  planesData.forEach((text, idx) => {
+    container.innerHTML += `
+      <div class="flex flex-col">
+        <label class="text-xs font-bold text-gray-500 mb-1">Plan ${idx + 1}:</label>
+        <div class="flex gap-2">
+          <input type="text" id="plane_${idx}" value="${text.replace(/"/g, '&quot;')}" oninput="updatePlane(${idx}, this.value)" class="flex-1 rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <button onclick="translatePlane(${idx})" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0">PL ➜ EN</button>
+          ${idx > 0 ? `<button onclick="removePlane(${idx})" class="w-8 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-xl transition-colors" title="Usuń plan">X</button>` : ''}
+        </div>
+      </div>
+    `;
+  });
+}
+
+function updatePlane(idx, val) {
+  planesData[idx] = val;
+  generatePrompt();
+}
+
+function addPlane() {
+  planesData.push('');
+  renderPlanes();
+}
+
+function removePlane(idx) {
+  planesData.splice(idx, 1);
+  renderPlanes();
+  generatePrompt();
+}
+
+async function translatePlane(idx) {
+  const inputEl = document.getElementById(`plane_${idx}`);
+  if(!inputEl) return;
+  const text = inputEl.value.trim();
+  if (!text) return;
+  
+  const originalBg = inputEl.style.backgroundColor;
+  inputEl.style.backgroundColor = '#e0f2fe';
+  inputEl.disabled = true;
+  
+  try {
+    const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=pl|en`);
+    const data = await response.json();
+    if (data.responseData.translatedText) {
+      inputEl.value = data.responseData.translatedText;
+      updatePlane(idx, inputEl.value);
+    }
+  } catch (e) { 
+    showToast("Błąd tłumaczenia", false); 
+  } finally {
+    inputEl.style.backgroundColor = originalBg;
+    inputEl.disabled = false;
+  }
+}
+
 function resetToDefaults() {
   const def = {
     projectName: '', notes: '', scene: 'The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.',
+    planeBackground: '',
     additionalFeatures: '', nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
-    gender: 'female', age: 'adult', skinTone: 'fair', tan: 'none', ears: 'human', eyeColor: 'blue',
-    emotion: 'neutral', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
+    gender: 'female', age: 'adult', skinTone: 'fair', tan: 'none', ears: 'human', eyeColor: 'blue', eyeColorCustomDesc: '',
+    emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
     hairColor: 'black', hairLength: 'medium', hairType: 'straight', hairStyle: 'loose', bangs: 'none', sidelocks: 'none',
     height: 'normal', headSize: 'normal',
     body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', feet: 'normal feet',
@@ -852,9 +966,14 @@ function resetToDefaults() {
   Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
   if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = false;
   document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
-  addedCharacters = [];
   
-  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); renderAddedCharacters(); generatePrompt();
+  addedCharacters = [];
+  planesData = [''];
+  setSceneMode('scene');
+  
+  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
+  toggleCustomEmotion(); toggleCustomEyeColor();
+  renderAddedCharacters(); generatePrompt();
   showToast('Przywrócono domyślne');
 }
 
@@ -886,11 +1005,12 @@ function updatePresetButtons() {
   }
 }
 
-function setupPresetButtonInteractions() {
+// Logika Tooltipów dla Load i Save przycisków
+function bindTooltip(elementsSelector, actionFn) {
   const tooltip = document.getElementById('customTooltip');
   if(!tooltip) return;
 
-  document.querySelectorAll('.preset-btn').forEach(btn => {
+  document.querySelectorAll(elementsSelector).forEach(btn => {
     let timer;
     let isFired = false;
     const slot = btn.getAttribute('data-slot');
@@ -921,14 +1041,16 @@ function setupPresetButtonInteractions() {
       hideT();
       if (!isFired) {
         e.preventDefault();
-        loadPreset(slot);
+        if(actionFn) actionFn(slot);
       }
     });
     
     btn.addEventListener('touchmove', () => { clearTimeout(timer); hideT(); });
     
     btn.addEventListener('click', (e) => {
-      if (e.pointerType === "mouse" || e.pointerType === "") loadPreset(slot);
+      if (e.pointerType === "mouse" || e.pointerType === "") {
+        if(actionFn) actionFn(slot);
+      }
     });
   });
 }
@@ -1026,6 +1148,10 @@ function savePreset(slot) {
   state.effects = selectedEff;
   state.addedCharacters = addedCharacters;
   
+  // Plany state
+  state.sceneMode = currentSceneMode;
+  state.planesData = planesData;
+  
   localStorage.setItem('rpg_preset_' + slot, JSON.stringify(state));
   updatePresetButtons();
   closeSaveModal();
@@ -1042,7 +1168,19 @@ function loadPreset(slot) {
       cb.checked = state.effects ? state.effects.includes(cb.value) : false;
     });
     addedCharacters = state.addedCharacters || [];
-    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); renderAddedCharacters(); generatePrompt();
+    
+    // Plany state recovery
+    if (state.sceneMode) setSceneMode(state.sceneMode);
+    else setSceneMode('scene');
+    
+    if (state.planesData) planesData = state.planesData;
+    else planesData = [''];
+    
+    if (currentSceneMode === 'planes') renderPlanes();
+
+    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
+    toggleCustomEmotion(); toggleCustomEyeColor();
+    renderAddedCharacters(); generatePrompt();
     showToast(`Wczytano preset ${slot}`);
   }
 }
@@ -1129,16 +1267,25 @@ function getCharacterBlock() {
   let faceParts = [];
   if(getValue('age') !== 'none') faceParts.push(`${getValue('age')} ${gender !== 'none' ? gender : 'character'}`);
   let face = faceParts.length > 0 ? `The character is ${faceParts.join(' ')}. ` : 'The character is here. ';
-  if(getValue('emotion') !== 'none') face += `${subj} is displaying a ${getValue('emotion')} expression. `;
+  
+  let emo = getValue('emotion');
+  if (emo === 'custom') emo = getValue('emotionCustomDesc');
+  if(emo && emo !== 'none') face += `${subj} is displaying a ${emo} expression. `;
+  
   if(getValue('skinTone') !== 'none') face += `${subj} has ${getValue('skinTone')} skin${getValue('tan') !== 'none' ? ' with ' + getValue('tan') : ''}. `;
+  
   let eyePart = "";
   if(document.getElementById('glowingEyes') && document.getElementById('glowingEyes').checked) eyePart += "Glowing ";
-  if(getValue('eyeColor') !== 'none') eyePart += getValue('eyeColor');
+  let eyeColor = getValue('eyeColor');
+  if (eyeColor === 'custom') eyeColor = getValue('eyeColorCustomDesc');
+  if (eyeColor && eyeColor !== 'none') eyePart += eyeColor;
   if(eyePart) face += `${eyePart} eyes, `;
+  
   if(getValue('ears') !== 'none') face += `${getValue('ears')} ears, `;
   if(getValue('eyebrows') !== 'none') face += `and ${getValue('eyebrows')} eyebrows. `;
   if(getValue('freckles') !== 'none') face += `There are ${getValue('freckles')}. `;
   if(getValue('teeth') !== 'none') face += `${objPos} teeth are visible as ${getValue('teeth')}. `;
+  
   if (gender === 'male') {
     if (getValue('stubble') !== 'none') face += `${subj} has ${getValue('stubble')}. `;
     if (getValue('beard') !== 'none') face += `${subj} wears a ${getValue('beard')}. `;
@@ -1150,9 +1297,9 @@ function getCharacterBlock() {
     hairStr = `${subj} is bald.`;
   } else {
     let hairC = getValue('hairColor') !== 'none' ? getValue('hairColor') : '';
-    let hairL = getValue('hairLength') === 'custom' ? (document.getElementById('hairLengthCustomDesc') ? document.getElementById('hairLengthCustomDesc').value : '') : (getValue('hairLength') !== 'none' ? getValue('hairLength') : '');
+    let hairL = getValue('hairLength') === 'custom' ? getValue('hairLengthCustomDesc') : (getValue('hairLength') !== 'none' ? getValue('hairLength') : '');
     let hairT = getValue('hairType') !== 'none' ? getValue('hairType') : '';
-    let hairS = getValue('hairStyle') === 'custom' ? (document.getElementById('hairCustomDesc') ? document.getElementById('hairCustomDesc').value : '') : (getValue('hairStyle') !== 'none' ? getValue('hairStyle') : '');
+    let hairS = getValue('hairStyle') === 'custom' ? getValue('hairCustomDesc') : (getValue('hairStyle') !== 'none' ? getValue('hairStyle') : '');
     if(hairC || hairL || hairT || hairS) hairStr = `${objPos} hair is ${hairC} ${hairL} ${hairT}, styled as ${hairS}. `;
   }
   if (getValue('bangs') !== 'none' && getValue('hairLength') !== 'bald') hairStr += `${subj} has ${getValue('bangs')}. `;
@@ -1192,9 +1339,31 @@ function generatePrompt() {
   if(document.getElementById('intimateHairContainer')) document.getElementById('intimateHairContainer').classList.toggle('hidden', nudity === 'dressed' || nudity === 'none');
   if(document.getElementById('outfitContainer')) document.getElementById('outfitContainer').classList.toggle('hidden', nudity !== 'dressed');
   
-  let settingBlock = `Setting: ${getValue('scene')}`;
+  // Konstrukcja Setting
+  let settingBlock = "";
+  if (currentSceneMode === 'scene') {
+    const s = getValue('scene').trim();
+    if(s) settingBlock = `Setting:\n${s}`;
+  } else {
+    settingBlock = "Setting:\n";
+    const ordinals = ["Foreground", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"];
+    planesData.forEach((p, idx) => {
+        if(p.trim()) {
+            const prefix = ordinals[idx] || `Level ${idx+1}`;
+            settingBlock += `${prefix}: ${p.trim()}\n`;
+        }
+    });
+    const bg = getValue('planeBackground').trim();
+    if (bg) {
+        settingBlock += `Background: ${bg}\n`;
+    }
+  }
+
   const colorKey = getValue('color');
-  if (colorKey !== 'none' && colorsMap[colorKey]) settingBlock += `\nColor: ${colorsMap[colorKey]}`;
+  if (colorKey !== 'none' && colorsMap[colorKey]) {
+      if(settingBlock === "Setting:\n") settingBlock = "Setting:\n";
+      settingBlock += `Color: ${colorsMap[colorKey]}`;
+  }
   
   let char1Text = getCharacterBlock();
   let charactersBlock = `Character 1: ${char1Text}`;
@@ -1240,7 +1409,7 @@ function exportRPGProfile() {
   const profileData = { 
     slots: {}, 
     notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.12" 
+    version: "4.14" 
   };
   for(let i = 1; i <= 10; i++) {
     const data = localStorage.getItem('rpg_preset_' + i);
@@ -1257,7 +1426,7 @@ function exportRPGProfile() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.13.json";
+  a.download = "RPG_Prompt_Generator_Profile_v4.14.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1296,7 +1465,11 @@ function importRPGProfile(event) {
 window.onload = () => {
   renderAddedCharacters();
   updatePresetButtons();
-  setupPresetButtonInteractions();
+  
+  // Logika Tooltipów dla Load
+  bindTooltip('.preset-btn', loadPreset);
+  // Logika Tooltipów dla Save (zamiast samej akcji click obsługujemy interfejsem zapisu)
+  bindTooltip('.save-slot-btn', savePreset);
   
   const savedNotes = localStorage.getItem('rpg_notes');
   if(savedNotes && document.getElementById('notes')) {
@@ -1310,7 +1483,7 @@ window.onload = () => {
   }
 
   document.querySelectorAll('select, textarea, input').forEach(el => {
-    if (el.id === 'notes' || el.id === 'projectName') return;
+    if (el.id === 'notes' || el.id === 'projectName' || el.id.startsWith('plane_')) return;
     el.addEventListener('change', () => {
       if (el.classList.contains('effect-item')) {
         const noneCheckbox = document.getElementById('effect-none');
@@ -1321,7 +1494,7 @@ window.onload = () => {
     if(el.type !== 'text' && el.type !== 'checkbox') el.addEventListener('input', generatePrompt);
   });
   
-  ['scene', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc'].forEach(id => {
+  ['scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', generatePrompt);
   });

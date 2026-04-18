@@ -14,13 +14,14 @@
     .effect-check { accent-color: #2563eb; width: 1rem; height: 1rem; cursor: pointer; }
     .preset-btn, .save-slot-btn { -webkit-touch-callout: none; user-select: none; }
 
-    /* ULEPSZONY KONTENER ZAPISU - ZABEZPIECZONY PRZED UCINANIEM */
+    /* KONTENER ZAPISU - WERSJA PANCERNA */
     .save-load-wrapper {
       position: relative;
       display: flex;
       align-items: center;
       background-color: #f3f4f6;
-      padding: 16px 36px 16px 16px; 
+      padding: 20px;
+      padding-right: 48px; /* Zawsze zostawia 48px luzu z prawej strony na ikonkę */
       border-radius: 16px;
       border: 1px solid #e5e7eb;
       max-width: 100%;
@@ -28,34 +29,40 @@
       margin: 0 auto;
       box-sizing: border-box;
     }
+    
     .slots-container {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); 
-      gap: clamp(4px, 1.5vw, 8px); /* Dynamiczny odstęp */
-      margin-left: 12px;
+      grid-template-columns: repeat(5, 1fr); /* Sztywne 5 kolumn */
+      gap: 8px; 
+      margin-left: 16px;
+      width: auto;
     }
+
     .slot-btn {
-      width: clamp(28px, 8vw, 38px); /* Płynne skalowanie na mniejszych ekranach */
-      height: clamp(28px, 8vw, 38px);
+      width: clamp(28px, 4vw, 38px); /* Elastyczna szerokość */
+      aspect-ratio: 1 / 1; /* KLUCZ: Zawsze idealny kwadrat! Wysokość dopasowuje się automatycznie */
       border-radius: 50%;
       border: 1px solid #e5e7eb;
       background: white;
       font-weight: 700;
-      font-size: clamp(12px, 3.5vw, 15px);
+      font-size: clamp(12px, 3vw, 15px);
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
       transition: all 0.2s;
+      padding: 0; /* Zapobiega zniekształceniom */
     }
+
     .small-load-icon {
       position: absolute;
-      top: 6px; /* W prawym górnym rogu wewnątrz ramki */
-      right: 6px;
+      top: -5px; /* Prawy górny róg ramki */
+      right: 2px;
       cursor: help;
-      padding: 4px;
+      padding: 6px;
       border-radius: 50%;
       transition: all 0.2s;
+      background-color: transparent;
     }
     .small-load-icon:hover {
       background-color: #e5e7eb;
@@ -100,7 +107,7 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.14</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.15</h1>
       </div>
 
       <div class="mt-4">

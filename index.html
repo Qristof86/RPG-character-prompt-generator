@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.14</title>
+  <title>RPG Prompt Builder Ultimate v4.16</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -20,7 +20,7 @@
       display: flex;
       align-items: center;
       background-color: #f3f4f6;
-      padding: 20px;
+      padding: 16px;
       padding-right: 48px; /* Zawsze zostawia 48px luzu z prawej strony na ikonkę */
       border-radius: 16px;
       border: 1px solid #e5e7eb;
@@ -56,8 +56,8 @@
 
     .small-load-icon {
       position: absolute;
-      top: -5px; /* Prawy górny róg ramki */
-      right: 2px;
+      top: 8px; /* Prawy górny róg ramki */
+      right: 8px;
       cursor: help;
       padding: 6px;
       border-radius: 50%;
@@ -107,7 +107,7 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.15</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.16</h1>
       </div>
 
       <div class="mt-4">
@@ -159,7 +159,7 @@
         </div>
 
         <div id="planesModeContainer" class="hidden bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-4">
-          <div id="planesList" class="space-y-3"></div>
+          <div id="planesList" class="flex flex-col gap-2"></div>
           <button onclick="addPlane()" class="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">+ Dodaj plan</button>
           <div class="pt-3 border-t border-gray-300">
             <div class="flex justify-between items-end mb-1">
@@ -344,7 +344,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Kolor skóry</label>
-            <select id="skinTone" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+            <select id="skinTone" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomSkinTone()">
               <option value="none">brak</option>
               <option value="fair" selected>fair</option>
               <option value="medium">medium</option>
@@ -357,6 +357,7 @@
               <option value="green warm">green warm</option>
               <option value="blue">blue</option>
               <option value="red">red</option>
+              <option value="custom">własne (opisz niżej)</option>
             </select>
           </div>
           <div>
@@ -367,6 +368,14 @@
               <option value="summer tan">summer tan</option>
               <option value="deep tan">deep tan</option>
             </select>
+          </div>
+        </div>
+
+        <div id="customSkinToneContainer" class="hidden mt-4">
+          <label class="block font-semibold mb-2 text-gray-700">Własny kolor skóry</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="skinToneCustomDesc" type="text" placeholder="np. blada ze złotym połyskiem" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <button onclick="translateText('skinToneCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
       </div>
@@ -444,7 +453,7 @@
           <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="eyeColorCustomDesc" type="text" placeholder="np. jedno niebieskie drugie czerwone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
 
@@ -480,7 +489,7 @@
           <label class="block font-semibold mb-2 text-gray-700">Własna emocja</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="emotionCustomDesc" type="text" placeholder="np. lekko zdezorientowany uśmiech" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
 
@@ -511,7 +520,7 @@
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Kolor</label>
-            <select id="hairColor" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
+            <select id="hairColor" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomHairColor()">
               <option value="none">brak</option>
               <option value="black" selected>czarne</option>
               <option value="blonde">blond</option>
@@ -524,6 +533,7 @@
               <option value="silver">siwe</option>
               <option value="pink">różowe</option>
               <option value="purple">fioletowe</option>
+              <option value="custom">własny (opisz niżej)</option>
             </select>
           </div>
           <div>
@@ -538,13 +548,23 @@
             </select>
           </div>
         </div>
+
+        <div id="customHairColorContainer" class="hidden mb-4">
+          <label class="block font-semibold mb-2 text-gray-700">Własny kolor włosów</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="hairColorCustomDesc" type="text" placeholder="np. czarne z czerwonymi końcówkami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <button onclick="translateText('hairColorCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+          </div>
+        </div>
+
         <div id="customLengthContainer" class="hidden mb-4">
           <label class="block font-semibold mb-2 text-gray-700">Własny opis długości</label>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="hairLengthCustomDesc" type="text" placeholder="np. do samej ziemi" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="translateText('hairLengthCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <input id="hairLengthCustomDesc" type="text" placeholder="np. do samej ziemi" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <button onclick="translateText('hairLengthCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
+
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Rodzaj</label>
@@ -571,13 +591,15 @@
             </select>
           </div>
         </div>
+
         <div id="customHairContainer" class="hidden mb-4">
           <label class="block font-semibold mb-2 text-gray-700">Twój opis fryzury</label>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="hairCustomDesc" type="text" placeholder="np. irokez z kolcami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            <button onclick="translateText('hairCustomDesc')" class="bg-blue-100 px-4 py-2 rounded-2xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <input id="hairCustomDesc" type="text" placeholder="np. irokez z kolcami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <button onclick="translateText('hairCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
+
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block font-semibold mb-2 text-gray-700">Grzywka</label>
@@ -813,19 +835,17 @@ const colorsMap = {
 
 const inputIds = [
   'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'style', 'styleCustomDesc', 'color',
-  'gender', 'age', 'skinTone', 'tan', 'stubble', 'beard', 'moustache',
+  'gender', 'age', 'skinTone', 'skinToneCustomDesc', 'tan', 'stubble', 'beard', 'moustache',
   'ears', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'freckles',
-  'hairColor', 'hairLength', 'hairLengthCustomDesc', 'hairType',
+  'hairColor', 'hairColorCustomDesc', 'hairLength', 'hairLengthCustomDesc', 'hairType',
   'hairStyle', 'hairCustomDesc', 'bangs', 'sidelocks',
   'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'feet'
 ];
 
 let addedCharacters = [];
 let deleteSelection = new Set();
-
-// PLANY - STATE
 let currentSceneMode = 'scene'; 
-let planesData = ['']; // Tablica planów (domyślnie jeden pusty)
+let planesData = ['']; 
 
 function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
 
@@ -870,6 +890,16 @@ function toggleCustomEyeColor() {
   generatePrompt();
 }
 
+function toggleCustomSkinTone() {
+  if(document.getElementById('customSkinToneContainer')) document.getElementById('customSkinToneContainer').classList.toggle('hidden', getValue('skinTone') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomHairColor() {
+  if(document.getElementById('customHairColorContainer')) document.getElementById('customHairColorContainer').classList.toggle('hidden', getValue('hairColor') !== 'custom');
+  generatePrompt();
+}
+
 function showToast(message, isSuccess = true) {
   const t = document.getElementById('dynamicToast');
   if(t) {
@@ -908,12 +938,25 @@ function renderPlanes() {
       <div class="flex flex-col">
         <label class="text-xs font-bold text-gray-500 mb-1">Plan ${idx + 1}:</label>
         <div class="flex gap-2">
-          <input type="text" id="plane_${idx}" value="${text.replace(/"/g, '&quot;')}" oninput="updatePlane(${idx}, this.value)" class="flex-1 rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" id="plane_${idx}" value="${text.replace(/"/g, '&quot;')}" oninput="updatePlane(${idx}, this.value)" class="flex-1 rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
           <button onclick="translatePlane(${idx})" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0">PL ➜ EN</button>
-          ${idx > 0 ? `<button onclick="removePlane(${idx})" class="w-8 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-xl transition-colors" title="Usuń plan">X</button>` : ''}
+          ${idx > 0 ? `<button onclick="removePlane(${idx})" class="w-8 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-xl transition-colors shrink-0" title="Usuń plan">X</button>` : ''}
         </div>
       </div>
     `;
+    
+    // Dodaj przycisk SWAP (zamiany miejscami), jeśli to nie jest ostatni element
+    if (idx < planesData.length - 1) {
+      container.innerHTML += `
+        <div class="flex justify-center relative z-10" style="margin-top: 2px; margin-bottom: -18px;">
+          <button onclick="swapPlanes(${idx})" class="bg-white hover:bg-gray-100 text-gray-500 rounded-full p-1.5 border border-gray-300 shadow-sm transition-colors" title="Zamień miejscami">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16V4m0 0L4 8m4-4l4 4 M16 8v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </button>
+        </div>
+      `;
+    }
   });
 }
 
@@ -931,6 +974,16 @@ function removePlane(idx) {
   planesData.splice(idx, 1);
   renderPlanes();
   generatePrompt();
+}
+
+function swapPlanes(idx) {
+  if (idx < planesData.length - 1) {
+    const temp = planesData[idx];
+    planesData[idx] = planesData[idx+1];
+    planesData[idx+1] = temp;
+    renderPlanes();
+    generatePrompt();
+  }
 }
 
 async function translatePlane(idx) {
@@ -963,9 +1016,9 @@ function resetToDefaults() {
     projectName: '', notes: '', scene: 'The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.',
     planeBackground: '',
     additionalFeatures: '', nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
-    gender: 'female', age: 'adult', skinTone: 'fair', tan: 'none', ears: 'human', eyeColor: 'blue', eyeColorCustomDesc: '',
+    gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', eyeColor: 'blue', eyeColorCustomDesc: '',
     emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
-    hairColor: 'black', hairLength: 'medium', hairType: 'straight', hairStyle: 'loose', bangs: 'none', sidelocks: 'none',
+    hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', sidelocks: 'none',
     height: 'normal', headSize: 'normal',
     body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', feet: 'normal feet',
     stubble: 'none', beard: 'none', moustache: 'none'
@@ -979,7 +1032,7 @@ function resetToDefaults() {
   setSceneMode('scene');
   
   toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
-  toggleCustomEmotion(); toggleCustomEyeColor();
+  toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
   renderAddedCharacters(); generatePrompt();
   showToast('Przywrócono domyślne');
 }
@@ -1012,7 +1065,6 @@ function updatePresetButtons() {
   }
 }
 
-// Logika Tooltipów dla Load i Save przycisków
 function bindTooltip(elementsSelector, actionFn) {
   const tooltip = document.getElementById('customTooltip');
   if(!tooltip) return;
@@ -1155,7 +1207,6 @@ function savePreset(slot) {
   state.effects = selectedEff;
   state.addedCharacters = addedCharacters;
   
-  // Plany state
   state.sceneMode = currentSceneMode;
   state.planesData = planesData;
   
@@ -1176,7 +1227,6 @@ function loadPreset(slot) {
     });
     addedCharacters = state.addedCharacters || [];
     
-    // Plany state recovery
     if (state.sceneMode) setSceneMode(state.sceneMode);
     else setSceneMode('scene');
     
@@ -1186,7 +1236,7 @@ function loadPreset(slot) {
     if (currentSceneMode === 'planes') renderPlanes();
 
     toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
-    toggleCustomEmotion(); toggleCustomEyeColor();
+    toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
     renderAddedCharacters(); generatePrompt();
     showToast(`Wczytano preset ${slot}`);
   }
@@ -1279,7 +1329,9 @@ function getCharacterBlock() {
   if (emo === 'custom') emo = getValue('emotionCustomDesc');
   if(emo && emo !== 'none') face += `${subj} is displaying a ${emo} expression. `;
   
-  if(getValue('skinTone') !== 'none') face += `${subj} has ${getValue('skinTone')} skin${getValue('tan') !== 'none' ? ' with ' + getValue('tan') : ''}. `;
+  let skin = getValue('skinTone');
+  if (skin === 'custom') skin = getValue('skinToneCustomDesc');
+  if(skin && skin !== 'none') face += `${subj} has ${skin} skin${getValue('tan') !== 'none' ? ' with ' + getValue('tan') : ''}. `;
   
   let eyePart = "";
   if(document.getElementById('glowingEyes') && document.getElementById('glowingEyes').checked) eyePart += "Glowing ";
@@ -1303,7 +1355,10 @@ function getCharacterBlock() {
   if (getValue('hairLength') === 'bald' || getValue('hairStyle') === 'bald') {
     hairStr = `${subj} is bald.`;
   } else {
-    let hairC = getValue('hairColor') !== 'none' ? getValue('hairColor') : '';
+    let hairC = getValue('hairColor');
+    if (hairC === 'custom') hairC = getValue('hairColorCustomDesc');
+    else if (hairC === 'none') hairC = '';
+    
     let hairL = getValue('hairLength') === 'custom' ? getValue('hairLengthCustomDesc') : (getValue('hairLength') !== 'none' ? getValue('hairLength') : '');
     let hairT = getValue('hairType') !== 'none' ? getValue('hairType') : '';
     let hairS = getValue('hairStyle') === 'custom' ? getValue('hairCustomDesc') : (getValue('hairStyle') !== 'none' ? getValue('hairStyle') : '');
@@ -1346,7 +1401,6 @@ function generatePrompt() {
   if(document.getElementById('intimateHairContainer')) document.getElementById('intimateHairContainer').classList.toggle('hidden', nudity === 'dressed' || nudity === 'none');
   if(document.getElementById('outfitContainer')) document.getElementById('outfitContainer').classList.toggle('hidden', nudity !== 'dressed');
   
-  // Konstrukcja Setting
   let settingBlock = "";
   if (currentSceneMode === 'scene') {
     const s = getValue('scene').trim();
@@ -1416,7 +1470,7 @@ function exportRPGProfile() {
   const profileData = { 
     slots: {}, 
     notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.14" 
+    version: "4.16" 
   };
   for(let i = 1; i <= 10; i++) {
     const data = localStorage.getItem('rpg_preset_' + i);
@@ -1433,7 +1487,7 @@ function exportRPGProfile() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.14.json";
+  a.download = "RPG_Prompt_Generator_Profile_v4.16.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1473,9 +1527,7 @@ window.onload = () => {
   renderAddedCharacters();
   updatePresetButtons();
   
-  // Logika Tooltipów dla Load
   bindTooltip('.preset-btn', loadPreset);
-  // Logika Tooltipów dla Save (zamiast samej akcji click obsługujemy interfejsem zapisu)
   bindTooltip('.save-slot-btn', savePreset);
   
   const savedNotes = localStorage.getItem('rpg_notes');
@@ -1501,7 +1553,7 @@ window.onload = () => {
     if(el.type !== 'text' && el.type !== 'checkbox') el.addEventListener('input', generatePrompt);
   });
   
-  ['scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc'].forEach(id => {
+  ['scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc', 'skinToneCustomDesc', 'hairColorCustomDesc'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', generatePrompt);
   });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.17</title>
+  <title>RPG Prompt Builder Ultimate v4.19</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -104,7 +104,7 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.17</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.19</h1>
       </div>
 
       <div class="mt-4">
@@ -138,7 +138,18 @@
       </div>
       
       <div class="mb-4 mt-6">
-        <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Nazwa Projektu</label>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+          <label class="block text-xs font-bold text-gray-500 uppercase">Nazwa</label>
+          <div class="flex items-center gap-4 text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" name="projectType" id="typeProject" value="project" onchange="generatePrompt()" class="accent-blue-600 w-4 h-4"> Projektu
+            </label>
+            <div class="w-px h-4 bg-gray-300"></div>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" name="projectType" id="typeCharacter" value="character" onchange="generatePrompt()" checked class="accent-blue-600 w-4 h-4"> Postaci
+            </label>
+          </div>
+        </div>
         <input id="projectName" type="text" placeholder="Np. Wojownik z lasu..." class="w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700 bg-gray-50">
       </div>
       
@@ -152,7 +163,7 @@
           <div class="flex justify-end mb-2">
             <button onclick="translateText('scene')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">PL ➜ EN</button>
           </div>
-          <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y">The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.</textarea>
+          <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y"></textarea>
         </div>
 
         <div id="planesModeContainer" class="hidden bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-4">
@@ -322,7 +333,7 @@
         <div id="outfitContainer">
           <label class="block font-semibold mb-2 text-gray-700">Opis stroju</label>
           <div class="flex flex-col sm:flex-row gap-2">
-            <input id="outfit" type="text" value="wearing a full armour" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <input id="outfit" type="text" value="" placeholder="np. wearing a full armour" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
             <button onclick="translateText('outfit')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
           </div>
         </div>
@@ -740,7 +751,7 @@
         <button onclick="copyCharacter()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 font-bold py-3 px-8 rounded-2xl transition-all">
           Kopiuj postać
         </button>
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center mt-2">
           <button onclick="copyCharacterSheet()" class="w-full bg-teal-100 hover:bg-teal-200 text-teal-800 border border-teal-300 font-bold py-3 px-8 rounded-2xl transition-all">
             Character sheet
           </button>
@@ -1000,7 +1011,6 @@ function swapPlanes(idx) {
   }
 }
 
-// NOWY SUPER STABILNY TRANSLATOR (Google GTX Endpoint)
 async function translatePlane(idx) {
   const inputEl = document.getElementById(`plane_${idx}`);
   if(!inputEl) return;
@@ -1063,9 +1073,9 @@ async function translateText(inputId) {
 
 function resetToDefaults() {
   const def = {
-    projectName: '', notes: '', scene: 'The character stands proudly in the forest. Gazing into space with hands on hips. In the background is the mountains skyline, clouds, and blue sky.',
+    projectName: '', notes: '', scene: '',
     planeBackground: '',
-    additionalFeatures: '', nudity: 'dressed', outfit: 'wearing a full armour', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
+    additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
     gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', eyeColor: 'blue', eyeColorCustomDesc: '',
     emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
     hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', sidelocks: 'none',
@@ -1076,6 +1086,7 @@ function resetToDefaults() {
   Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
   if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = false;
   document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
+  document.getElementById('typeCharacter').checked = true;
   
   addedCharacters = [];
   planesData = [''];
@@ -1259,6 +1270,7 @@ function savePreset(slot) {
   
   state.sceneMode = currentSceneMode;
   state.planesData = planesData;
+  state.projectType = document.getElementById('typeProject').checked ? 'project' : 'character';
   
   localStorage.setItem('rpg_preset_' + slot, JSON.stringify(state));
   updatePresetButtons();
@@ -1282,6 +1294,9 @@ function loadPreset(slot) {
     
     if (state.planesData) planesData = state.planesData;
     else planesData = [''];
+    
+    if (state.projectType === 'project') document.getElementById('typeProject').checked = true;
+    else document.getElementById('typeCharacter').checked = true;
     
     if (currentSceneMode === 'planes') renderPlanes();
 
@@ -1410,14 +1425,17 @@ function getCharacterBlock() {
   if (getValue('tail') !== 'none') bodyStr += `${subj} has a ${getValue('tail')}.`;
   
   let cloth = "";
-  if (nudity === 'dressed') cloth = `${subj} is ${getValue('outfit')}.`;
+  if (nudity === 'dressed') {
+    let outStr = getValue('outfit').trim();
+    if(outStr) cloth = `${subj} is ${outStr}.`;
+  }
   else if (nudity === 'nudeFlower') cloth = `${subj} is naked, only a flower covers the crotch area.`;
   else if (nudity !== 'none') cloth = `${subj} is ${nudity}.${getValue('intimateHair') !== 'none' ? ' Intimate area is ' + getValue('intimateHair') + '.' : ''}`;
   
   let additional = getValue('additionalFeatures').trim();
   if (additional) additional = `Additional features: ${additional}.`;
   
-  let block = [face, hairStr, bodyStr, cloth, additional].map(b => b.trim()).filter(b => b.length > 0).join(' ');
+  let block = [face, hairStr, bodyStr, cloth, additional].map(b => b.trim()).filter(b => b.length > 0).join('\n');
   return block.replace(/\s+\./g, '.').replace(/\.{2,}/g, '.');
 }
 
@@ -1426,42 +1444,57 @@ function generatePrompt() {
   if(document.getElementById('intimateHairContainer')) document.getElementById('intimateHairContainer').classList.toggle('hidden', nudity === 'dressed' || nudity === 'none');
   if(document.getElementById('outfitContainer')) document.getElementById('outfitContainer').classList.toggle('hidden', nudity !== 'dressed');
   
-  let settingBlock = "";
+  let settingBlock = "[Scene]:\n";
   if (currentSceneMode === 'scene') {
     const s = getValue('scene').trim();
-    if(s) settingBlock = `Setting:\n${s}`;
+    if(s) settingBlock += s;
   } else {
-    settingBlock = "Setting:\n";
-    const ordinals = ["Foreground", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"];
+    const ordinals = ["Foreground", "Second plane", "Third plane", "Fourth plane", "Fifth plane", "Sixth plane", "Seventh plane", "Eighth plane", "Ninth plane", "Tenth plane"];
+    let planesArr = [];
     planesData.forEach((p, idx) => {
         if(p.trim()) {
-            const prefix = ordinals[idx] || `Level ${idx+1}`;
-            settingBlock += `${prefix}: ${p.trim()}\n`;
+            const prefix = ordinals[idx] || `Level ${idx+1} plane`;
+            planesArr.push(`${prefix}:\n${p.trim()}`);
         }
     });
     const bg = getValue('planeBackground').trim();
     if (bg) {
-        settingBlock += `Background: ${bg}\n`;
+        planesArr.push(`Background layer:\n${bg}`);
     }
+    settingBlock += planesArr.join('\n\n');
   }
 
+  let colorBlock = "";
   const colorKey = getValue('color');
   if (colorKey !== 'none' && colorsMap[colorKey]) {
-      if(settingBlock === "Setting:\n") settingBlock = "Setting:\n";
-      settingBlock += `Color: ${colorsMap[colorKey]}`;
+      colorBlock = `[Color]:\n${colorsMap[colorKey]}`;
   }
   
-  let char1Text = getCharacterBlock();
-  let charactersBlock = `Character 1: ${char1Text}`;
-  addedCharacters.forEach((char, idx) => charactersBlock += `\nCharacter ${idx + 2}: ${char.text}`);
+  let charactersBlock = "";
+  let charIndex = 1;
+  const projName = getValue('projectName').trim() || 'Unknown';
+  const isCharacterMode = document.getElementById('typeCharacter').checked;
+
+  if (isCharacterMode) {
+    let char1Text = getCharacterBlock();
+    charactersBlock += `[Characters]:\nCharacter_${charIndex} (${projName})\n${char1Text}`;
+    charIndex++;
+  }
+
+  addedCharacters.forEach((char) => {
+    if(charactersBlock === "") charactersBlock = "[Characters]:";
+    else charactersBlock += `\n\n`;
+    charactersBlock += `Character_${charIndex} (${char.name})\n${char.text}`;
+    charIndex++;
+  });
   
   const styleKey = getValue('style');
   let styleBlock = "";
   if(styleKey === 'custom') {
     const customDesc = getValue('styleCustomDesc').trim();
-    if(customDesc) styleBlock = `Style:\n${customDesc}`;
+    if(customDesc) styleBlock = `[Style]:\n${customDesc}`;
   } else if(styleKey !== 'none' && styles[styleKey]) {
-    styleBlock = "Style:\n";
+    styleBlock = "[Style]:\n";
     if(styleKey === 'hyperrealism') styleBlock += hyperTagBlock + "\n";
     styleBlock += styles[styleKey].full;
   }
@@ -1469,9 +1502,8 @@ function generatePrompt() {
   let effectsBlock = "";
   const selectedEffects = [];
   document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
-  if (selectedEffects.length > 0) effectsBlock = `Effect: ${selectedEffects.join(', ')}`;
+  let effectLine = selectedEffects.join(', ');
   
-  // Odtwarzanie struktury Camera i Lens
   let cameraBlock = "";
   const shotKey = getValue('shot');
   const lensKey = getValue('lens');
@@ -1483,11 +1515,21 @@ function generatePrompt() {
   if (shotKey && shotKey !== 'none' && shots[shotKey]) {
     camParts.push(shots[shotKey].replace("Camera: ", ""));
   }
-  if (camParts.length > 0) {
-    cameraBlock = `Camera: ${camParts.join(', ')}`;
+  let camLine = camParts.length > 0 ? `Camera: ${camParts.join(', ')}` : "";
+
+  if (effectLine || camLine) {
+    effectsBlock = "[Effect]:\n";
+    if (effectLine) effectsBlock += effectLine;
+    if (effectLine && camLine) effectsBlock += " ";
+    if (camLine) effectsBlock += camLine;
+  }
+
+  let rulesBlock = "";
+  if (charIndex > 1) { 
+    rulesBlock = "[Rules]:\nEach Character_X must strictly follow its own reference. No mixing of attributes between characters. Each character must remain visually distinct in body type, face, and outfit.\nEach Character_X must match its assigned position in the scene. Do not swap character roles or positions.";
   }
   
-  let finalPrompt = [settingBlock, charactersBlock, styleBlock, effectsBlock, cameraBlock]
+  let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, effectsBlock, rulesBlock]
     .map(b => b.trim())
     .filter(b => b.length > 0)
     .join('\n\n');
@@ -1548,7 +1590,7 @@ function exportRPGProfile() {
   const profileData = { 
     slots: {}, 
     notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.17" 
+    version: "4.19" 
   };
   for(let i = 1; i <= 10; i++) {
     const data = localStorage.getItem('rpg_preset_' + i);
@@ -1565,7 +1607,7 @@ function exportRPGProfile() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.17.json";
+  a.download = "RPG_Prompt_Generator_Profile_v4.19.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1620,7 +1662,7 @@ window.onload = () => {
   }
 
   document.querySelectorAll('select, textarea, input').forEach(el => {
-    if (el.id === 'notes' || el.id === 'projectName' || el.id.startsWith('plane_')) return;
+    if (el.id === 'notes' || el.id.startsWith('plane_')) return;
     el.addEventListener('change', () => {
       if (el.classList.contains('effect-item')) {
         const noneCheckbox = document.getElementById('effect-none');
@@ -1628,10 +1670,10 @@ window.onload = () => {
       }
       generatePrompt();
     });
-    if(el.type !== 'text' && el.type !== 'checkbox') el.addEventListener('input', generatePrompt);
+    if(el.type !== 'text' && el.type !== 'checkbox' && el.type !== 'radio') el.addEventListener('input', generatePrompt);
   });
   
-  ['scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc', 'skinToneCustomDesc', 'hairColorCustomDesc'].forEach(id => {
+  ['projectName', 'scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc', 'skinToneCustomDesc', 'hairColorCustomDesc'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', generatePrompt);
   });

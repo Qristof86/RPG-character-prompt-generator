@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.19</title>
+  <title>RPG Prompt Builder Ultimate v4.20</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -83,6 +83,8 @@
 
 <div id="customTooltip" class="hidden fixed bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg -translate-x-1/2 -translate-y-full z-[80] pointer-events-none shadow-xl whitespace-nowrap mb-2 transition-opacity"></div>
 
+<div id="mentionDropdown" class="hidden absolute bg-white border border-gray-300 shadow-2xl rounded-xl z-[100] max-h-48 overflow-y-auto text-sm w-64"></div>
+
 <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-6">
   <div class="flex flex-wrap gap-3 items-center justify-between">
     <div class="flex flex-wrap gap-2">
@@ -104,7 +106,7 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.19</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.20</h1>
       </div>
 
       <div class="mt-4">
@@ -142,11 +144,11 @@
           <label class="block text-xs font-bold text-gray-500 uppercase">Nazwa</label>
           <div class="flex items-center gap-4 text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200">
             <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" name="projectType" id="typeProject" value="project" onchange="generatePrompt()" class="accent-blue-600 w-4 h-4"> Projektu
+              <input type="radio" name="projectType" id="typeProject" value="project" onchange="toggleProjectType()" class="accent-blue-600 w-4 h-4"> Projektu
             </label>
             <div class="w-px h-4 bg-gray-300"></div>
             <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" name="projectType" id="typeCharacter" value="character" onchange="generatePrompt()" checked class="accent-blue-600 w-4 h-4"> Postaci
+              <input type="radio" name="projectType" id="typeCharacter" value="character" onchange="toggleProjectType()" checked class="accent-blue-600 w-4 h-4"> Postaci
             </label>
           </div>
         </div>
@@ -163,7 +165,7 @@
           <div class="flex justify-end mb-2">
             <button onclick="translateText('scene')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">PL ➜ EN</button>
           </div>
-          <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y"></textarea>
+          <textarea id="scene" class="w-full h-24 rounded-2xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-y" placeholder="Opisz scenę. Użyj @ aby wspomnieć o postaci."></textarea>
         </div>
 
         <div id="planesModeContainer" class="hidden bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-4">
@@ -304,441 +306,443 @@
         <div id="addedCharactersList" class="space-y-2"></div>
       </div>
 
-      <div class="bg-gray-100 p-4 rounded-2xl border border-gray-200 space-y-4">
-        <div class="border-b border-gray-200 pb-4">
-          <label class="block font-semibold mb-2 text-gray-700">Dodatkowe cechy (blizny, detale)</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="additionalFeatures" type="text" placeholder="np. blizna na oku, zamknięte oczy..." class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('additionalFeatures')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+      <div id="characterTraitsWrapper" class="transition-opacity duration-300">
+        <div class="bg-gray-100 p-4 rounded-2xl border border-gray-200 space-y-4">
+          <div class="border-b border-gray-200 pb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Dodatkowe cechy (blizny, detale)</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="additionalFeatures" type="text" placeholder="np. blizna na oku, zamknięte oczy..." class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('additionalFeatures')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold mb-2 text-gray-700">Nagość / Ubiór</label>
+            <select id="nudity" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+              <option value="none">brak</option>
+              <option value="dressed" selected>ubrany (dressed)</option>
+              <option value="nude">nude</option>
+              <option value="nudeFlower">nude + flower</option>
+              <option value="topless">topless</option>
+            </select>
+          </div>
+          <div id="intimateHairContainer" class="hidden">
+            <label class="block font-semibold mb-2 text-gray-700">Owłosienie intymne</label>
+            <select id="intimateHair" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+              <option value="none">brak</option>
+              <option value="shaved" selected>gładkie (shaved)</option>
+              <option value="hair">naturalne owłosienie</option>
+            </select>
+          </div>
+          <div id="outfitContainer">
+            <label class="block font-semibold mb-2 text-gray-700">Opis stroju</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="outfit" type="text" value="" placeholder="Opisz ubiór postaci..." class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('outfit')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
           </div>
         </div>
-        <div>
-          <label class="block font-semibold mb-2 text-gray-700">Nagość / Ubiór</label>
-          <select id="nudity" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-            <option value="none">brak</option>
-            <option value="dressed" selected>ubrany (dressed)</option>
-            <option value="nude">nude</option>
-            <option value="nudeFlower">nude + flower</option>
-            <option value="topless">topless</option>
-          </select>
+
+        <div class="border-t pt-4">
+          <h3 class="font-bold text-lg mb-4 text-blue-600">Podstawy Postaci</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Płeć</label>
+              <select id="gender" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleGenderUI()">
+                <option value="none">brak</option>
+                <option value="female" selected>kobieta</option>
+                <option value="male">mężczyzna</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Wiek</label>
+              <select id="age" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="child">dziecko</option>
+                <option value="young adult">młody dorosły</option>
+                <option value="adult" selected>dorosły</option>
+                <option value="old">stary</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Kolor skóry</label>
+              <select id="skinTone" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomSkinTone()">
+                <option value="none">brak</option>
+                <option value="fair" selected>fair</option>
+                <option value="medium">medium</option>
+                <option value="olive">olive</option>
+                <option value="deep">deep</option>
+                <option value="brown">brown</option>
+                <option value="black">black</option>
+                <option value="pale">pale</option>
+                <option value="green cool">green cool</option>
+                <option value="green warm">green warm</option>
+                <option value="blue">blue</option>
+                <option value="red">red</option>
+                <option value="custom">własne (opisz niżej)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Opalenizna</label>
+              <select id="tan" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none" selected>brak</option>
+                <option value="light tan">light tan</option>
+                <option value="summer tan">summer tan</option>
+                <option value="deep tan">deep tan</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customSkinToneContainer" class="hidden mt-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własny kolor skóry</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="skinToneCustomDesc" type="text" placeholder="np. blada ze złotym połyskiem" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('skinToneCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
         </div>
-        <div id="intimateHairContainer" class="hidden">
-          <label class="block font-semibold mb-2 text-gray-700">Owłosienie intymne</label>
-          <select id="intimateHair" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-            <option value="none">brak</option>
-            <option value="shaved" selected>gładkie (shaved)</option>
-            <option value="hair">naturalne owłosienie</option>
-          </select>
+
+        <div id="facialHairSection" class="border-t pt-4 hidden">
+          <h3 class="font-bold text-lg mb-4 text-blue-600">Zarost</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1 text-gray-700">Zarost</label>
+              <select id="stubble" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
+                <option value="none" selected>brak</option>
+                <option value="one-day stubble">jednodniowy</option>
+                <option value="multi-day stubble">kilkudniowy</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1 text-gray-700">Broda</label>
+              <select id="beard" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
+                <option value="none" selected>brak</option>
+                <option value="short beard">krótka</option>
+                <option value="long beard">długa</option>
+                <option value="very long beard">bardzo długa</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1 text-gray-700">Wąsy</label>
+              <select id="moustache" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
+                <option value="none" selected>brak</option>
+                <option value="short moustache">krótkie</option>
+                <option value="long moustache">długie</option>
+                <option value="very long moustache">bardzo długie</option>
+                <option value="handlebar moustache curled upwards">zawijane</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div id="outfitContainer">
-          <label class="block font-semibold mb-2 text-gray-700">Opis stroju</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="outfit" type="text" value="" placeholder="np. wearing a full armour" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('outfit')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+
+        <div class="border-t pt-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg text-blue-600">Głowa i Twarz</h3>
+            <label class="flex items-center gap-2 text-xs font-medium text-amber-700 cursor-pointer bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 hover:bg-amber-100">
+              <input type="checkbox" id="glowingEyes" class="glow-checkbox"> glowing eyes
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Uszy</label>
+              <select id="ears" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="human" selected>ludzkie</option>
+                <option value="elven">elfie</option>
+                <option value="goblin">goblińskie</option>
+                <option value="fennec">fenek</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Kolor oczu</label>
+              <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEyeColor()">
+                <option value="none">brak</option>
+                <option value="blue" selected>niebieskie</option>
+                <option value="green">zielone</option>
+                <option value="black">czarne</option>
+                <option value="amber">bursztynowe</option>
+                <option value="gray">szare</option>
+                <option value="purple">fioletowe</option>
+                <option value="red">czerwone</option>
+                <option value="gold">złote</option>
+                <option value="custom">własne (opisz niżej)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div id="customEyeColorContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="eyeColorCustomDesc" type="text" placeholder="np. jedno niebieskie drugie czerwone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Emocje</label>
+              <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEmotion()">
+                <option value="none">brak</option>
+                <option value="neutral" selected>neutralność</option>
+                <option value="smile">uśmiech</option>
+                <option value="sadness">smutek</option>
+                <option value="thoughtful">zaduma</option>
+                <option value="tongue out">język</option>
+                <option value="shyness">nieśmiałość</option>
+                <option value="excitement">ekscytacja</option>
+                <option value="anger">złość</option>
+                <option value="custom">własne (opisz niżej)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Zęby</label>
+              <select id="teeth" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal teeth" selected>normalne</option>
+                <option value="small sharp fangs">małe kły</option>
+                <option value="large sharp fangs">duże kły</option>
+                <option value="all sharp teeth">wszystkie ostre</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customEmotionContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własna emocja</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="emotionCustomDesc" type="text" placeholder="np. lekko zdezorientowany uśmiech" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Brwi</label>
+              <select id="eyebrows" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal" selected>normalne</option>
+                <option value="no">brak</option>
+                <option value="bushy">krzaczaste</option>
+                <option value="thin">cienkie</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Piegi</label>
+              <select id="freckles" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none" selected>brak</option>
+                <option value="a few freckles on face">mało</option>
+                <option value="many prominent freckles on face">dużo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t pt-4">
+          <h3 class="font-bold text-lg mb-4 text-blue-600">Fryzura i Włosy</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Kolor</label>
+              <select id="hairColor" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomHairColor()">
+                <option value="none">brak</option>
+                <option value="black" selected>czarne</option>
+                <option value="blonde">blond</option>
+                <option value="brown">brązowe</option>
+                <option value="red">czerwone</option>
+                <option value="ginger">rude</option>
+                <option value="green">zielone</option>
+                <option value="blue">niebieskie</option>
+                <option value="white">białe</option>
+                <option value="silver">siwe</option>
+                <option value="pink">różowe</option>
+                <option value="purple">fioletowe</option>
+                <option value="custom">własny (opisz niżej)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Długość</label>
+              <select id="hairLength" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomLength()">
+                <option value="none">brak</option>
+                <option value="medium" selected>średnie</option>
+                <option value="short">krótkie</option>
+                <option value="long">długie</option>
+                <option value="bald">łyse</option>
+                <option value="custom">własny (opisz niżej)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customHairColorContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własny kolor włosów</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="hairColorCustomDesc" type="text" placeholder="np. czarne z czerwonymi końcówkami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('hairColorCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div id="customLengthContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własny opis długości</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="hairLengthCustomDesc" type="text" placeholder="np. do samej ziemi" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('hairLengthCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Rodzaj</label>
+              <select id="hairType" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="straight" selected>proste</option>
+                <option value="wavy">falowane</option>
+                <option value="curly">kręcone</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Fryzura</label>
+              <select id="hairStyle" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomHair()">
+                <option value="none">brak</option>
+                <option value="loose" selected>rozpuszczone</option>
+                <option value="messy">niechlujne</option>
+                <option value="ponytail">kucyk</option>
+                <option value="twin ponytails">dwa kucyki</option>
+                <option value="braids">warkocze</option>
+                <option value="short style">na krótko</option>
+                <option value="long top shaved sides">dłuższa góra, wygolone boki</option>
+                <option value="bald">łysina</option>
+                <option value="custom">własny (opisz niżej)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customHairContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Twój opis fryzury</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="hairCustomDesc" type="text" placeholder="np. irokez z kolcami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('hairCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Grzywka</label>
+              <select id="bangs" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
+                <option value="none" selected>brak</option>
+                <option value="straight bangs">prosta</option>
+                <option value="curtain bangs">kurtyna</option>
+                <option value="swept to the left bangs">zaczesana w lewo</option>
+                <option value="swept to the right bangs">zaczesana w prawo</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Sidelocks</label>
+              <select id="sidelocks" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
+                <option value="none" selected>brak</option>
+                <option value="short left sidelock">short left</option>
+                <option value="short right sidelock">short right</option>
+                <option value="two short sidelocks">short two</option>
+                <option value="long left sidelock">long left</option>
+                <option value="long right sidelock">long right</option>
+                <option value="two long sidelocks">long two</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t pt-4">
+          <h3 class="font-bold text-lg mb-4 text-blue-600">Ciało i Proporcje</h3>
+          
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Wzrost</label>
+              <select id="height" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="very short">bardzo niski</option>
+                <option value="short">niski</option>
+                <option value="normal" selected>normalny</option>
+                <option value="tall">wysoki</option>
+                <option value="very tall">bardzo wysoki</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Wielkość głowy</label>
+              <select id="headSize" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal" selected>normalna (1/6)</option>
+                <option value="large">Duża (1/5)</option>
+                <option value="very large">Bardzo duża (1/4)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Typ ciała</label>
+              <select id="body" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal" selected>normalne</option>
+                <option value="skinny">chude</option>
+                <option value="slight overweight">lekka nadwaga</option>
+                <option value="fat">grube</option>
+                <option value="muscular">umięśnione</option>
+                <option value="shortstack">shortstack</option>
+              </select>
+            </div>
+            <div id="chestContainer">
+              <label class="block font-semibold mb-2 text-gray-700">Klatka / Piersi</label>
+              <select id="chest" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="flat chest">płaska</option>
+                <option value="small breasts">mała</option>
+                <option value="medium breasts" selected>średnia</option>
+                <option value="large breasts">duża</option>
+                <option value="very large breasts">bardzo duża</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Biodra</label>
+              <select id="hips" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal hips" selected>normalne</option>
+                <option value="wide hips">szerokie</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Uda</label>
+              <select id="thighs" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal thighs" selected>normalne</option>
+                <option value="massive thighs">masywne</option>
+                <option value="muscular thighs">umięśnione</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Ogon</label>
+              <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none" selected>brak</option>
+                <option value="cat tail">koci</option>
+                <option value="bunny tail">króliczy</option>
+                <option value="fox tail">lisi</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Stopy</label>
+              <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal feet" selected>normalne</option>
+                <option value="small dainty feet">małe</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="border-t pt-4">
-        <h3 class="font-bold text-lg mb-4 text-blue-600">Podstawy Postaci</h3>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Płeć</label>
-            <select id="gender" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleGenderUI()">
-              <option value="none">brak</option>
-              <option value="female" selected>kobieta</option>
-              <option value="male">mężczyzna</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Wiek</label>
-            <select id="age" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="child">dziecko</option>
-              <option value="young adult">młody dorosły</option>
-              <option value="adult" selected>dorosły</option>
-              <option value="old">stary</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Kolor skóry</label>
-            <select id="skinTone" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomSkinTone()">
-              <option value="none">brak</option>
-              <option value="fair" selected>fair</option>
-              <option value="medium">medium</option>
-              <option value="olive">olive</option>
-              <option value="deep">deep</option>
-              <option value="brown">brown</option>
-              <option value="black">black</option>
-              <option value="pale">pale</option>
-              <option value="green cool">green cool</option>
-              <option value="green warm">green warm</option>
-              <option value="blue">blue</option>
-              <option value="red">red</option>
-              <option value="custom">własne (opisz niżej)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Opalenizna</label>
-            <select id="tan" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none" selected>brak</option>
-              <option value="light tan">light tan</option>
-              <option value="summer tan">summer tan</option>
-              <option value="deep tan">deep tan</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="customSkinToneContainer" class="hidden mt-4">
-          <label class="block font-semibold mb-2 text-gray-700">Własny kolor skóry</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="skinToneCustomDesc" type="text" placeholder="np. blada ze złotym połyskiem" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('skinToneCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-          </div>
-        </div>
       </div>
-
-      <div id="facialHairSection" class="border-t pt-4 hidden">
-        <h3 class="font-bold text-lg mb-4 text-blue-600">Zarost</h3>
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold mb-1 text-gray-700">Zarost</label>
-            <select id="stubble" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
-              <option value="none" selected>brak</option>
-              <option value="one-day stubble">jednodniowy</option>
-              <option value="multi-day stubble">kilkudniowy</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1 text-gray-700">Broda</label>
-            <select id="beard" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
-              <option value="none" selected>brak</option>
-              <option value="short beard">krótka</option>
-              <option value="long beard">długa</option>
-              <option value="very long beard">bardzo długa</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold mb-1 text-gray-700">Wąsy</label>
-            <select id="moustache" class="w-full rounded-xl border border-gray-300 p-2 text-xs bg-white">
-              <option value="none" selected>brak</option>
-              <option value="short moustache">krótkie</option>
-              <option value="long moustache">długie</option>
-              <option value="very long moustache">bardzo długie</option>
-              <option value="handlebar moustache curled upwards">zawijane</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="border-t pt-4">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-lg text-blue-600">Głowa i Twarz</h3>
-          <label class="flex items-center gap-2 text-xs font-medium text-amber-700 cursor-pointer bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 hover:bg-amber-100">
-            <input type="checkbox" id="glowingEyes" class="glow-checkbox"> glowing eyes
-          </label>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Uszy</label>
-            <select id="ears" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="human" selected>ludzkie</option>
-              <option value="elven">elfie</option>
-              <option value="goblin">goblińskie</option>
-              <option value="fennec">fenek</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Kolor oczu</label>
-            <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEyeColor()">
-              <option value="none">brak</option>
-              <option value="blue" selected>niebieskie</option>
-              <option value="green">zielone</option>
-              <option value="black">czarne</option>
-              <option value="amber">bursztynowe</option>
-              <option value="gray">szare</option>
-              <option value="purple">fioletowe</option>
-              <option value="red">czerwone</option>
-              <option value="gold">złote</option>
-              <option value="custom">własne (opisz niżej)</option>
-            </select>
-          </div>
-        </div>
-        
-        <div id="customEyeColorContainer" class="hidden mb-4">
-          <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="eyeColorCustomDesc" type="text" placeholder="np. jedno niebieskie drugie czerwone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Emocje</label>
-            <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEmotion()">
-              <option value="none">brak</option>
-              <option value="neutral" selected>neutralność</option>
-              <option value="smile">uśmiech</option>
-              <option value="sadness">smutek</option>
-              <option value="thoughtful">zaduma</option>
-              <option value="tongue out">język</option>
-              <option value="shyness">nieśmiałość</option>
-              <option value="excitement">ekscytacja</option>
-              <option value="anger">złość</option>
-              <option value="custom">własne (opisz niżej)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Zęby</label>
-            <select id="teeth" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal teeth" selected>normalne</option>
-              <option value="small sharp fangs">małe kły</option>
-              <option value="large sharp fangs">duże kły</option>
-              <option value="all sharp teeth">wszystkie ostre</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="customEmotionContainer" class="hidden mb-4">
-          <label class="block font-semibold mb-2 text-gray-700">Własna emocja</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="emotionCustomDesc" type="text" placeholder="np. lekko zdezorientowany uśmiech" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Brwi</label>
-            <select id="eyebrows" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal" selected>normalne</option>
-              <option value="no">brak</option>
-              <option value="bushy">krzaczaste</option>
-              <option value="thin">cienkie</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Piegi</label>
-            <select id="freckles" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none" selected>brak</option>
-              <option value="a few freckles on face">mało</option>
-              <option value="many prominent freckles on face">dużo</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="border-t pt-4">
-        <h3 class="font-bold text-lg mb-4 text-blue-600">Fryzura i Włosy</h3>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Kolor</label>
-            <select id="hairColor" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomHairColor()">
-              <option value="none">brak</option>
-              <option value="black" selected>czarne</option>
-              <option value="blonde">blond</option>
-              <option value="brown">brązowe</option>
-              <option value="red">czerwone</option>
-              <option value="ginger">rude</option>
-              <option value="green">zielone</option>
-              <option value="blue">niebieskie</option>
-              <option value="white">białe</option>
-              <option value="silver">siwe</option>
-              <option value="pink">różowe</option>
-              <option value="purple">fioletowe</option>
-              <option value="custom">własny (opisz niżej)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Długość</label>
-            <select id="hairLength" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomLength()">
-              <option value="none">brak</option>
-              <option value="medium" selected>średnie</option>
-              <option value="short">krótkie</option>
-              <option value="long">długie</option>
-              <option value="bald">łyse</option>
-              <option value="custom">własny (opisz niżej)</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="customHairColorContainer" class="hidden mb-4">
-          <label class="block font-semibold mb-2 text-gray-700">Własny kolor włosów</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="hairColorCustomDesc" type="text" placeholder="np. czarne z czerwonymi końcówkami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('hairColorCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-          </div>
-        </div>
-
-        <div id="customLengthContainer" class="hidden mb-4">
-          <label class="block font-semibold mb-2 text-gray-700">Własny opis długości</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="hairLengthCustomDesc" type="text" placeholder="np. do samej ziemi" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('hairLengthCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Rodzaj</label>
-            <select id="hairType" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="straight" selected>proste</option>
-              <option value="wavy">falowane</option>
-              <option value="curly">kręcone</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Fryzura</label>
-            <select id="hairStyle" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomHair()">
-              <option value="none">brak</option>
-              <option value="loose" selected>rozpuszczone</option>
-              <option value="messy">niechlujne</option>
-              <option value="ponytail">kucyk</option>
-              <option value="twin ponytails">dwa kucyki</option>
-              <option value="braids">warkocze</option>
-              <option value="short style">na krótko</option>
-              <option value="long top shaved sides">dłuższa góra, wygolone boki</option>
-              <option value="bald">łysina</option>
-              <option value="custom">własny (opisz niżej)</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="customHairContainer" class="hidden mb-4">
-          <label class="block font-semibold mb-2 text-gray-700">Twój opis fryzury</label>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="hairCustomDesc" type="text" placeholder="np. irokez z kolcami" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-            <button onclick="translateText('hairCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Grzywka</label>
-            <select id="bangs" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
-              <option value="none" selected>brak</option>
-              <option value="straight bangs">prosta</option>
-              <option value="curtain bangs">kurtyna</option>
-              <option value="swept to the left bangs">zaczesana w lewo</option>
-              <option value="swept to the right bangs">zaczesana w prawo</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Sidelocks</label>
-            <select id="sidelocks" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
-              <option value="none" selected>brak</option>
-              <option value="short left sidelock">short left</option>
-              <option value="short right sidelock">short right</option>
-              <option value="two short sidelocks">short two</option>
-              <option value="long left sidelock">long left</option>
-              <option value="long right sidelock">long right</option>
-              <option value="two long sidelocks">long two</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="border-t pt-4">
-        <h3 class="font-bold text-lg mb-4 text-blue-600">Ciało i Proporcje</h3>
-        
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Wzrost</label>
-            <select id="height" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="very short">bardzo niski</option>
-              <option value="short">niski</option>
-              <option value="normal" selected>normalny</option>
-              <option value="tall">wysoki</option>
-              <option value="very tall">bardzo wysoki</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Wielkość głowy</label>
-            <select id="headSize" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal" selected>normalna (1/6)</option>
-              <option value="large">Duża (1/5)</option>
-              <option value="very large">Bardzo duża (1/4)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Typ ciała</label>
-            <select id="body" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal" selected>normalne</option>
-              <option value="skinny">chude</option>
-              <option value="slight overweight">lekka nadwaga</option>
-              <option value="fat">grube</option>
-              <option value="muscular">umięśnione</option>
-              <option value="shortstack">shortstack</option>
-            </select>
-          </div>
-          <div id="chestContainer">
-            <label class="block font-semibold mb-2 text-gray-700">Klatka / Piersi</label>
-            <select id="chest" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="flat chest">płaska</option>
-              <option value="small breasts">mała</option>
-              <option value="medium breasts" selected>średnia</option>
-              <option value="large breasts">duża</option>
-              <option value="very large breasts">bardzo duża</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Biodra</label>
-            <select id="hips" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal hips" selected>normalne</option>
-              <option value="wide hips">szerokie</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Uda</label>
-            <select id="thighs" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal thighs" selected>normalne</option>
-              <option value="massive thighs">masywne</option>
-              <option value="muscular thighs">umięśnione</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Ogon</label>
-            <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none" selected>brak</option>
-              <option value="cat tail">koci</option>
-              <option value="bunny tail">króliczy</option>
-              <option value="fox tail">lisi</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold mb-2 text-gray-700">Stopy</label>
-            <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-              <option value="none">brak</option>
-              <option value="normal feet" selected>normalne</option>
-              <option value="small dainty feet">małe</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 flex flex-col h-full sticky top-8 max-h-[90vh]">
       <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">Wygenerowany Prompt</h2>
@@ -872,12 +876,26 @@ let addedCharacters = [];
 let deleteSelection = new Set();
 let currentSceneMode = 'scene'; 
 let planesData = ['']; 
+let mentionState = { active: false, input: null, startIndex: -1, filter: '', selectedIndex: 0, items: [] };
 
 function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
 
 function clearEffects(noneCheckbox) {
   if (noneCheckbox.checked) {
     document.querySelectorAll('.effect-item').forEach(cb => cb.checked = false);
+  }
+  generatePrompt();
+}
+
+function toggleProjectType() {
+  const isChar = document.getElementById('typeCharacter').checked;
+  const wrapper = document.getElementById('characterTraitsWrapper');
+  if (!isChar) {
+      wrapper.style.opacity = '0.2';
+      wrapper.style.pointerEvents = 'none';
+  } else {
+      wrapper.style.opacity = '1';
+      wrapper.style.pointerEvents = 'auto';
   }
   generatePrompt();
 }
@@ -933,6 +951,137 @@ function showToast(message, isSuccess = true) {
     t.classList.add('show');
     setTimeout(() => { t.classList.remove('show'); }, 2500);
   }
+}
+
+// ==== OBSŁUGA @ MENTIONS ====
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'scene' || e.target.id === 'planeBackground' || e.target.id.startsWith('plane_')) {
+      checkMention(e.target);
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (mentionState.active && (e.target.id === 'scene' || e.target.id === 'planeBackground' || e.target.id.startsWith('plane_'))) {
+      handleMentionKeydown(e);
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (mentionState.active && !e.target.closest('#mentionDropdown')) {
+      closeMention();
+  }
+});
+
+function getMentionList() {
+  let list = [];
+  let charIndex = 1;
+  const isCharMode = document.getElementById('typeCharacter').checked;
+  if (isCharMode) {
+      const projName = getValue('projectName').trim() || 'Unknown';
+      list.push({ label: projName, insert: `Character_${charIndex} (${projName})` });
+      charIndex++;
+  }
+  addedCharacters.forEach(c => {
+      list.push({ label: c.name, insert: `Character_${charIndex} (${c.name})` });
+      charIndex++;
+  });
+  return list;
+}
+
+function checkMention(inputEl) {
+  const val = inputEl.value;
+  const cursor = inputEl.selectionStart;
+  const textBeforeCursor = val.substring(0, cursor);
+  const atIndex = textBeforeCursor.lastIndexOf('@');
+
+  if (atIndex !== -1) {
+      if (atIndex === 0 || /[\s\n]/.test(textBeforeCursor.charAt(atIndex - 1))) {
+          const filterText = textBeforeCursor.substring(atIndex + 1);
+          if (!/[\s\n]/.test(filterText)) {
+              openMention(inputEl, atIndex, filterText);
+              return;
+          }
+      }
+  }
+  closeMention();
+}
+
+function openMention(inputEl, startIndex, filter) {
+  const list = getMentionList();
+  const filtered = list.filter(item => item.label.toLowerCase().includes(filter.toLowerCase()));
+  
+  if (filtered.length === 0) {
+      closeMention();
+      return;
+  }
+
+  mentionState = { active: true, input: inputEl, startIndex: startIndex, filter: filter, selectedIndex: 0, items: filtered };
+  renderMentionDropdown();
+}
+
+function renderMentionDropdown() {
+  const dropdown = document.getElementById('mentionDropdown');
+  dropdown.innerHTML = '';
+  mentionState.items.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = `px-4 py-3 cursor-pointer border-b border-gray-100 last:border-0 font-semibold ${index === mentionState.selectedIndex ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'}`;
+      div.innerText = item.label;
+      div.onmousedown = (e) => {
+          e.preventDefault(); 
+          selectMention(index);
+      };
+      dropdown.appendChild(div);
+  });
+
+  const rect = mentionState.input.getBoundingClientRect();
+  dropdown.style.left = rect.left + 'px';
+  dropdown.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+  dropdown.style.width = rect.width + 'px';
+  dropdown.classList.remove('hidden');
+}
+
+function closeMention() {
+  mentionState.active = false;
+  document.getElementById('mentionDropdown').classList.add('hidden');
+}
+
+function handleMentionKeydown(e) {
+  if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      mentionState.selectedIndex = (mentionState.selectedIndex + 1) % mentionState.items.length;
+      renderMentionDropdown();
+  } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      mentionState.selectedIndex = (mentionState.selectedIndex - 1 + mentionState.items.length) % mentionState.items.length;
+      renderMentionDropdown();
+  } else if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      selectMention(mentionState.selectedIndex);
+  } else if (e.key === 'Escape') {
+      closeMention();
+  }
+}
+
+function selectMention(index) {
+  const item = mentionState.items[index];
+  const inputEl = mentionState.input;
+  const val = inputEl.value;
+  const cursor = inputEl.selectionStart;
+  
+  const before = val.substring(0, mentionState.startIndex);
+  const after = val.substring(cursor);
+  
+  inputEl.value = before + item.insert + " " + after;
+  
+  const newCursor = mentionState.startIndex + item.insert.length + 1;
+  inputEl.setSelectionRange(newCursor, newCursor);
+  
+  closeMention();
+  if (inputEl.id.startsWith('plane_')) {
+      const idx = parseInt(inputEl.id.split('_')[1]);
+      planesData[idx] = inputEl.value;
+  }
+  generatePrompt();
 }
 
 // Obsługa Plany
@@ -1092,6 +1241,7 @@ function resetToDefaults() {
   planesData = [''];
   setSceneMode('scene');
   
+  toggleProjectType();
   toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
   toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
   renderAddedCharacters(); generatePrompt();
@@ -1300,6 +1450,7 @@ function loadPreset(slot) {
     
     if (currentSceneMode === 'planes') renderPlanes();
 
+    toggleProjectType();
     toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
     toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
     renderAddedCharacters(); generatePrompt();
@@ -1590,7 +1741,7 @@ function exportRPGProfile() {
   const profileData = { 
     slots: {}, 
     notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.19" 
+    version: "4.20" 
   };
   for(let i = 1; i <= 10; i++) {
     const data = localStorage.getItem('rpg_preset_' + i);
@@ -1607,7 +1758,7 @@ function exportRPGProfile() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.19.json";
+  a.download = "RPG_Prompt_Generator_Profile_v4.20.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1678,6 +1829,7 @@ window.onload = () => {
     if(el) el.addEventListener('input', generatePrompt);
   });
   
+  toggleProjectType();
   generatePrompt();
 };
 </script>

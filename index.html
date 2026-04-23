@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.20</title>
+  <title>RPG Prompt Builder Ultimate v4.21</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -14,7 +14,6 @@
     .effect-check { accent-color: #2563eb; width: 1rem; height: 1rem; cursor: pointer; }
     .preset-btn, .save-slot-btn { -webkit-touch-callout: none; user-select: none; }
 
-    /* KONTENER ZAPISU */
     .save-load-wrapper {
       position: relative;
       display: flex;
@@ -106,7 +105,7 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.20</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.21</h1>
       </div>
 
       <div class="mt-4">
@@ -186,7 +185,7 @@
       <div class="bg-gray-50 p-5 rounded-3xl border border-gray-200 space-y-6">
         <h3 class="font-bold text-gray-800 border-b pb-2">Ustawienia Wizualne</h3>
         
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Ujęcie</label>
             <select id="shot" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
@@ -271,7 +270,45 @@
               <option value="muted">muted</option>
             </select>
           </div>
+          <div>
+            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Pora dnia</label>
+            <select id="timeOfDay" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomTimeOfDay()">
+              <option value="none" selected>brak</option>
+              <option value="Dawn">Świt (Dawn)</option>
+              <option value="Blue Hour (pre-sunrise)">Niebieska godzina (przed wschodem)</option>
+              <option value="Sunrise Golden Hour">Złota godzina (wschód)</option>
+              <option value="Morning Light">Poranne światło</option>
+              <option value="Midday">Południe</option>
+              <option value="Afternoon Light">Popołudniowe światło</option>
+              <option value="Sunset Golden Hour">Złota godzina (zachód)</option>
+              <option value="Blue Hour (post-sunset)">Niebieska godzina (po zachodzie)</option>
+              <option value="Dusk">Zmierzch (Dusk)</option>
+              <option value="Night">Noc</option>
+              <option value="custom">własna (opisz niżej)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Pogoda</label>
+            <select id="weather" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomWeather()">
+              <option value="none" selected>brak</option>
+              <option value="Clear Sunny Sky">Bezchmurnie / Słonecznie</option>
+              <option value="Partly Cloudy">Częściowo pochmurnie</option>
+              <option value="Scattered Clouds">Rozproszone chmury</option>
+              <option value="Overcast Sky">Pochmurno</option>
+              <option value="Dramatic Storm Clouds">Dramatyczne chmury burzowe</option>
+              <option value="Fog">Mgła (Fog)</option>
+              <option value="Mist">Lekka mgła (Mist)</option>
+              <option value="Light Rain">Lekki deszcz</option>
+              <option value="Heavy Rain">Ulewa</option>
+              <option value="Snow">Śnieg</option>
+              <option value="Frost">Szron / Mróz</option>
+              <option value="Thunderstorm">Burza</option>
+              <option value="Windy Conditions">Wietrznie</option>
+              <option value="custom">własna (opisz niżej)</option>
+            </select>
+          </div>
         </div>
+
         <div id="customStyleContainer" class="hidden">
           <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Twój opis stylu</label>
           <div class="flex flex-col sm:flex-row gap-2">
@@ -279,6 +316,23 @@
             <button onclick="translateText('styleCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors">PL ➜ EN</button>
           </div>
         </div>
+
+        <div id="customTimeOfDayContainer" class="hidden">
+          <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Własna pora dnia</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="timeOfDayCustomDesc" type="text" placeholder="np. krwawy księżyc w pełni" class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <button onclick="translateText('timeOfDayCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors">PL ➜ EN</button>
+          </div>
+        </div>
+
+        <div id="customWeatherContainer" class="hidden">
+          <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Własna pogoda</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="weatherCustomDesc" type="text" placeholder="np. deszcz meteorytów" class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <button onclick="translateText('weatherCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors">PL ➜ EN</button>
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-bold mb-3 text-gray-500 uppercase">Efekty (zaznacz wiele)</label>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white p-4 rounded-2xl border border-gray-200">
@@ -447,12 +501,14 @@
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block font-semibold mb-2 text-gray-700">Uszy</label>
-              <select id="ears" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+              <select id="ears" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEars()">
                 <option value="none">brak</option>
                 <option value="human" selected>ludzkie</option>
                 <option value="elven">elfie</option>
                 <option value="goblin">goblińskie</option>
                 <option value="fennec">fenek</option>
+                <option value="bunny">królicze</option>
+                <option value="custom">własne (opisz niżej)</option>
               </select>
             </div>
             <div>
@@ -472,6 +528,14 @@
             </div>
           </div>
           
+          <div id="customEarsContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własne uszy</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="earsCustomDesc" type="text" placeholder="np. ogromne nietoperze uszy" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('earsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
           <div id="customEyeColorContainer" class="hidden mb-4">
             <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
             <div class="flex flex-col sm:flex-row gap-2">
@@ -516,15 +580,16 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block font-semibold mb-2 text-gray-700">Brwi</label>
-              <select id="eyebrows" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+              <select id="eyebrows" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEyebrows()">
                 <option value="none">brak</option>
                 <option value="normal" selected>normalne</option>
                 <option value="no">brak</option>
                 <option value="bushy">krzaczaste</option>
                 <option value="thin">cienkie</option>
+                <option value="custom">własne (opisz niżej)</option>
               </select>
             </div>
             <div>
@@ -534,6 +599,14 @@
                 <option value="a few freckles on face">mało</option>
                 <option value="many prominent freckles on face">dużo</option>
               </select>
+            </div>
+          </div>
+
+          <div id="customEyebrowsContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własne brwi</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="eyebrowsCustomDesc" type="text" placeholder="np. krzaczaste i połączone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('eyebrowsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
         </div>
@@ -626,12 +699,13 @@
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block font-semibold mb-2 text-gray-700">Grzywka</label>
-              <select id="bangs" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white">
+              <select id="bangs" class="w-full rounded-xl border border-gray-300 p-2 text-sm bg-white" onchange="toggleCustomBangs()">
                 <option value="none" selected>brak</option>
                 <option value="straight bangs">prosta</option>
                 <option value="curtain bangs">kurtyna</option>
                 <option value="swept to the left bangs">zaczesana w lewo</option>
                 <option value="swept to the right bangs">zaczesana w prawo</option>
+                <option value="custom">własna (opisz niżej)</option>
               </select>
             </div>
             <div>
@@ -645,6 +719,14 @@
                 <option value="long right sidelock">long right</option>
                 <option value="two long sidelocks">long two</option>
               </select>
+            </div>
+          </div>
+
+          <div id="customBangsContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własna grzywka</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="bangsCustomDesc" type="text" placeholder="np. wycięta w trójkąt" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('bangsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
         </div>
@@ -721,24 +803,57 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block font-semibold mb-2 text-gray-700">Ogon</label>
-              <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+              <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomTail()">
                 <option value="none" selected>brak</option>
                 <option value="cat tail">koci</option>
                 <option value="bunny tail">króliczy</option>
                 <option value="fox tail">lisi</option>
+                <option value="custom">własny (opisz niżej)</option>
               </select>
             </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Rogi</label>
+              <select id="horns" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomHorns()">
+                <option value="none" selected>brak</option>
+                <option value="short straight horns">krótkie proste</option>
+                <option value="long straight horns">długie proste</option>
+                <option value="short curved horns">krótkie zakręcone</option>
+                <option value="long curved horns">długie zakręcone</option>
+                <option value="custom">własne (opisz niżej)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customTailContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własny ogon</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="tailCustomDesc" type="text" placeholder="np. ogromny smoczy ogon" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('tailCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div id="customHornsContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własne rogi</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="hornsCustomDesc" type="text" placeholder="np. ogromne rogi demona" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('hornsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block font-semibold mb-2 text-gray-700">Stopy</label>
               <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
                 <option value="none">brak</option>
                 <option value="normal feet" selected>normalne</option>
                 <option value="small dainty feet">małe</option>
+                <option value="large feet">duże</option>
               </select>
             </div>
+            <div></div>
           </div>
         </div>
       </div>
@@ -759,7 +874,7 @@
           <button onclick="copyCharacterSheet()" class="w-full bg-teal-100 hover:bg-teal-200 text-teal-800 border border-teal-300 font-bold py-3 px-8 rounded-2xl transition-all">
             Character sheet
           </button>
-          <span class="text-xs text-gray-400 font-semibold mt-1">(do aspect ratio 1:1)</span>
+          <span class="text-xs text-gray-400 font-semibold mt-1">(do aspect ratio 9:16)</span>
         </div>
       </div>
     </div>
@@ -865,11 +980,12 @@ const colorsMap = {
 
 const inputIds = [
   'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'lens', 'style', 'styleCustomDesc', 'color',
+  'timeOfDay', 'timeOfDayCustomDesc', 'weather', 'weatherCustomDesc',
   'gender', 'age', 'skinTone', 'skinToneCustomDesc', 'tan', 'stubble', 'beard', 'moustache',
-  'ears', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'freckles',
+  'ears', 'earsCustomDesc', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'eyebrowsCustomDesc', 'freckles',
   'hairColor', 'hairColorCustomDesc', 'hairLength', 'hairLengthCustomDesc', 'hairType',
-  'hairStyle', 'hairCustomDesc', 'bangs', 'sidelocks',
-  'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'feet'
+  'hairStyle', 'hairCustomDesc', 'bangs', 'bangsCustomDesc', 'sidelocks',
+  'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'tailCustomDesc', 'horns', 'hornsCustomDesc', 'feet'
 ];
 
 let addedCharacters = [];
@@ -914,6 +1030,16 @@ function toggleCustomStyle() {
   generatePrompt();
 }
 
+function toggleCustomTimeOfDay() {
+  if(document.getElementById('customTimeOfDayContainer')) document.getElementById('customTimeOfDayContainer').classList.toggle('hidden', getValue('timeOfDay') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomWeather() {
+  if(document.getElementById('customWeatherContainer')) document.getElementById('customWeatherContainer').classList.toggle('hidden', getValue('weather') !== 'custom');
+  generatePrompt();
+}
+
 function toggleCustomHair() {
   if(document.getElementById('customHairContainer')) document.getElementById('customHairContainer').classList.toggle('hidden', getValue('hairStyle') !== 'custom');
   generatePrompt();
@@ -941,6 +1067,31 @@ function toggleCustomSkinTone() {
 
 function toggleCustomHairColor() {
   if(document.getElementById('customHairColorContainer')) document.getElementById('customHairColorContainer').classList.toggle('hidden', getValue('hairColor') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomEars() {
+  if(document.getElementById('customEarsContainer')) document.getElementById('customEarsContainer').classList.toggle('hidden', getValue('ears') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomEyebrows() {
+  if(document.getElementById('customEyebrowsContainer')) document.getElementById('customEyebrowsContainer').classList.toggle('hidden', getValue('eyebrows') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomBangs() {
+  if(document.getElementById('customBangsContainer')) document.getElementById('customBangsContainer').classList.toggle('hidden', getValue('bangs') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomTail() {
+  if(document.getElementById('customTailContainer')) document.getElementById('customTailContainer').classList.toggle('hidden', getValue('tail') !== 'custom');
+  generatePrompt();
+}
+
+function toggleCustomHorns() {
+  if(document.getElementById('customHornsContainer')) document.getElementById('customHornsContainer').classList.toggle('hidden', getValue('horns') !== 'custom');
   generatePrompt();
 }
 
@@ -974,16 +1125,13 @@ document.addEventListener('click', (e) => {
 
 function getMentionList() {
   let list = [];
-  let charIndex = 1;
   const isCharMode = document.getElementById('typeCharacter').checked;
   if (isCharMode) {
       const projName = getValue('projectName').trim() || 'Unknown';
-      list.push({ label: projName, insert: `Character_${charIndex} (${projName})` });
-      charIndex++;
+      list.push({ label: projName, insert: `Character_(${projName})` });
   }
   addedCharacters.forEach(c => {
-      list.push({ label: c.name, insert: `Character_${charIndex} (${c.name})` });
-      charIndex++;
+      list.push({ label: c.name, insert: `Character_(${c.name})` });
   });
   return list;
 }
@@ -1225,11 +1373,12 @@ function resetToDefaults() {
     projectName: '', notes: '', scene: '',
     planeBackground: '',
     additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
-    gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', eyeColor: 'blue', eyeColorCustomDesc: '',
-    emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', freckles: 'none',
-    hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', sidelocks: 'none',
+    timeOfDay: 'none', timeOfDayCustomDesc: '', weather: 'none', weatherCustomDesc: '',
+    gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', earsCustomDesc: '', eyeColor: 'blue', eyeColorCustomDesc: '',
+    emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', eyebrowsCustomDesc: '', freckles: 'none',
+    hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', bangsCustomDesc: '', sidelocks: 'none',
     height: 'normal', headSize: 'normal',
-    body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', feet: 'normal feet',
+    body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', tailCustomDesc: '', horns: 'none', hornsCustomDesc: '', feet: 'normal feet',
     stubble: 'none', beard: 'none', moustache: 'none'
   };
   Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
@@ -1244,6 +1393,9 @@ function resetToDefaults() {
   toggleProjectType();
   toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
   toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
+  toggleCustomTimeOfDay(); toggleCustomWeather(); toggleCustomEars(); toggleCustomEyebrows();
+  toggleCustomBangs(); toggleCustomTail(); toggleCustomHorns();
+  
   renderAddedCharacters(); generatePrompt();
   showToast('Przywrócono domyślne');
 }
@@ -1453,6 +1605,9 @@ function loadPreset(slot) {
     toggleProjectType();
     toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
     toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
+    toggleCustomTimeOfDay(); toggleCustomWeather(); toggleCustomEars(); toggleCustomEyebrows();
+    toggleCustomBangs(); toggleCustomTail(); toggleCustomHorns();
+    
     renderAddedCharacters(); generatePrompt();
     showToast(`Wczytano preset ${slot}`);
   }
@@ -1531,8 +1686,14 @@ function getCharacterBlock() {
   if (eyeColor && eyeColor !== 'none') eyePart += eyeColor;
   if(eyePart) face += `${eyePart} eyes, `;
   
-  if(getValue('ears') !== 'none') face += `${getValue('ears')} ears, `;
-  if(getValue('eyebrows') !== 'none') face += `and ${getValue('eyebrows')} eyebrows. `;
+  let ears = getValue('ears');
+  if (ears === 'custom') ears = getValue('earsCustomDesc');
+  if(ears && ears !== 'none') face += `${ears} ears, `;
+  
+  let eyebrows = getValue('eyebrows');
+  if (eyebrows === 'custom') eyebrows = getValue('eyebrowsCustomDesc');
+  if(eyebrows && eyebrows !== 'none') face += `and ${eyebrows} eyebrows. `;
+  
   if(getValue('freckles') !== 'none') face += `There are ${getValue('freckles')}. `;
   if(getValue('teeth') !== 'none') face += `${objPos} teeth are visible as ${getValue('teeth')}. `;
   
@@ -1555,7 +1716,11 @@ function getCharacterBlock() {
     let hairS = getValue('hairStyle') === 'custom' ? getValue('hairCustomDesc') : (getValue('hairStyle') !== 'none' ? getValue('hairStyle') : '');
     if(hairC || hairL || hairT || hairS) hairStr = `${objPos} hair is ${hairC} ${hairL} ${hairT}, styled as ${hairS}. `;
   }
-  if (getValue('bangs') !== 'none' && getValue('hairLength') !== 'bald') hairStr += `${subj} has ${getValue('bangs')}. `;
+  
+  let bangs = getValue('bangs');
+  if (bangs === 'custom') bangs = getValue('bangsCustomDesc');
+  if (bangs && bangs !== 'none' && getValue('hairLength') !== 'bald') hairStr += `${subj} has ${bangs}. `;
+  
   if (getValue('sidelocks') !== 'none') hairStr += `${subj} features ${getValue('sidelocks')}.`;
   
   let bodyDetails = [];
@@ -1573,7 +1738,14 @@ function getCharacterBlock() {
   if(getValue('thighs') !== 'none') bodyDetails.push(getValue('thighs'));
   if(getValue('feet') !== 'none') bodyDetails.push(getValue('feet'));
   let bodyStr = bodyDetails.length > 0 ? bodyDetails.join(', ') + ". " : "";
-  if (getValue('tail') !== 'none') bodyStr += `${subj} has a ${getValue('tail')}.`;
+  
+  let tail = getValue('tail');
+  if (tail === 'custom') tail = getValue('tailCustomDesc');
+  if (tail && tail !== 'none') bodyStr += `${subj} has a ${tail}. `;
+  
+  let horns = getValue('horns');
+  if (horns === 'custom') horns = getValue('hornsCustomDesc');
+  if (horns && horns !== 'none') face += ` ${subj} has ${horns}. `;
   
   let cloth = "";
   if (nudity === 'dressed') {
@@ -1622,21 +1794,18 @@ function generatePrompt() {
   }
   
   let charactersBlock = "";
-  let charIndex = 1;
   const projName = getValue('projectName').trim() || 'Unknown';
   const isCharacterMode = document.getElementById('typeCharacter').checked;
 
   if (isCharacterMode) {
     let char1Text = getCharacterBlock();
-    charactersBlock += `[Characters]:\nCharacter_${charIndex} (${projName})\n${char1Text}`;
-    charIndex++;
+    charactersBlock += `[Characters]:\nCharacter_(${projName})\n${char1Text}`;
   }
 
   addedCharacters.forEach((char) => {
     if(charactersBlock === "") charactersBlock = "[Characters]:";
     else charactersBlock += `\n\n`;
-    charactersBlock += `Character_${charIndex} (${char.name})\n${char.text}`;
-    charIndex++;
+    charactersBlock += `Character_(${char.name})\n${char.text}`;
   });
   
   const styleKey = getValue('style');
@@ -1676,10 +1845,28 @@ function generatePrompt() {
   }
 
   let rulesBlock = "";
-  if (charIndex > 1) { 
+  let totalCharacters = addedCharacters.length + (isCharacterMode ? 1 : 0);
+  if (totalCharacters > 1) { 
     rulesBlock = "[Rules]:\nEach Character_X must strictly follow its own reference. No mixing of attributes between characters. Each character must remain visually distinct in body type, face, and outfit.\nEach Character_X must match its assigned position in the scene. Do not swap character roles or positions.";
   }
   
+  // Setting Time of Day and Weather into Setting Block
+  const timeOfDay = getValue('timeOfDay');
+  if (timeOfDay === 'custom') {
+      const tDesc = getValue('timeOfDayCustomDesc').trim();
+      if (tDesc) settingBlock += `\nTime of day: ${tDesc}`;
+  } else if (timeOfDay && timeOfDay !== 'none') {
+      settingBlock += `\nTime of day: ${timeOfDay}`;
+  }
+
+  const weather = getValue('weather');
+  if (weather === 'custom') {
+      const wDesc = getValue('weatherCustomDesc').trim();
+      if (wDesc) settingBlock += `\nWeather: ${wDesc}`;
+  } else if (weather && weather !== 'none') {
+      settingBlock += `\nWeather: ${weather}`;
+  }
+
   let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, effectsBlock, rulesBlock]
     .map(b => b.trim())
     .filter(b => b.length > 0)
@@ -1712,20 +1899,22 @@ function copyCharacterSheet() {
   let sheetPrompt = `Professional character turnaround model sheet, pure white background.
 LAYOUT FORMAT:
 Exactly two horizontal rows perfectly aligned.
-- TOP ROW (Full Body): Front view | Side profile facing left | Side profile facing right | Back view.
-- BOTTOM ROW (Headshots): Front view | Side profile facing left | Side profile facing right.
-TECHNICAL CONSTRAINTS:
-Strict orthographic projection. The character must stand in a rigid, neutral, symmetrical A-pose with arms straight down. The two side profiles MUST face opposite directions. Maintain consistent height and anatomical proportions. No 3/4 views.
-
+TOP ROW (Full Body):
+Front full body view, neutral standing pose |
+Two perfectly identical characters in full body side profile, standing directly face to face in perfect symmetrical mirror opposition, mirroring each other’s pose and features exactly like a reflection, separated by a small gap, not touching, their hair not touching |
+Back full body view in neutral standing pose.
+BOTTOM ROW (Headshots):
+Two identical characters in headshot composition: one displayed in full front head view facing straight toward the camera, the other in 3/4 view from the right side looking toward the left, both having exactly the same facial features and appearance, perfectly symmetrical in design, placed side by side with a small gap between them.
+Every character has exactly the same facial expression.
 CHARACTER:
 ${charText}`;
 
   if (styleBlock) {
-    sheetPrompt += `\n\nSTYLE:\n${styleBlock}`;
+    sheetPrompt += `\nSTYLE:\n${styleBlock}`;
   }
 
-  sheetPrompt += `\n\nNEGATIVE CONSTRAINTS (Append this to the end or use negative prompt box):
-No text, no watermarks, no grid lines, no duplicate profiles, no 3/4 angles, no dynamic posing, no extra limbs, no chibi proportions.`;
+  sheetPrompt += `\nNEGATIVE CONSTRAINTS:
+No text, no watermarks, no grid lines, no duplicate profiles, no identical side views, no mirrored duplication errors, no dynamic posing, no extra limbs, no chibi proportions, no shortened legs, no compressed anatomy.`;
 
   const tempTextArea = document.createElement('textarea');
   tempTextArea.value = sheetPrompt;
@@ -1741,7 +1930,7 @@ function exportRPGProfile() {
   const profileData = { 
     slots: {}, 
     notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.20" 
+    version: "4.21" 
   };
   for(let i = 1; i <= 10; i++) {
     const data = localStorage.getItem('rpg_preset_' + i);
@@ -1758,7 +1947,7 @@ function exportRPGProfile() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.20.json";
+  a.download = "RPG_Prompt_Generator_Profile_v4.21.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1824,7 +2013,7 @@ window.onload = () => {
     if(el.type !== 'text' && el.type !== 'checkbox' && el.type !== 'radio') el.addEventListener('input', generatePrompt);
   });
   
-  ['projectName', 'scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc', 'skinToneCustomDesc', 'hairColorCustomDesc'].forEach(id => {
+  ['projectName', 'scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc', 'skinToneCustomDesc', 'hairColorCustomDesc', 'timeOfDayCustomDesc', 'weatherCustomDesc', 'earsCustomDesc', 'eyebrowsCustomDesc', 'bangsCustomDesc', 'tailCustomDesc', 'hornsCustomDesc'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', generatePrompt);
   });

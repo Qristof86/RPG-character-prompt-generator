@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.21</title>
+  <title>RPG Prompt Builder Ultimate v4.22</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -105,7 +105,7 @@
     <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.21</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.22</h1>
       </div>
 
       <div class="mt-4">
@@ -185,7 +185,41 @@
       <div class="bg-gray-50 p-5 rounded-3xl border border-gray-200 space-y-6">
         <h3 class="font-bold text-gray-800 border-b pb-2">Ustawienia Wizualne</h3>
         
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Styl</label>
+            <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomStyle()">
+              <option value="none">brak</option>
+              <option value="hyperrealism" selected>hyperrealism</option>
+              <option value="realistic">Realistic</option>
+              <option value="reality">Reality</option>
+              <option value="movieGrain">Movie Grain</option>
+              <option value="illustrationWow">Illustration WOW</option>
+              <option value="painterlySprite">painterly</option>
+              <option value="pixelArtGame">pixel game</option>
+              <option value="pixelIllustration">pixel illustration</option>
+              <option value="illustration">ilustracja</option>
+              <option value="watercolor">watercolor</option>
+              <option value="waifu">waifu</option>
+              <option value="pixar">pixar</option>
+              <option value="anime">anime</option>
+              <option value="cartoon2d">2d cartoon</option>
+              <option value="pencil">Pencil</option>
+              <option value="cursetPhoto">Curset Photo</option>
+              <option value="claymation">Claymation</option>
+              <option value="crayon">Crayon</option>
+              <option value="disney2d">Disney 2D</option>
+              <option value="disney3d">Disney 3D</option>
+              <option value="disneySketch">Disney sketch</option>
+              <option value="conceptSketch">Concept sketch</option>
+              <option value="conceptArt">Concept Art</option>
+              <option value="oilPainting">Oil Painting</option>
+              <option value="stylizedFantasy">Stylized fantasy</option>
+              <option value="frazzeta">Frazzeta</option>
+              <option value="barok">Barok</option>
+              <option value="custom">własny (opisz niżej)</option>
+            </select>
+          </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Ujęcie</label>
             <select id="shot" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
@@ -224,37 +258,6 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Styl</label>
-            <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomStyle()">
-              <option value="none">brak</option>
-              <option value="hyperrealism" selected>hyperrealism</option>
-              <option value="illustrationWow">Illustration WOW</option>
-              <option value="painterlySprite">painterly</option>
-              <option value="pixelArtGame">pixel game</option>
-              <option value="pixelIllustration">pixel illustration</option>
-              <option value="illustration">ilustracja</option>
-              <option value="watercolor">watercolor</option>
-              <option value="waifu">waifu</option>
-              <option value="pixar">pixar</option>
-              <option value="anime">anime</option>
-              <option value="cartoon2d">2d cartoon</option>
-              <option value="pencil">Pencil</option>
-              <option value="cursetPhoto">Curset Photo</option>
-              <option value="claymation">Claymation</option>
-              <option value="crayon">Crayon</option>
-              <option value="disney2d">Disney 2D</option>
-              <option value="disney3d">Disney 3D</option>
-              <option value="disneySketch">Disney sketch</option>
-              <option value="conceptSketch">Concept sketch</option>
-              <option value="conceptArt">Concept Art</option>
-              <option value="oilPainting">Oil Painting</option>
-              <option value="stylizedFantasy">Stylized fantasy</option>
-              <option value="frazzeta">Frazzeta</option>
-              <option value="barok">Barok</option>
-              <option value="custom">własny (opisz niżej)</option>
-            </select>
-          </div>
-          <div>
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Kolor</label>
             <select id="color" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
@@ -275,13 +278,13 @@
             <select id="timeOfDay" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomTimeOfDay()">
               <option value="none" selected>brak</option>
               <option value="Dawn">Świt (Dawn)</option>
-              <option value="Blue Hour (pre-sunrise)">Niebieska godzina (przed wschodem)</option>
-              <option value="Sunrise Golden Hour">Złota godzina (wschód)</option>
+              <option value="Blue Hour (pre-sunrise)">Niebieska godz. (przed)</option>
+              <option value="Sunrise Golden Hour">Złota godz. (wschód)</option>
               <option value="Morning Light">Poranne światło</option>
               <option value="Midday">Południe</option>
               <option value="Afternoon Light">Popołudniowe światło</option>
-              <option value="Sunset Golden Hour">Złota godzina (zachód)</option>
-              <option value="Blue Hour (post-sunset)">Niebieska godzina (po zachodzie)</option>
+              <option value="Sunset Golden Hour">Złota godz. (zachód)</option>
+              <option value="Blue Hour (post-sunset)">Niebieska godz. (po)</option>
               <option value="Dusk">Zmierzch (Dusk)</option>
               <option value="Night">Noc</option>
               <option value="custom">własna (opisz niżej)</option>
@@ -291,11 +294,11 @@
             <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Pogoda</label>
             <select id="weather" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomWeather()">
               <option value="none" selected>brak</option>
-              <option value="Clear Sunny Sky">Bezchmurnie / Słonecznie</option>
+              <option value="Clear Sunny Sky">Słonecznie</option>
               <option value="Partly Cloudy">Częściowo pochmurnie</option>
               <option value="Scattered Clouds">Rozproszone chmury</option>
               <option value="Overcast Sky">Pochmurno</option>
-              <option value="Dramatic Storm Clouds">Dramatyczne chmury burzowe</option>
+              <option value="Dramatic Storm Clouds">Chmury burzowe</option>
               <option value="Fog">Mgła (Fog)</option>
               <option value="Mist">Lekka mgła (Mist)</option>
               <option value="Light Rain">Lekki deszcz</option>
@@ -305,6 +308,33 @@
               <option value="Thunderstorm">Burza</option>
               <option value="Windy Conditions">Wietrznie</option>
               <option value="custom">własna (opisz niżej)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Światła i Cienie</label>
+            <select id="lightsShadows" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="none" selected>brak</option>
+              <option value="soft-diffused">Miękkie rozproszone</option>
+              <option value="sharp-dramatic">Ostre, dramatyczne</option>
+              <option value="god-rays">God rays</option>
+              <option value="rim-light">Rim light</option>
+              <option value="golden-hour-long">Złota godzina – długie</option>
+              <option value="candlelight">Świeczowe / intymne</option>
+              <option value="neon-cyberpunk">Neonowe cyberpunk</option>
+              <option value="film-noir">Film noir</option>
+              <option value="studio">Studyjne</option>
+              <option value="ambient-occlusion">Realistyczne AO</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Visual Boosters</label>
+            <select id="visualBoosters" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="none" selected>brak</option>
+              <option value="photoreal">Fotoreal</option>
+              <option value="cinematic">Cinematic</option>
+              <option value="anime">Anime</option>
+              <option value="realistic-reflections">Realistyczne odbicia</option>
+              <option value="hardcore">Hardcore</option>
             </select>
           </div>
         </div>
@@ -361,6 +391,7 @@
       </div>
 
       <div id="characterTraitsWrapper" class="transition-opacity duration-300">
+        
         <div class="bg-gray-100 p-4 rounded-2xl border border-gray-200 space-y-4">
           <div class="border-b border-gray-200 pb-4">
             <label class="block font-semibold mb-2 text-gray-700">Dodatkowe cechy (blizny, detale)</label>
@@ -396,7 +427,7 @@
           </div>
         </div>
 
-        <div class="border-t pt-4">
+        <div class="border-t border-gray-200 pt-5 mt-5">
           <h3 class="font-bold text-lg mb-4 text-blue-600">Podstawy Postaci</h3>
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -457,7 +488,7 @@
           </div>
         </div>
 
-        <div id="facialHairSection" class="border-t pt-4 hidden">
+        <div id="facialHairSection" class="border-t border-gray-200 pt-5 mt-5 hidden">
           <h3 class="font-bold text-lg mb-4 text-blue-600">Zarost</h3>
           <div class="grid grid-cols-3 gap-3">
             <div>
@@ -490,13 +521,8 @@
           </div>
         </div>
 
-        <div class="border-t pt-4">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-lg text-blue-600">Głowa i Twarz</h3>
-            <label class="flex items-center gap-2 text-xs font-medium text-amber-700 cursor-pointer bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 hover:bg-amber-100">
-              <input type="checkbox" id="glowingEyes" class="glow-checkbox"> glowing eyes
-            </label>
-          </div>
+        <div class="border-t border-gray-200 pt-5 mt-5">
+          <h3 class="font-bold text-lg mb-4 text-blue-600">Głowa i Twarz</h3>
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -512,55 +538,6 @@
               </select>
             </div>
             <div>
-              <label class="block font-semibold mb-2 text-gray-700">Kolor oczu</label>
-              <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEyeColor()">
-                <option value="none">brak</option>
-                <option value="blue" selected>niebieskie</option>
-                <option value="green">zielone</option>
-                <option value="black">czarne</option>
-                <option value="amber">bursztynowe</option>
-                <option value="gray">szare</option>
-                <option value="purple">fioletowe</option>
-                <option value="red">czerwone</option>
-                <option value="gold">złote</option>
-                <option value="custom">własne (opisz niżej)</option>
-              </select>
-            </div>
-          </div>
-          
-          <div id="customEarsContainer" class="hidden mb-4">
-            <label class="block font-semibold mb-2 text-gray-700">Własne uszy</label>
-            <div class="flex flex-col sm:flex-row gap-2">
-              <input id="earsCustomDesc" type="text" placeholder="np. ogromne nietoperze uszy" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-              <button onclick="translateText('earsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-            </div>
-          </div>
-
-          <div id="customEyeColorContainer" class="hidden mb-4">
-            <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
-            <div class="flex flex-col sm:flex-row gap-2">
-              <input id="eyeColorCustomDesc" type="text" placeholder="np. jedno niebieskie drugie czerwone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-              <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block font-semibold mb-2 text-gray-700">Emocje</label>
-              <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEmotion()">
-                <option value="none">brak</option>
-                <option value="neutral" selected>neutralność</option>
-                <option value="smile">uśmiech</option>
-                <option value="sadness">smutek</option>
-                <option value="thoughtful">zaduma</option>
-                <option value="tongue out">język</option>
-                <option value="shyness">nieśmiałość</option>
-                <option value="excitement">ekscytacja</option>
-                <option value="anger">złość</option>
-                <option value="custom">własne (opisz niżej)</option>
-              </select>
-            </div>
-            <div>
               <label class="block font-semibold mb-2 text-gray-700">Zęby</label>
               <select id="teeth" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
                 <option value="none">brak</option>
@@ -571,12 +548,12 @@
               </select>
             </div>
           </div>
-
-          <div id="customEmotionContainer" class="hidden mb-4">
-            <label class="block font-semibold mb-2 text-gray-700">Własna emocja</label>
+          
+          <div id="customEarsContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własne uszy</label>
             <div class="flex flex-col sm:flex-row gap-2">
-              <input id="emotionCustomDesc" type="text" placeholder="np. lekko zdezorientowany uśmiech" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-              <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+              <input id="earsCustomDesc" type="text" placeholder="np. ogromne nietoperze uszy" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('earsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
 
@@ -609,9 +586,68 @@
               <button onclick="translateText('eyebrowsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Kolor oczu</label>
+              <select id="eyeColor" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEyeColor()">
+                <option value="none">brak</option>
+                <option value="blue" selected>niebieskie</option>
+                <option value="green">zielone</option>
+                <option value="black">czarne</option>
+                <option value="amber">bursztynowe</option>
+                <option value="gray">szare</option>
+                <option value="purple">fioletowe</option>
+                <option value="red">czerwone</option>
+                <option value="gold">złote</option>
+                <option value="custom">własne (opisz niżej)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Emocje</label>
+              <select id="emotion" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomEmotion()">
+                <option value="none">brak</option>
+                <option value="neutral" selected>neutralność</option>
+                <option value="smile">uśmiech</option>
+                <option value="sadness">smutek</option>
+                <option value="thoughtful">zaduma</option>
+                <option value="tongue out">język</option>
+                <option value="shyness">nieśmiałość</option>
+                <option value="excitement">ekscytacja</option>
+                <option value="anger">złość</option>
+                <option value="ahegao">ahegao</option>
+                <option value="custom">własne (opisz niżej)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customEyeColorContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własny kolor oczu</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="eyeColorCustomDesc" type="text" placeholder="np. jedno niebieskie drugie czerwone" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('eyeColorCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div id="customEmotionContainer" class="hidden mb-4">
+            <label class="block font-semibold mb-2 text-gray-700">Własna emocja</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="emotionCustomDesc" type="text" placeholder="np. lekko zdezorientowany uśmiech" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <button onclick="translateText('emotionCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row flex-wrap gap-4 mt-6 p-4 bg-amber-50 rounded-2xl border border-amber-200">
+            <label class="flex items-center gap-2 text-sm font-bold text-amber-800 cursor-pointer hover:text-amber-600 transition-colors">
+              <input type="checkbox" id="glowingEyes" class="glow-checkbox w-5 h-5"> Glowing eyes
+            </label>
+            <label class="flex items-center gap-2 text-sm font-bold text-amber-800 cursor-pointer hover:text-amber-600 transition-colors">
+              <input type="checkbox" id="naturalAsymmetry" class="glow-checkbox w-5 h-5"> Natural facial asymmetry
+            </label>
+          </div>
         </div>
 
-        <div class="border-t pt-4">
+        <div class="border-t border-gray-200 pt-5 mt-5">
           <h3 class="font-bold text-lg mb-4 text-blue-600">Fryzura i Włosy</h3>
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -731,7 +767,7 @@
           </div>
         </div>
 
-        <div class="border-t pt-4">
+        <div class="border-t border-gray-200 pt-5 mt-5">
           <h3 class="font-bold text-lg mb-4 text-blue-600">Ciało i Proporcje</h3>
           
           <div class="grid grid-cols-2 gap-4 mb-4">
@@ -805,6 +841,27 @@
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
+              <label class="block font-semibold mb-2 text-gray-700">Stopy</label>
+              <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none">brak</option>
+                <option value="normal feet" selected>normalne</option>
+                <option value="small dainty feet">małe</option>
+                <option value="large feet">duże</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold mb-2 text-gray-700">Pot</label>
+              <select id="sweat" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
+                <option value="none" selected>brak</option>
+                <option value="light">lekko spocone ciało</option>
+                <option value="medium">średnio spocone ciało</option>
+                <option value="heavy">ciało spocone tak mocno aż kapie</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
               <label class="block font-semibold mb-2 text-gray-700">Ogon</label>
               <select id="tail" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white" onchange="toggleCustomTail()">
                 <option value="none" selected>brak</option>
@@ -842,19 +899,6 @@
               <button onclick="translateText('hornsCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block font-semibold mb-2 text-gray-700">Stopy</label>
-              <select id="feet" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
-                <option value="none">brak</option>
-                <option value="normal feet" selected>normalne</option>
-                <option value="small dainty feet">małe</option>
-                <option value="large feet">duże</option>
-              </select>
-            </div>
-            <div></div>
-          </div>
         </div>
       </div>
       </div>
@@ -874,7 +918,7 @@
           <button onclick="copyCharacterSheet()" class="w-full bg-teal-100 hover:bg-teal-200 text-teal-800 border border-teal-300 font-bold py-3 px-8 rounded-2xl transition-all">
             Character sheet
           </button>
-          <span class="text-xs text-gray-400 font-semibold mt-1">(do aspect ratio 9:16)</span>
+          <span class="text-xs text-gray-400 font-semibold mt-1">(do aspect ratio 1:1)</span>
         </div>
       </div>
     </div>
@@ -930,6 +974,9 @@ const hyperTagBlock = `(sharp focus, smooth, aesthetic, extremely detailed, octa
 
 const styles = {
   hyperrealism: { full: `Create a highly photorealistic image captured with a modern full-frame mirrorless camera, using a 50mm prime lens at f/1.8. Emphasize contemporary editorial outdoor photography aesthetics with natural dynamic range, lifelike skin micro-texture, realistic atmospheric depth, subtle lens breathing, gentle background separation, and physically accurate lighting. Include authentic real-world details such as slight fabric imperfections, natural environmental haze, fine sensor grain, and modern cinematic color grading with balanced contrast, true-to-life tones, and crisp highlight rolloff.` },
+  realistic: { full: `hyperrealistic skin with visible pores and imperfections, realistic sweat and oil, photorealistic face with detailed eyes and natural catchlights, realistic atmospheric particles and depth, RAW photo, film grain, shot on Sony A7R IV 85mm f/1.4, physically based rendering, global illumination, no plastic skin, no AI artifacts, maximum realism` },
+  reality: { full: `Reality photography, no AI gloss, no artificial perfection, raw unfiltered appearance, authentic skin variations, natural environmental noise and texture, maximum organic fidelity, avoids all common generative artifacts` },
+  movieGrain: { full: `shot on Kodak Portra 800 or Cinestill 800T, heavy natural film grain, subtle color shifts and halation, scanned from real negative, organic film texture over entire image` },
   illustrationWow: { full: `Stylized fantasy character illustration, highly plastic and malleable forms, soft sculpted shapes, exaggerated mass and weight distribution, squash-and-stretch influence, elastic anatomy, gesture-driven design, bold readable silhouette, dynamic shape rhythm, appealing asymmetry cartoon-rooted stylization with semi-realistic rendering, simplified but expressive anatomy, slightly exaggerated proportions, organic flowing shapes instead of rigid structure painterly digital art, soft brush strokes, visible brush energy, subtle texture brushwork, smooth but lively gradients, soft painterly shading, forms defined by light rather than hard edges warm cinematic lighting, soft volumetric glow, rich color transitions, saturated but natural palette, gentle rim light, atmospheric depth whimsical yet mature fantasy aesthetic, expressive and tactile form language, cute but grounded proportions, animated film concept art with realistic lighting depth.` },
   painterlySprite: { full: "a stylized fantasy illustration with visible brush texture and painterly shading." },
   pixelArtGame: { full: "a crisp pixel art game scene with 8-bit aesthetic." },
@@ -965,6 +1012,33 @@ const shots = {
   "handheld": "Camera: handheld shot", "panoramic": "Camera: panoramic shot"
 };
 
+const lightsShadowsMap = {
+  "soft-diffused": "soft diffused lighting, gentle soft shadows, subtle volumetric haze, smooth transitions",
+  "sharp-dramatic": "harsh direct lighting, sharp defined shadows, high contrast, strong chiaroscuro",
+  "god-rays": "volumetric god rays, dramatic light beams through dust or fog, deep atmospheric shadows",
+  "rim-light": "strong rim lighting, glowing silhouette edges, deep back shadows, dramatic separation",
+  "golden-hour-long": "golden hour lighting, long soft shadows, warm golden tones, cinematic natural light",
+  "candlelight": "candlelight and warm flickering shadows, intimate moody atmosphere, soft warm glow",
+  "neon-cyberpunk": "vibrant neon lighting, colorful glowing shadows, cyberpunk reflections and haze",
+  "film-noir": "film noir style, high contrast dramatic shadows, moody low-key lighting, deep blacks",
+  "studio": "professional studio lighting, softbox and beauty dish shadows, clean controlled shadows",
+  "ambient-occlusion": "hyper realistic ambient occlusion, subtle shadows in crevices and textures, depth and realism"
+};
+
+const boostersMap = {
+  "photoreal": "ultra realistic light physics on skin and hair, sharp specular highlights, multiple eye catchlights, SSS, micro skin details",
+  "cinematic": "cinematic multi-light interaction, dramatic specular accents on skin, perfect shaped catchlights in eyes, beautiful volumetric rim light on hair and shoulders, Hollywood lighting precision",
+  "anime": "perfect anime lighting on character, sharp hair highlights, glossy eye catchlights, clean specular on skin",
+  "realistic-reflections": "precise multi-source lighting interaction on character, realistic specular highlights and catchlights on skin hair and eyes, accurate reflections from every light source, subsurface scattering on skin, detailed rim lighting and hair highlights, physically correct light behavior",
+  "hardcore": "extremely precise physically based lighting on every surface of the character, complex multi-source light interaction, accurate specular and diffuse reflections from ALL light sources in scene, multiple distinct catchlights in eyes matching each light, detailed subsurface scattering with realistic skin translucency, individual hair strands catching light with beautiful highlights and shadows, rim lighting reacting to every light, micro highlights on skin pores and lips, no light ignored, maximum light fidelity"
+};
+
+const sweatMap = {
+  "light": "lightly sweated skin",
+  "medium": "moderately sweated body",
+  "heavy": "body dripping with heavy sweat"
+};
+
 const effectsMap = {
   "tilt-shift": "tilt-shift effect", "golden-hour": "golden hour", "bokeh": "bokeh",
   "soft-focus": "soft focus", "dof": "shallow depth of field", "chromatic": "chromatic aberrations",
@@ -980,12 +1054,12 @@ const colorsMap = {
 
 const inputIds = [
   'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'lens', 'style', 'styleCustomDesc', 'color',
-  'timeOfDay', 'timeOfDayCustomDesc', 'weather', 'weatherCustomDesc',
+  'timeOfDay', 'timeOfDayCustomDesc', 'weather', 'weatherCustomDesc', 'lightsShadows', 'visualBoosters',
   'gender', 'age', 'skinTone', 'skinToneCustomDesc', 'tan', 'stubble', 'beard', 'moustache',
   'ears', 'earsCustomDesc', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'eyebrowsCustomDesc', 'freckles',
   'hairColor', 'hairColorCustomDesc', 'hairLength', 'hairLengthCustomDesc', 'hairType',
   'hairStyle', 'hairCustomDesc', 'bangs', 'bangsCustomDesc', 'sidelocks',
-  'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'tailCustomDesc', 'horns', 'hornsCustomDesc', 'feet'
+  'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'tailCustomDesc', 'horns', 'hornsCustomDesc', 'feet', 'sweat'
 ];
 
 let addedCharacters = [];
@@ -1373,16 +1447,17 @@ function resetToDefaults() {
     projectName: '', notes: '', scene: '',
     planeBackground: '',
     additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
-    timeOfDay: 'none', timeOfDayCustomDesc: '', weather: 'none', weatherCustomDesc: '',
+    timeOfDay: 'none', timeOfDayCustomDesc: '', weather: 'none', weatherCustomDesc: '', lightsShadows: 'none', visualBoosters: 'none',
     gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', earsCustomDesc: '', eyeColor: 'blue', eyeColorCustomDesc: '',
     emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', eyebrowsCustomDesc: '', freckles: 'none',
     hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', bangsCustomDesc: '', sidelocks: 'none',
     height: 'normal', headSize: 'normal',
-    body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', tailCustomDesc: '', horns: 'none', hornsCustomDesc: '', feet: 'normal feet',
+    body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', tailCustomDesc: '', horns: 'none', hornsCustomDesc: '', feet: 'normal feet', sweat: 'none',
     stubble: 'none', beard: 'none', moustache: 'none'
   };
   Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
   if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = false;
+  if(document.getElementById('naturalAsymmetry')) document.getElementById('naturalAsymmetry').checked = false;
   document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
   document.getElementById('typeCharacter').checked = true;
   
@@ -1565,6 +1640,8 @@ function savePreset(slot) {
   const state = {};
   inputIds.forEach(id => { state[id] = getValue(id); });
   if(document.getElementById('glowingEyes')) state.glowingEyes = document.getElementById('glowingEyes').checked;
+  if(document.getElementById('naturalAsymmetry')) state.naturalAsymmetry = document.getElementById('naturalAsymmetry').checked;
+  
   const selectedEff = [];
   document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEff.push(cb.value));
   state.effects = selectedEff;
@@ -1586,6 +1663,8 @@ function loadPreset(slot) {
     const state = JSON.parse(data);
     inputIds.forEach(id => { if(state[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = state[id]; });
     if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = state.glowingEyes || false;
+    if(document.getElementById('naturalAsymmetry')) document.getElementById('naturalAsymmetry').checked = state.naturalAsymmetry || false;
+    
     document.querySelectorAll('.effect-item').forEach(cb => {
       cb.checked = state.effects ? state.effects.includes(cb.value) : false;
     });
@@ -1686,6 +1765,8 @@ function getCharacterBlock() {
   if (eyeColor && eyeColor !== 'none') eyePart += eyeColor;
   if(eyePart) face += `${eyePart} eyes, `;
   
+  if(document.getElementById('naturalAsymmetry') && document.getElementById('naturalAsymmetry').checked) face += `natural facial asymmetry, `;
+  
   let ears = getValue('ears');
   if (ears === 'custom') ears = getValue('earsCustomDesc');
   if(ears && ears !== 'none') face += `${ears} ears, `;
@@ -1737,6 +1818,7 @@ function getCharacterBlock() {
   if(getValue('hips') !== 'none') bodyDetails.push(getValue('hips'));
   if(getValue('thighs') !== 'none') bodyDetails.push(getValue('thighs'));
   if(getValue('feet') !== 'none') bodyDetails.push(getValue('feet'));
+  if(getValue('sweat') !== 'none') bodyDetails.push(sweatMap[getValue('sweat')]);
   let bodyStr = bodyDetails.length > 0 ? bodyDetails.join(', ') + ". " : "";
   
   let tail = getValue('tail');
@@ -1787,6 +1869,22 @@ function generatePrompt() {
     settingBlock += planesArr.join('\n\n');
   }
 
+  const timeOfDay = getValue('timeOfDay');
+  if (timeOfDay === 'custom') {
+      const tDesc = getValue('timeOfDayCustomDesc').trim();
+      if (tDesc) settingBlock += `\nTime of day: ${tDesc}`;
+  } else if (timeOfDay && timeOfDay !== 'none') {
+      settingBlock += `\nTime of day: ${timeOfDay}`;
+  }
+
+  const weather = getValue('weather');
+  if (weather === 'custom') {
+      const wDesc = getValue('weatherCustomDesc').trim();
+      if (wDesc) settingBlock += `\nWeather: ${wDesc}`;
+  } else if (weather && weather !== 'none') {
+      settingBlock += `\nWeather: ${weather}`;
+  }
+
   let colorBlock = "";
   const colorKey = getValue('color');
   if (colorKey !== 'none' && colorsMap[colorKey]) {
@@ -1819,6 +1917,18 @@ function generatePrompt() {
     styleBlock += styles[styleKey].full;
   }
   
+  let lightShadowsBlock = "";
+  const lsKey = getValue('lightsShadows');
+  if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) {
+    lightShadowsBlock = `[Light and Shadows]:\n${lightsShadowsMap[lsKey]}`;
+  }
+  
+  let boosterBlock = "";
+  const bKey = getValue('visualBoosters');
+  if(bKey && bKey !== 'none' && boostersMap[bKey]) {
+    boosterBlock = `[Booster]:\n${boostersMap[bKey]}`;
+  }
+
   let effectsBlock = "";
   const selectedEffects = [];
   document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
@@ -1849,25 +1959,8 @@ function generatePrompt() {
   if (totalCharacters > 1) { 
     rulesBlock = "[Rules]:\nEach Character_X must strictly follow its own reference. No mixing of attributes between characters. Each character must remain visually distinct in body type, face, and outfit.\nEach Character_X must match its assigned position in the scene. Do not swap character roles or positions.";
   }
-  
-  // Setting Time of Day and Weather into Setting Block
-  const timeOfDay = getValue('timeOfDay');
-  if (timeOfDay === 'custom') {
-      const tDesc = getValue('timeOfDayCustomDesc').trim();
-      if (tDesc) settingBlock += `\nTime of day: ${tDesc}`;
-  } else if (timeOfDay && timeOfDay !== 'none') {
-      settingBlock += `\nTime of day: ${timeOfDay}`;
-  }
 
-  const weather = getValue('weather');
-  if (weather === 'custom') {
-      const wDesc = getValue('weatherCustomDesc').trim();
-      if (wDesc) settingBlock += `\nWeather: ${wDesc}`;
-  } else if (weather && weather !== 'none') {
-      settingBlock += `\nWeather: ${weather}`;
-  }
-
-  let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, effectsBlock, rulesBlock]
+  let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, lightShadowsBlock, boosterBlock, effectsBlock, rulesBlock]
     .map(b => b.trim())
     .filter(b => b.length > 0)
     .join('\n\n');
@@ -1896,6 +1989,18 @@ function copyCharacterSheet() {
     styleBlock += styles[styleKey].full;
   }
 
+  let lsBlock = "";
+  const lsKey = getValue('lightsShadows');
+  if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) {
+    lsBlock = lightsShadowsMap[lsKey];
+  }
+  
+  let bBlock = "";
+  const bKey = getValue('visualBoosters');
+  if(bKey && bKey !== 'none' && boostersMap[bKey]) {
+    bBlock = boostersMap[bKey];
+  }
+
   let sheetPrompt = `Professional character turnaround model sheet, pure white background.
 LAYOUT FORMAT:
 Exactly two horizontal rows perfectly aligned.
@@ -1911,6 +2016,12 @@ ${charText}`;
 
   if (styleBlock) {
     sheetPrompt += `\nSTYLE:\n${styleBlock}`;
+  }
+  if (lsBlock) {
+    sheetPrompt += `\nLIGHT AND SHADOWS:\n${lsBlock}`;
+  }
+  if (bBlock) {
+    sheetPrompt += `\nBOOSTER:\n${bBlock}`;
   }
 
   sheetPrompt += `\nNEGATIVE CONSTRAINTS:
@@ -1930,7 +2041,7 @@ function exportRPGProfile() {
   const profileData = { 
     slots: {}, 
     notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.21" 
+    version: "4.22" 
   };
   for(let i = 1; i <= 10; i++) {
     const data = localStorage.getItem('rpg_preset_' + i);
@@ -1947,7 +2058,7 @@ function exportRPGProfile() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.21.json";
+  a.download = "RPG_Prompt_Generator_Profile_v4.22.json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

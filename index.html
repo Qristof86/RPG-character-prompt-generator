@@ -3,67 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Prompt Builder Ultimate v4.22</title>
+  <title>RPG Prompt Builder Ultimate v5.6</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
     textarea { font-family: ui-monospace, monospace; }
-    .toast { opacity: 0; transition: opacity 2s ease-out; pointer-events: none; }
-    .toast.show { opacity: 1; transition: none; }
+    
+    /* SYSTEM POWIADOMIEŃ TOAST */
+    .toast-popup {
+      position: fixed; bottom: 30px; right: 30px;
+      color: white; padding: 16px 24px; border-radius: 12px;
+      font-weight: bold; z-index: 9999;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      opacity: 0; pointer-events: none;
+    }
+
     .glow-checkbox { accent-color: #f59e0b; width: 1.1rem; height: 1.1rem; cursor: pointer; }
     .effect-check { accent-color: #2563eb; width: 1rem; height: 1rem; cursor: pointer; }
     .preset-btn, .save-slot-btn { -webkit-touch-callout: none; user-select: none; }
 
+    /* Wyrównanie w Ustawieniach Wizualnych */
+    .visual-wrapper { 
+      display: flex; flex-direction: column; justify-content: flex-end; 
+      height: 100%; align-items: center; text-align: center; margin-bottom: 20px;
+    }
+    .visual-label { 
+      min-height: 2.5rem; display: flex; align-items: flex-end; justify-content: center; 
+      text-align: center; margin-bottom: 0.5rem; line-height: 1.2;
+    }
+
+    /* Zaktualizowany wygląd paska Pliki/Ulubione */
     .save-load-wrapper {
-      position: relative;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       background-color: #f3f4f6;
-      padding: 16px;
-      padding-right: 48px;
+      padding: 24px 32px;
       border-radius: 16px;
       border: 1px solid #e5e7eb;
-      max-width: 100%;
-      width: fit-content;
-      margin: 0 auto;
-      box-sizing: border-box;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      min-height: 120px;
     }
-    
+    .save-load-left {
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #d1d5db;
+      padding-right: 32px;
+    }
+    .save-load-right {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .save-load-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #9ca3af;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
     .slots-container {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: clamp(4px, 1.5vw, 8px); 
-      margin-left: 12px;
+      gap: 12px; 
     }
-
     .slot-btn {
-      width: clamp(28px, 8vw, 38px);
-      height: clamp(28px, 8vw, 38px);
+      width: clamp(34px, 8vw, 42px);
+      height: clamp(34px, 8vw, 42px);
       border-radius: 50%;
-      border: 1px solid #e5e7eb;
-      background: white;
+      border: 2px solid transparent;
       font-weight: 700;
-      font-size: clamp(12px, 3.5vw, 15px);
+      font-size: 14px;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
       transition: all 0.2s;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
-
-    .small-load-icon {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      cursor: help;
-      padding: 4px;
-      border-radius: 50%;
-      transition: all 0.2s;
-    }
-    .small-load-icon:hover {
-      background-color: #e5e7eb;
-      transform: scale(1.08);
-    }
+    
+    .slot-filled { background-color: #dcfce7; border-color: #86efac; color: #166534; }
+    .slot-filled:hover { background-color: #bbf7d0; transform: scale(1.05); }
+    .slot-empty { background-color: #ffffff; border-color: #e5e7eb; color: #6b7280; }
+    .slot-empty:hover { background-color: #f9fafb; transform: scale(1.05); }
+    
     .action-btn {
       font-size: 0.75rem;
       background-color: white;
@@ -81,62 +107,124 @@
 <body class="min-h-screen bg-gray-50 py-4 sm:py-6 relative">
 
 <div id="customTooltip" class="hidden fixed bg-gray-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg -translate-x-1/2 -translate-y-full z-[80] pointer-events-none shadow-xl whitespace-nowrap mb-2 transition-opacity"></div>
-
 <div id="mentionDropdown" class="hidden absolute bg-white border border-gray-300 shadow-2xl rounded-xl z-[100] max-h-48 overflow-y-auto text-sm w-64"></div>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 mb-6">
+<div id="projectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm">
+  <div class="bg-white w-full max-w-5xl h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
+    <div class="bg-gray-100 p-4 border-b flex justify-between items-center">
+      <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+        Menedżer Projektów
+      </h2>
+      <div class="flex items-center gap-4">
+        <button onclick="pmCreateFolder()" class="flex items-center gap-1 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-semibold transition text-green-700 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+          Nowy Folder
+        </button>
+        <button onclick="closeProjectManager()" class="text-gray-400 hover:text-red-600 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto p-4 bg-gray-50 space-y-4 pm-scroll" id="pmListContainer"></div>
+
+    <div class="bg-white p-4 border-t flex flex-wrap justify-between items-center gap-3">
+      <div class="flex flex-wrap gap-2">
+        <button onclick="pmSaveAsNew()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow transition">Zapisz jako nowy</button>
+        <button onclick="pmOverwriteCurrent()" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow transition">Nadpisz aktualny</button>
+        <button onclick="pmLoadSelected()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow transition">Wczytaj projekt</button>
+        <button onclick="pmMoveSelected()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg> Przenieś wybrane
+        </button>
+      </div>
+      <button onclick="pmDeleteSelected()" class="bg-red-100 hover:bg-red-200 text-red-600 px-5 py-2.5 rounded-xl text-sm font-bold border border-red-200 transition">Usuń zaznaczone</button>
+    </div>
+  </div>
+</div>
+
+<div id="pmInputModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-96">
+    <h3 id="pmInputTitle" class="font-bold text-lg mb-4 text-gray-800">Wprowadź wartość</h3>
+    <input type="text" id="pmInputValue" class="w-full border-2 border-gray-200 p-3 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700" onkeydown="if(event.key === 'Enter') pmConfirmInputModal()">
+    <div class="flex justify-end gap-2">
+      <button onclick="pmCloseInputModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl font-bold">Anuluj</button>
+      <button onclick="pmConfirmInputModal()" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">Zatwierdź</button>
+    </div>
+  </div>
+</div>
+
+<div id="pmSelectFolderModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-96">
+    <h3 class="font-bold text-lg mb-4 text-gray-800">Przenieś wybrane do folderu:</h3>
+    <select id="pmFolderSelect" class="w-full border-2 border-gray-200 p-3 rounded-xl mb-4 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none font-semibold"></select>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeSelectFolderModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl font-bold">Anuluj</button>
+      <button onclick="pmConfirmFolderModal()" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">Przenieś</button>
+    </div>
+  </div>
+</div>
+
+<div id="pmSelectFavModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white p-8 rounded-3xl shadow-2xl w-[24rem] text-center relative">
+    <h3 class="font-bold text-xl mb-6 text-gray-900">Zapisz w ulubionych</h3>
+    <div class="grid grid-cols-5 gap-4 mb-8" id="pmFavGrid"></div>
+    <button onclick="closeSelectFavModal()" class="w-full py-3.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold transition-colors">Anuluj</button>
+  </div>
+</div>
+
+<div id="pmDeleteFavModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white p-8 rounded-3xl shadow-2xl w-[24rem] text-center relative">
+    <h3 class="font-bold text-xl mb-6 text-gray-900">Usuń z ulubionych</h3>
+    <div class="grid grid-cols-5 gap-4 mb-8" id="pmDeleteFavGrid"></div>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteFavModal()" class="w-full py-3.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold transition-colors">Anuluj</button>
+      <button onclick="confirmDeleteFavs()" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-200 transition-colors">Usuń wybrane</button>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-[1600px] w-full mx-auto px-4 sm:px-6 mb-6">
   <div class="flex flex-wrap gap-3 items-center justify-between">
     <div class="flex flex-wrap gap-2">
       <button onclick="openNotesModal()" class="action-btn !bg-blue-50 !text-blue-700 !border-blue-200 hover:!bg-blue-100">Notatki</button>
-      <button onclick="exportRPGProfile()" class="action-btn">Eksportuj profil</button>
+      <button onclick="exportProfile()" class="action-btn">Eksportuj profil</button>
       <button onclick="document.getElementById('import-profile-input').click()" class="action-btn">Wczytaj profil</button>
-      <input type="file" id="import-profile-input" accept=".json" style="display: none;" onchange="importRPGProfile(event)">
+      <input type="file" id="import-profile-input" accept=".json" style="display: none;" onchange="importProfile(event)">
     </div>
     <div class="flex flex-wrap gap-2">
-      <button onclick="openDeleteModal()" class="action-btn !bg-red-50 !text-red-700 !border-red-200 hover:!bg-red-100">Wyczyść zapisy</button>
+      <button onclick="openDeleteFavModal()" class="action-btn !bg-red-600 !text-white !border-red-700 hover:!bg-red-700 shadow-md">Wyczyść ulubione</button>
       <button onclick="resetToDefaults()" class="action-btn !bg-gray-200 !text-gray-800 hover:!bg-gray-300">Default</button>
     </div>
   </div>
 </div>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6">
-  <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
-    
-    <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
-      
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">RPG Prompt Builder v4.22</h1>
-      </div>
+<div class="max-w-[1600px] w-full mx-auto px-4 sm:px-6 mb-6">
+  <header class="mb-6 flex justify-between items-center relative">
+    <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 tracking-tight">
+      RPG Prompt Builder Ultimate v5.6
+    </h1>
+  </header>
 
-      <div class="mt-4">
-        <div class="save-load-wrapper">
-          <button onclick="openSaveModal()" class="shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-300 hover:bg-blue-50 text-blue-600 transition-all hover:scale-105" title="Zapisz aktualny preset">
-            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-              <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-          </button>
-          <div class="w-px h-10 bg-gray-300 mx-2"></div>
-          <div class="slots-container">
-            <button id="load-btn-1" data-slot="1" class="preset-btn slot-btn text-gray-600">1</button>
-            <button id="load-btn-2" data-slot="2" class="preset-btn slot-btn text-gray-600">2</button>
-            <button id="load-btn-3" data-slot="3" class="preset-btn slot-btn text-gray-600">3</button>
-            <button id="load-btn-4" data-slot="4" class="preset-btn slot-btn text-gray-600">4</button>
-            <button id="load-btn-5" data-slot="5" class="preset-btn slot-btn text-gray-600">5</button>
-            <button id="load-btn-6" data-slot="6" class="preset-btn slot-btn text-gray-600">6</button>
-            <button id="load-btn-7" data-slot="7" class="preset-btn slot-btn text-gray-600">7</button>
-            <button id="load-btn-8" data-slot="8" class="preset-btn slot-btn text-gray-600">8</button>
-            <button id="load-btn-9" data-slot="9" class="preset-btn slot-btn text-gray-600">9</button>
-            <button id="load-btn-10" data-slot="10" class="preset-btn slot-btn text-gray-600">10</button>
-          </div>
-          <div class="small-load-icon" title="Wczytaj profil">
-            <svg width="20" height="20" fill="none" stroke="#9ca3af" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-            </svg>
-          </div>
-        </div>
+  <div class="save-load-wrapper">
+    <div class="save-load-left">
+      <div class="flex flex-col items-center justify-center cursor-pointer hover:text-blue-600 transition" onclick="openProjectManager()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-500 drop-shadow-sm" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+        </svg>
+        <span class="text-xs font-bold mt-1 text-gray-700 uppercase tracking-wide">Pliki</span>
       </div>
+    </div>
+    <div class="save-load-right">
+      <span class="save-load-label">Ulubione</span>
+      <div class="slots-container" id="presetButtons"></div>
+    </div>
+  </div>
+</div>
+<div class="max-w-[1600px] w-full mx-auto px-4 sm:px-6">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+    
+    <div class="lg:col-span-8 bg-white rounded-3xl border shadow-sm p-5 sm:p-8 space-y-8">
       
       <div class="mb-4 mt-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
@@ -186,8 +274,8 @@
         <h3 class="font-bold text-gray-800 border-b pb-2">Ustawienia Wizualne</h3>
         
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Styl</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Styl</label>
             <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomStyle()">
               <option value="none">brak</option>
               <option value="hyperrealism" selected>hyperrealism</option>
@@ -220,8 +308,8 @@
               <option value="custom">własny (opisz niżej)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Ujęcie</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Ujęcie</label>
             <select id="shot" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none">brak</option>
               <option value="portrait">portret</option>
@@ -245,8 +333,8 @@
               <option value="panoramic">panoramic</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Obiektyw</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Obiektyw</label>
             <select id="lens" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
               <option value="20mm">20mm</option>
@@ -257,8 +345,8 @@
               <option value="100mm">100mm</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Kolor</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Kolor</label>
             <select id="color" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
               <option value="neon">neon</option>
@@ -273,8 +361,8 @@
               <option value="muted">muted</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Pora dnia</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Pora dnia</label>
             <select id="timeOfDay" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomTimeOfDay()">
               <option value="none" selected>brak</option>
               <option value="Dawn">Świt (Dawn)</option>
@@ -290,8 +378,8 @@
               <option value="custom">własna (opisz niżej)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Pogoda</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Pogoda</label>
             <select id="weather" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomWeather()">
               <option value="none" selected>brak</option>
               <option value="Clear Sunny Sky">Słonecznie</option>
@@ -310,8 +398,8 @@
               <option value="custom">własna (opisz niżej)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Światła i Cienie</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Światła i Cienie</label>
             <select id="lightsShadows" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
               <option value="soft-diffused">Miękkie rozproszone</option>
@@ -326,8 +414,8 @@
               <option value="ambient-occlusion">Realistyczne AO</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold mb-1 text-gray-500 uppercase">Visual Boosters</label>
+          <div class="visual-wrapper">
+            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Visual Boosters</label>
             <select id="visualBoosters" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
               <option value="photoreal">Fotoreal</option>
@@ -339,7 +427,7 @@
           </div>
         </div>
 
-        <div id="customStyleContainer" class="hidden">
+        <div id="customStyleContainer" class="hidden mt-4">
           <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Twój opis stylu</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="styleCustomDesc" type="text" placeholder="np. dark fantasy oil painting..." class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
@@ -347,7 +435,7 @@
           </div>
         </div>
 
-        <div id="customTimeOfDayContainer" class="hidden">
+        <div id="customTimeOfDayContainer" class="hidden mt-4">
           <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Własna pora dnia</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="timeOfDayCustomDesc" type="text" placeholder="np. krwawy księżyc w pełni" class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
@@ -355,7 +443,7 @@
           </div>
         </div>
 
-        <div id="customWeatherContainer" class="hidden">
+        <div id="customWeatherContainer" class="hidden mt-4">
           <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Własna pogoda</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="weatherCustomDesc" type="text" placeholder="np. deszcz meteorytów" class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
@@ -363,7 +451,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="mt-6 border-t pt-4 border-gray-200">
           <label class="block text-xs font-bold mb-3 text-gray-500 uppercase">Efekty (zaznacz wiele)</label>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white p-4 rounded-2xl border border-gray-200">
             <label class="flex items-center gap-2 text-xs cursor-pointer hover:text-blue-600">
@@ -383,11 +471,15 @@
           </div>
         </div>
       </div>
-
-      <div class="bg-indigo-50 p-4 rounded-3xl border border-indigo-100 space-y-3">
-        <h3 class="font-bold text-indigo-800 border-b border-indigo-200 pb-2">Dodaj postać</h3>
-        <p class="text-xs text-indigo-600 mb-2">Jeśli skopiowałeś postać z innego projektu, możesz ją tu dodać.</p>
-        <div id="addedCharactersList" class="space-y-2"></div>
+<div class="bg-indigo-50 p-4 rounded-3xl border border-indigo-100 space-y-3">
+        <h3 class="font-bold text-indigo-800 border-b border-indigo-200 pb-2">Dodaj poboczne postacie</h3>
+        <p class="text-xs text-indigo-600 mb-2">Skopiuj odpowiedni wygenerowany prompt z innej karty lub skopiuj aktualną postać i dodaj do schowka.</p>
+        <div id="addedCharactersList" class="space-y-3"></div>
+        <div class="flex flex-col sm:flex-row gap-2 mt-2">
+          <button onclick="addCopiedCharacter()" class="flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-2 rounded-xl transition text-sm">
+            + Wklej ze schowka
+          </button>
+        </div>
       </div>
 
       <div id="characterTraitsWrapper" class="transition-opacity duration-300">
@@ -404,9 +496,9 @@
             <label class="block font-semibold mb-2 text-gray-700">Nagość / Ubiór</label>
             <select id="nudity" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
               <option value="none">brak</option>
-              <option value="dressed" selected>ubrany (dressed)</option>
-              <option value="nude">nude</option>
-              <option value="nudeFlower">nude + flower</option>
+              <option value="dressed" selected>ubranie (dressed)</option>
+              <option value="nude">nagość</option>
+              <option value="nudeFlower">nagość + kwiatek</option>
               <option value="topless">topless</option>
             </select>
           </div>
@@ -443,6 +535,7 @@
               <select id="age" class="w-full rounded-2xl border border-gray-300 p-3 text-sm bg-white">
                 <option value="none">brak</option>
                 <option value="child">dziecko</option>
+                <option value="teenager">nastolatka</option>
                 <option value="young adult">młody dorosły</option>
                 <option value="adult" selected>dorosły</option>
                 <option value="old">stary</option>
@@ -901,192 +994,444 @@
           </div>
         </div>
       </div>
-      </div>
-
-    <div class="bg-white rounded-3xl border shadow-sm p-5 sm:p-8 flex flex-col h-full sticky top-8 max-h-[90vh]">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">Wygenerowany Prompt</h2>
-      <textarea id="promptOutput" readonly class="flex-1 w-full min-h-[300px] sm:min-h-[200px] rounded-2xl border border-gray-300 p-4 sm:p-6 text-sm resize-y font-mono focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed bg-gray-50"></textarea>
-      
-      <div class="mt-6 flex flex-col gap-3">
-        <button onclick="copyPrompt()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg text-lg">
-          Kopiuj Prompt do Schowka
-        </button>
-        <button onclick="copyCharacter()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 font-bold py-3 px-8 rounded-2xl transition-all">
-          Kopiuj postać
-        </button>
-        <div class="flex flex-col items-center mt-2">
-          <button onclick="copyCharacterSheet()" class="w-full bg-teal-100 hover:bg-teal-200 text-teal-800 border border-teal-300 font-bold py-3 px-8 rounded-2xl transition-all">
-            Character sheet
-          </button>
-          <span class="text-xs text-gray-400 font-semibold mt-1">(do aspect ratio 1:1)</span>
+    </div> <div class="lg:col-span-5 xl:col-span-4 relative">
+      <div class="sticky-sidebar space-y-6">
+        <div class="bg-gray-900 rounded-xl shadow-lg p-5">
+          <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              Wygenerowany Prompt
+            </h2>
+            <span class="text-xs text-gray-400">Aktualizuje się sam</span>
+          </div>
+          <textarea id="promptOutput" rows="18" class="w-full bg-gray-800 text-green-300 p-3 rounded-lg text-sm border-none focus:ring-1 focus:ring-green-500 mb-4 resize-y font-mono leading-relaxed shadow-inner" readonly></textarea>
+          
+          <div class="mt-6 flex flex-col gap-3">
+            <button onclick="copyPrompt()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] transition transform hover:scale-[1.02] flex justify-center items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              Skopiuj Prompt
+            </button>
+            <button onclick="copyCharacter()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 font-bold py-3 px-8 rounded-lg transition-all">
+              Kopiuj postać
+            </button>
+            <div class="flex flex-col items-center mt-2">
+              <button onclick="copyCharacterSheet()" class="w-full bg-teal-100 hover:bg-teal-200 text-teal-800 border border-teal-300 font-bold py-3 px-8 rounded-lg transition-all">
+                Character sheet
+              </button>
+              <span class="text-xs text-gray-400 font-semibold mt-1">(do aspect ratio 1:1)</span>
+            </div>
+          </div>
         </div>
+
+        <div id="notesModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl flex flex-col h-[50vh]">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold text-gray-800">Notatki</h3>
+              <button onclick="closeNotesModal()" class="text-gray-400 hover:text-gray-600 font-bold text-2xl leading-none">&times;</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-3">Te notatki nie wchodzą do wygenerowanego promptu. Zapiszą się razem z presetem.</p>
+            <textarea id="notes" class="flex-1 w-full rounded-xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-4" placeholder="Wpisz tutaj swoje prywatne notatki..."></textarea>
+            <button onclick="closeNotesModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors">Zamknij</button>
+          </div>
+        </div>
+
       </div>
-    </div>
-  </div>
-</div>
+    </div> </div> </div>
 
-<div id="saveModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-xl">
-    <h3 class="text-xl font-bold mb-4 text-gray-800">Zapisz preset</h3>
-    <div class="grid grid-cols-5 gap-3 mb-6" id="saveModalGrid">
-      <button onclick="savePreset(1)" id="save-btn-1" data-slot="1" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">1</button>
-      <button onclick="savePreset(2)" id="save-btn-2" data-slot="2" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">2</button>
-      <button onclick="savePreset(3)" id="save-btn-3" data-slot="3" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">3</button>
-      <button onclick="savePreset(4)" id="save-btn-4" data-slot="4" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">4</button>
-      <button onclick="savePreset(5)" id="save-btn-5" data-slot="5" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">5</button>
-      <button onclick="savePreset(6)" id="save-btn-6" data-slot="6" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">6</button>
-      <button onclick="savePreset(7)" id="save-btn-7" data-slot="7" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">7</button>
-      <button onclick="savePreset(8)" id="save-btn-8" data-slot="8" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">8</button>
-      <button onclick="savePreset(9)" id="save-btn-9" data-slot="9" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">9</button>
-      <button onclick="savePreset(10)" id="save-btn-10" data-slot="10" class="save-slot-btn w-10 h-10 rounded-full font-bold transition-colors mx-auto">10</button>
-    </div>
-    <button onclick="closeSaveModal()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-semibold transition-colors">Anuluj</button>
-  </div>
+<div id="toast" class="toast fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl z-[9999] flex items-center gap-2">
+  <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+  <span id="toastMsg">Akcja wykonana!</span>
 </div>
-
-<div id="deleteModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center shadow-xl">
-    <h3 class="text-xl font-bold mb-4 text-gray-800">Wyczyść zapisy</h3>
-    <p class="text-xs text-gray-500 mb-4">Wybierz sloty do usunięcia (podświetlone są zajęte).</p>
-    <div class="grid grid-cols-5 gap-3 mb-6" id="deleteModalGrid"></div>
-    <div class="flex gap-2">
-      <button onclick="confirmDelete()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors shadow-sm">Usuń wybrane</button>
-      <button onclick="closeDeleteModal()" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold transition-colors">Anuluj</button>
-    </div>
-  </div>
-</div>
-
-<div id="notesModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl flex flex-col h-[50vh]">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-xl font-bold text-gray-800">Notatki</h3>
-      <button onclick="closeNotesModal()" class="text-gray-400 hover:text-gray-600 font-bold text-2xl leading-none">&times;</button>
-    </div>
-    <p class="text-xs text-gray-500 mb-3">Te notatki nie wchodzą do wygenerowanego promptu. Zapiszą się razem z presetem.</p>
-    <textarea id="notes" class="flex-1 w-full rounded-xl border border-gray-300 p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-4" placeholder="Wpisz tutaj swoje prywatne notatki..."></textarea>
-    <button onclick="closeNotesModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors">Zamknij</button>
-  </div>
-</div>
-
-<div id="dynamicToast" class="toast fixed bottom-8 right-8 bg-gray-800 text-white px-6 py-4 rounded-2xl shadow-2xl z-[90] flex items-center gap-3"></div>
 <script>
+// --- SŁOWNIKI WIZUALNE I KONFIGURACJA ---
 const hyperTagBlock = `(sharp focus, smooth, aesthetic, extremely detailed, octane render, solo, cinematic light, intricate detail, highly detailed, high res, detailed facial features, Ultrarealistic Photography, trending on Flickr, trending on pinterest, insanely detailed and intricate, Lifelike, Authentic, True-to-life, Genuine, Natural, Cinematic Lighting, Dramatic, Theatrical, Atmospheric, Evocative, Mood-setting, Award Winning Photography, Acclaimed, Recognized, Celebrated, Honored, Prize-winning, Sharp Focus, Crisp, Clear, Precise, Well-defined, Distinct, Masterpiece, Ultra-Realistic Model, Iconic, Exceptional, Extraordinary, Stunning, Magnificent, Studio Photography, Controlled, Polished, Professional, Refined, Perfected, Nikon, High-quality, Reliable, Durable, Precision-engineered, Cutting-edge, No Filter Photography, Natural-looking, Unedited, Raw, Authentic, True-to-life, 8K Photography, High-resolution, Crystal-clear, Ultra-detailed, Immersive, Cutting-edge, Realistic Skin Texture, Lifelike, Natural-looking, Authentic, True-to-life, Genuine, Photorealistic, Hyper-realistic, True-to-life, Natural-looking, Authentic, Realistic, Hyper Realism, Ultra-detailed, Intensely realistic, Extremely lifelike, Highly precise, Stunningly accurate, Highly Detailed, Intricate, Elaborate, Meticulous, Comprehensive, Thorough, Flattering, Intimate, Personal, Impressive, Captivating, Professional Studio Lighting, Expertly lit, Skillfully crafted, Perfectly balanced, Impeccably executed, Artfully arranged, Million dollar Photoshoot, Memorable.)`;
-
-const styles = {
-  hyperrealism: { full: `Create a highly photorealistic image captured with a modern full-frame mirrorless camera, using a 50mm prime lens at f/1.8. Emphasize contemporary editorial outdoor photography aesthetics with natural dynamic range, lifelike skin micro-texture, realistic atmospheric depth, subtle lens breathing, gentle background separation, and physically accurate lighting. Include authentic real-world details such as slight fabric imperfections, natural environmental haze, fine sensor grain, and modern cinematic color grading with balanced contrast, true-to-life tones, and crisp highlight rolloff.` },
-  realistic: { full: `hyperrealistic skin with visible pores and imperfections, realistic sweat and oil, photorealistic face with detailed eyes and natural catchlights, realistic atmospheric particles and depth, RAW photo, film grain, shot on Sony A7R IV 85mm f/1.4, physically based rendering, global illumination, no plastic skin, no AI artifacts, maximum realism` },
-  reality: { full: `Reality photography, no AI gloss, no artificial perfection, raw unfiltered appearance, authentic skin variations, natural environmental noise and texture, maximum organic fidelity, avoids all common generative artifacts` },
-  movieGrain: { full: `shot on Kodak Portra 800 or Cinestill 800T, heavy natural film grain, subtle color shifts and halation, scanned from real negative, organic film texture over entire image` },
-  illustrationWow: { full: `Stylized fantasy character illustration, highly plastic and malleable forms, soft sculpted shapes, exaggerated mass and weight distribution, squash-and-stretch influence, elastic anatomy, gesture-driven design, bold readable silhouette, dynamic shape rhythm, appealing asymmetry cartoon-rooted stylization with semi-realistic rendering, simplified but expressive anatomy, slightly exaggerated proportions, organic flowing shapes instead of rigid structure painterly digital art, soft brush strokes, visible brush energy, subtle texture brushwork, smooth but lively gradients, soft painterly shading, forms defined by light rather than hard edges warm cinematic lighting, soft volumetric glow, rich color transitions, saturated but natural palette, gentle rim light, atmospheric depth whimsical yet mature fantasy aesthetic, expressive and tactile form language, cute but grounded proportions, animated film concept art with realistic lighting depth.` },
-  painterlySprite: { full: "a stylized fantasy illustration with visible brush texture and painterly shading." },
-  pixelArtGame: { full: "a crisp pixel art game scene with 8-bit aesthetic." },
-  pixelIllustration: { full: "ultra-high resolution pixel art illustration with complex lighting." },
-  illustration: { full: "a high-quality masterpiece illustration with breathtaking detail." },
-  watercolor: { full: "a beautiful watercolor painting on textured cold-press paper." },
-  waifu: { full: "a semi-realistic anime waifu illustration with soft lighting." },
-  pixar: { full: "a detailed 3D Pixar-style render with expressive features." },
-  anime: { full: "clean high-quality anime art with traditional cel-shading." },
-  cartoon2d: { full: "a clean 2D cartoon illustration with bold outlines." },
-  pencil: { full: "Black and white, breathtaking pencil illustration, highly detailed, 4k, textured paper, pencil texture, sketch." },
-  cursetPhoto: { full: "Unsettling photo, cursed_thing, cursedimages, no context, cursed image, bad photo, weird photo, very strange, color photo, creepy photo, nightmare fuel." },
-  claymation: { full: "Claymation, incredible claymation style, kubo and the two strings style art, Missing Link 2019 art style, clay texture, clay animation, stop-motion clay." },
-  crayon: { full: "Crayon drawing." },
-  disney2d: { full: "Overall, it's an absolute world-class masterpiece 2D Disney-inspired Character. It's an aesthetically pleasing 2D Disney-inspired piece with impeccable attention to detail and impressive composition." },
-  disney3d: { full: "Overall, it's an absolute world-class masterpiece 3D Disney-inspired Character. It's an aesthetically pleasing 3D Disney-inspired piece with impeccable attention to detail and impressive composition." },
-  disneySketch: { full: "Overall, it's an charmingly aesthetic and well-composed Disney-style sketch." },
-  conceptSketch: { full: "Overall, it's a charmingly aesthetic and well-composed concept sketch." },
-  conceptArt: { full: "Overall, it's absolute world-class masterpiece concept art. It's an aesthetically pleasing concept art with impeccable attention to detail and impressive composition." },
-  oilPainting: { full: "Overall, it's an absolute world-class masterpiece realism oil painting. It's an aesthetically pleasing realism oil painting with impeccable attention to detail and impressive composition." },
-  stylizedFantasy: { full: "A stylized fantasy illustration with visible brush texture and painterly shading., d&d, fantasy, highly detailed, digital painting, artstation, sharp focus, fantasy art, illustration, 8k, in the style of greg rutkowski. It's an absolute world-class masterpiece artwork. It's an aesthetically pleasing artwork with impeccable attention to detail and impressive composition." },
-  frazzeta: { full: "Raw, primal fantasy illustration, dynamic composition frozen mid-action, exaggerated anatomy with powerful musculature, bodies twisted in tension, thick painterly brushstrokes, visible texture, oil painting feel, dramatic chiaroscuro lighting, deep shadows swallowing parts of the scene, warm earthy palette (burnt sienna, ochre, deep reds, dirty gold), subtle desaturation, sweat, grime, and imperfection on skin, wild untamed hair, minimal background with smoky or abstract atmosphere, sense of heat and dust in the air, aggressive poses, sensual but savage energy, heroic yet brutal tone, asymmetrical composition, strong contrast, cinematic but chaotic, 1970s fantasy illustration vibe, no clean lines, no digital smoothness, tactile paint surface." },
-  barok: { full: "Dramatic baroque fantasy painting, intense chiaroscuro lighting, single strong directional light source cutting through deep darkness, figures emerging from shadow, theatrical composition, diagonal movement, dynamic and emotional poses, rich but controlled color palette (deep reds, warm golds, dark browns, black shadows), oil painting texture with visible brushwork, high contrast between illuminated skin and dark background, sense of depth through darkness, sacred and violent atmosphere, sensual realism, expressive faces filled with tension or ecstasy, fabric with heavy folds and weight, subtle ornamentation but not decorative overload, composition focused on light and gesture, cinematic intensity, classical baroque painting style, no modern digital smoothness." }
-};
-
-const shots = {
-  portrait: "Camera: Close-up portrait shot", bust: "Camera: Medium bust shot", fullBody: "Camera: Wide cinematic full shot",
-  "high-angle": "Camera: high-angle shot", "low-angle": "Camera: low-angle shot", "worm-eye": "Camera: Extreme worm’s-eye view",
-  "dramatic-wide": "Camera: dramatic wide-lens perspective", "dramatic-extreme": "Camera: dramatic angle, extreme angle shot",
-  "close-up": "Camera: close-up shot", "extreme-close-up": "Camera: extreme close-up", "aerial": "Camera: aerial shot",
-  "close-up-portrait": "Camera: close-up portrait", "macro": "Camera: macro shot", "wide-angle": "Camera: wide-angle shot",
-  "establishing": "Camera: establishing shot", "over-the-shoulder": "Camera: over-the-shoulder shot", "telephoto": "Camera: telephoto shot",
-  "handheld": "Camera: handheld shot", "panoramic": "Camera: panoramic shot"
-};
-
-const lightsShadowsMap = {
-  "soft-diffused": "soft diffused lighting, gentle soft shadows, subtle volumetric haze, smooth transitions",
-  "sharp-dramatic": "harsh direct lighting, sharp defined shadows, high contrast, strong chiaroscuro",
-  "god-rays": "volumetric god rays, dramatic light beams through dust or fog, deep atmospheric shadows",
-  "rim-light": "strong rim lighting, glowing silhouette edges, deep back shadows, dramatic separation",
-  "golden-hour-long": "golden hour lighting, long soft shadows, warm golden tones, cinematic natural light",
-  "candlelight": "candlelight and warm flickering shadows, intimate moody atmosphere, soft warm glow",
-  "neon-cyberpunk": "vibrant neon lighting, colorful glowing shadows, cyberpunk reflections and haze",
-  "film-noir": "film noir style, high contrast dramatic shadows, moody low-key lighting, deep blacks",
-  "studio": "professional studio lighting, softbox and beauty dish shadows, clean controlled shadows",
-  "ambient-occlusion": "hyper realistic ambient occlusion, subtle shadows in crevices and textures, depth and realism"
-};
-
-const boostersMap = {
-  "photoreal": "ultra realistic light physics on skin and hair, sharp specular highlights, multiple eye catchlights, SSS, micro skin details",
-  "cinematic": "cinematic multi-light interaction, dramatic specular accents on skin, perfect shaped catchlights in eyes, beautiful volumetric rim light on hair and shoulders, Hollywood lighting precision",
-  "anime": "perfect anime lighting on character, sharp hair highlights, glossy eye catchlights, clean specular on skin",
-  "realistic-reflections": "precise multi-source lighting interaction on character, realistic specular highlights and catchlights on skin hair and eyes, accurate reflections from every light source, subsurface scattering on skin, detailed rim lighting and hair highlights, physically correct light behavior",
-  "hardcore": "extremely precise physically based lighting on every surface of the character, complex multi-source light interaction, accurate specular and diffuse reflections from ALL light sources in scene, multiple distinct catchlights in eyes matching each light, detailed subsurface scattering with realistic skin translucency, individual hair strands catching light with beautiful highlights and shadows, rim lighting reacting to every light, micro highlights on skin pores and lips, no light ignored, maximum light fidelity"
-};
-
-const sweatMap = {
-  "light": "lightly sweated skin",
-  "medium": "moderately sweated body",
-  "heavy": "body dripping with heavy sweat"
-};
-
-const effectsMap = {
-  "tilt-shift": "tilt-shift effect", "golden-hour": "golden hour", "bokeh": "bokeh",
-  "soft-focus": "soft focus", "dof": "shallow depth of field", "chromatic": "chromatic aberrations",
-  "light-leaks": "light leaks", "rear-projection": "rear projection", "lens-flare": "lens flare",
-  "long-exposure": "long exposure", "silhouette": "silhouette"
-};
-
-const colorsMap = {
-  "neon": "neon color grading", "cool-toned-sterile": "cool-toned sterile colors", "vibrant": "vibrant color grading",
-  "warm": "warm color grading", "cool-toned": "cool-toned color grading", "pastel": "pastel color grading",
-  "duotone": "duotone color grading", "monochrome": "monochrome", "bright": "bright color grading", "muted": "muted color grading"
-};
+const styles = { hyperrealism: { full: `Create a highly photorealistic image captured with a modern full-frame mirrorless camera, using a 50mm prime lens at f/1.8. Emphasize contemporary editorial outdoor photography aesthetics with natural dynamic range, lifelike skin micro-texture, realistic atmospheric depth, subtle lens breathing, gentle background separation, and physically accurate lighting. Include authentic real-world details such as slight fabric imperfections, natural environmental haze, fine sensor grain, and modern cinematic color grading with balanced contrast, true-to-life tones, and crisp highlight rolloff.` }, realistic: { full: `hyperrealistic skin with visible pores and imperfections, realistic sweat and oil, photorealistic face with detailed eyes and natural catchlights, realistic atmospheric particles and depth, RAW photo, film grain, shot on Sony A7R IV 85mm f/1.4, physically based rendering, global illumination, no plastic skin, no AI artifacts, maximum realism` }, reality: { full: `Reality photography, no AI gloss, no artificial perfection, raw unfiltered appearance, authentic skin variations, natural environmental noise and texture, maximum organic fidelity, avoids all common generative artifacts` }, movieGrain: { full: `shot on Kodak Portra 800 or Cinestill 800T, heavy natural film grain, subtle color shifts and halation, scanned from real negative, organic film texture over entire image` }, illustrationWow: { full: `Stylized fantasy character illustration, highly plastic and malleable forms, soft sculpted shapes, exaggerated mass and weight distribution, squash-and-stretch influence, elastic anatomy, gesture-driven design, bold readable silhouette, dynamic shape rhythm, appealing asymmetry cartoon-rooted stylization with semi-realistic rendering, simplified but expressive anatomy, slightly exaggerated proportions, organic flowing shapes instead of rigid structure painterly digital art, soft brush strokes, visible brush energy, subtle texture brushwork, smooth but lively gradients, soft painterly shading, forms defined by light rather than hard edges warm cinematic lighting, soft volumetric glow, rich color transitions, saturated but natural palette, gentle rim light, atmospheric depth whimsical yet mature fantasy aesthetic, expressive and tactile form language, cute but grounded proportions, animated film concept art with realistic lighting depth.` }, painterlySprite: { full: "a stylized fantasy illustration with visible brush texture and painterly shading." }, pixelArtGame: { full: "a crisp pixel art game scene with 8-bit aesthetic." }, pixelIllustration: { full: "ultra-high resolution pixel art illustration with complex lighting." }, illustration: { full: "a high-quality masterpiece illustration with breathtaking detail." }, watercolor: { full: "a beautiful watercolor painting on textured cold-press paper." }, waifu: { full: "a semi-realistic anime waifu illustration with soft lighting." }, pixar: { full: "a detailed 3D Pixar-style render with expressive features." }, anime: { full: "clean high-quality anime art with traditional cel-shading." }, cartoon2d: { full: "a clean 2D cartoon illustration with bold outlines." }, pencil: { full: "Black and white, breathtaking pencil illustration, highly detailed, 4k, textured paper, pencil texture, sketch." }, cursetPhoto: { full: "Unsettling photo, cursed_thing, cursedimages, no context, cursed image, bad photo, weird photo, very strange, color photo, creepy photo, nightmare fuel." }, claymation: { full: "Claymation, incredible claymation style, kubo and the two strings style art, Missing Link 2019 art style, clay texture, clay animation, stop-motion clay." }, crayon: { full: "Crayon drawing." }, disney2d: { full: "Overall, it's an absolute world-class masterpiece 2D Disney-inspired Character. It's an aesthetically pleasing 2D Disney-inspired piece with impeccable attention to detail and impressive composition." }, disney3d: { full: "Overall, it's an absolute world-class masterpiece 3D Disney-inspired Character. It's an aesthetically pleasing 3D Disney-inspired piece with impeccable attention to detail and impressive composition." }, disneySketch: { full: "Overall, it's an charmingly aesthetic and well-composed Disney-style sketch." }, conceptSketch: { full: "Overall, it's a charmingly aesthetic and well-composed concept sketch." }, conceptArt: { full: "Overall, it's absolute world-class masterpiece concept art. It's an aesthetically pleasing concept art with impeccable attention to detail and impressive composition." }, oilPainting: { full: "Overall, it's an absolute world-class masterpiece realism oil painting. It's an aesthetically pleasing realism oil painting with impeccable attention to detail and impressive composition." }, stylizedFantasy: { full: "A stylized fantasy illustration with visible brush texture and painterly shading., d&d, fantasy, highly detailed, digital painting, artstation, sharp focus, fantasy art, illustration, 8k, in the style of greg rutkowski. It's an absolute world-class masterpiece artwork. It's an aesthetically pleasing artwork with impeccable attention to detail and impressive composition." }, frazzeta: { full: "Raw, primal fantasy illustration, dynamic composition frozen mid-action, exaggerated anatomy with powerful musculature, bodies twisted in tension, thick painterly brushstrokes, visible texture, oil painting feel, dramatic chiaroscuro lighting, deep shadows swallowing parts of the scene, warm earthy palette (burnt sienna, ochre, deep reds, dirty gold), subtle desaturation, sweat, grime, and imperfection on skin, wild untamed hair, minimal background with smoky or abstract atmosphere, sense of heat and dust in the air, aggressive poses, sensual but savage energy, heroic yet brutal tone, asymmetrical composition, strong contrast, cinematic but chaotic, 1970s fantasy illustration vibe, no clean lines, no digital smoothness, tactile paint surface." }, barok: { full: "Dramatic baroque fantasy painting, intense chiaroscuro lighting, single strong directional light source cutting through deep darkness, figures emerging from shadow, theatrical composition, diagonal movement, dynamic and emotional poses, rich but controlled color palette (deep reds, warm golds, dark browns, black shadows), oil painting texture with visible brushwork, high contrast between illuminated skin and dark background, sense of depth through darkness, sacred and violent atmosphere, sensual realism, expressive faces filled with tension or ecstasy, fabric with heavy folds and weight, subtle ornamentation but not decorative overload, composition focused on light and gesture, cinematic intensity, classical baroque painting style, no modern digital smoothness." } };
+const shots = { portrait: "Camera: Close-up portrait shot", bust: "Camera: Medium bust shot", fullBody: "Camera: Wide cinematic full shot", "high-angle": "Camera: high-angle shot", "low-angle": "Camera: low-angle shot", "worm-eye": "Camera: Extreme worm’s-eye view", "dramatic-wide": "Camera: dramatic wide-lens perspective", "dramatic-extreme": "Camera: dramatic angle, extreme angle shot", "close-up": "Camera: close-up shot", "extreme-close-up": "Camera: extreme close-up", "aerial": "Camera: aerial shot", "close-up-portrait": "Camera: close-up portrait", "macro": "Camera: macro shot", "wide-angle": "Camera: wide-angle shot", "establishing": "Camera: establishing shot", "over-the-shoulder": "Camera: over-the-shoulder shot", "telephoto": "Camera: telephoto shot", "handheld": "Camera: handheld shot", "panoramic": "Camera: panoramic shot" };
+const lightsShadowsMap = { "soft-diffused": "soft diffused lighting, gentle soft shadows, subtle volumetric haze, smooth transitions", "sharp-dramatic": "harsh direct lighting, sharp defined shadows, high contrast, strong chiaroscuro", "god-rays": "volumetric god rays, dramatic light beams through dust or fog, deep atmospheric shadows", "rim-light": "strong rim lighting, glowing silhouette edges, deep back shadows, dramatic separation", "golden-hour-long": "golden hour lighting, long soft shadows, warm golden tones, cinematic natural light", "candlelight": "candlelight and warm flickering shadows, intimate moody atmosphere, soft warm glow", "neon-cyberpunk": "vibrant neon lighting, colorful glowing shadows, cyberpunk reflections and haze", "film-noir": "film noir style, high contrast dramatic shadows, moody low-key lighting, deep blacks", "studio": "professional studio lighting, softbox and beauty dish shadows, clean controlled shadows", "ambient-occlusion": "hyper realistic ambient occlusion, subtle shadows in crevices and textures, depth and realism" };
+const boostersMap = { "photoreal": "ultra realistic light physics on skin and hair, sharp specular highlights, multiple eye catchlights, SSS, micro skin details", "cinematic": "cinematic multi-light interaction, dramatic specular accents on skin, perfect shaped catchlights in eyes, beautiful volumetric rim light on hair and shoulders, Hollywood lighting precision", "anime": "perfect anime lighting on character, sharp hair highlights, glossy eye catchlights, clean specular on skin", "realistic-reflections": "precise multi-source lighting interaction on character, realistic specular highlights and catchlights on skin hair and eyes, accurate reflections from every light source, subsurface scattering on skin, detailed rim lighting and hair highlights, physically correct light behavior", "hardcore": "extremely precise physically based lighting on every surface of the character, complex multi-source light interaction, accurate specular and diffuse reflections from ALL light sources in scene, multiple distinct catchlights in eyes matching each light, detailed subsurface scattering with realistic skin translucency, individual hair strands catching light with beautiful highlights and shadows, rim lighting reacting to every light, micro highlights on skin pores and lips, no light ignored, maximum light fidelity" };
+const sweatMap = { "light": "lightly sweated skin", "medium": "moderately sweated body", "heavy": "body dripping with heavy sweat" };
+const effectsMap = { "tilt-shift": "tilt-shift effect", "golden-hour": "golden hour", "bokeh": "bokeh", "soft-focus": "soft focus", "dof": "shallow depth of field", "chromatic": "chromatic aberrations", "light-leaks": "light leaks", "rear-projection": "rear projection", "lens-flare": "lens flare", "long-exposure": "long exposure", "silhouette": "silhouette" };
+const colorsMap = { "neon": "neon color grading", "cool-toned-sterile": "cool-toned sterile colors", "vibrant": "vibrant color grading", "warm": "warm color grading", "cool-toned": "cool-toned color grading", "pastel": "pastel color grading", "duotone": "duotone color grading", "monochrome": "monochrome", "bright": "bright color grading", "muted": "muted color grading" };
 
 const inputIds = [
   'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'lens', 'style', 'styleCustomDesc', 'color',
   'timeOfDay', 'timeOfDayCustomDesc', 'weather', 'weatherCustomDesc', 'lightsShadows', 'visualBoosters',
   'gender', 'age', 'skinTone', 'skinToneCustomDesc', 'tan', 'stubble', 'beard', 'moustache',
   'ears', 'earsCustomDesc', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'eyebrowsCustomDesc', 'freckles',
-  'hairColor', 'hairColorCustomDesc', 'hairLength', 'hairLengthCustomDesc', 'hairType',
-  'hairStyle', 'hairCustomDesc', 'bangs', 'bangsCustomDesc', 'sidelocks',
+  'hairColor', 'hairColorCustomDesc', 'hairLength', 'hairLengthCustomDesc', 'hairType', 'hairStyle', 'hairCustomDesc', 'bangs', 'bangsCustomDesc', 'sidelocks',
   'height', 'headSize', 'body', 'chest', 'hips', 'thighs', 'tail', 'tailCustomDesc', 'horns', 'hornsCustomDesc', 'feet', 'sweat'
 ];
 
 let addedCharacters = [];
-let deleteSelection = new Set();
 let currentSceneMode = 'scene'; 
 let planesData = ['']; 
 let mentionState = { active: false, input: null, startIndex: -1, filter: '', selectedIndex: 0, items: [] };
 
-function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
+let pmData = { folders: [], projects: [], favorites: [null, null, null, null, null, null, null, null, null, null] };
+let currentActiveProjectId = null;
+let pmCallback = null;
+let pmActiveItemsToMove = null;
+let pmActiveItem = null; // item wybrany do zapisania w ulubionych
+let slotsToDelete = []; // sloty wybrane do wyczyszczenia
 
-function clearEffects(noneCheckbox) {
-  if (noneCheckbox.checked) {
-    document.querySelectorAll('.effect-item').forEach(cb => cb.checked = false);
+function loadProjectData() {
+  const saved = localStorage.getItem('rpg_pm_data_v56');
+  if (saved) {
+    try { pmData = JSON.parse(saved); } catch(e) {}
+  } else {
+    const oldData = localStorage.getItem('rpg_pm_data') || localStorage.getItem('rpg_projects');
+    if (oldData) {
+      try {
+        let parsed = JSON.parse(oldData);
+        pmData.projects = parsed.projects || [];
+        pmData.folders = parsed.folders || [];
+        
+        if (parsed.favorites) {
+          if (Array.isArray(parsed.favorites)) {
+            for(let i=0; i<10; i++) pmData.favorites[i] = parsed.favorites[i] || null;
+          } else {
+            for(let i=0; i<10; i++) pmData.favorites[i] = parsed.favorites[i] || null;
+          }
+        }
+        saveProjectData();
+      } catch(e) {}
+    }
   }
-  generatePrompt();
+  updateFavoritesUI();
 }
+
+function saveProjectData() { localStorage.setItem('rpg_pm_data_v56', JSON.stringify(pmData)); }
+
+function getAutoProjectName() {
+  const nameInput = document.getElementById('projectName').value.trim();
+  if (nameInput) return nameInput;
+  const isChar = document.getElementById('typeCharacter').checked;
+  return isChar ? "Postać_Nowa" : "Scena_Nowa";
+}
+
+// --- ULUBIONE UI (Główny ekran) ---
+function updateFavoritesUI() {
+  const container = document.getElementById('presetButtons');
+  if(!container) return;
+  container.innerHTML = '';
+
+  for(let i=0; i<10; i++) {
+    const pid = pmData.favorites[i];
+    const isFilled = pid && pmData.projects.some(p => p.id === pid);
+    const proj = isFilled ? pmData.projects.find(p => p.id === pid) : null;
+    
+    const btn = document.createElement('button');
+    btn.innerText = i + 1;
+    btn.className = `slot-btn ${isFilled ? 'slot-filled' : 'slot-empty'}`;
+    
+    // Obsługa Tooltip: Myszką
+    btn.addEventListener('mouseenter', (e) => showTooltip(e, isFilled ? `Wczytaj: ${proj.type}_${proj.name}` : "Pusty slot. Zapisz projekt jako plik, aby go tutaj przypisać."));
+    btn.addEventListener('mouseleave', hideTooltip);
+    
+    // Obsługa Tooltip: Przytrzymanie palcem na mobile
+    let pressTimer;
+    btn.addEventListener('touchstart', (e) => {
+      btn.dataset.longpressed = 'false';
+      pressTimer = window.setTimeout(() => {
+        showTooltip(e, isFilled ? `Wczytaj: ${proj.type}_${proj.name}` : "Pusty slot.");
+        btn.dataset.longpressed = 'true';
+      }, 500); // Wyzwolenie nazwy po pół sekundy
+    }, {passive: true});
+    
+    btn.addEventListener('touchend', (e) => {
+      clearTimeout(pressTimer);
+      setTimeout(() => hideTooltip(), 1500); // Pozwala użytkownikowi zobaczyć co kliknął po oderwaniu palca
+    });
+    
+    btn.onclick = (e) => {
+      e.preventDefault();
+      // Jeśli przytrzymał palec, blokujemy samo wczytywanie po puszczeniu
+      if(btn.dataset.longpressed === 'true') {
+        btn.dataset.longpressed = 'false';
+        return; 
+      }
+      
+      if (isFilled) {
+        loadAppState(proj.data); 
+        currentActiveProjectId = proj.id;
+        document.getElementById('projectName').value = proj.name;
+        showToast(`Wczytano: ${proj.name}`);
+      } else { showToast("Pusty slot.", true); }
+    };
+    
+    container.appendChild(btn);
+  }
+}
+
+// --- SYSTEM ZARZĄDZANIA ULUBIONYMI (Nowy Modal Usuwania) ---
+function openDeleteFavModal() {
+  slotsToDelete = [];
+  const grid = document.getElementById('pmDeleteFavGrid');
+  grid.innerHTML = '';
+  
+  for(let i=0; i<10; i++) {
+    const isFilled = pmData.favorites[i] !== null;
+    const btn = document.createElement('button');
+    btn.innerText = i + 1;
+    
+    // Podobne do UI głównego
+    btn.className = `w-12 h-12 mx-auto rounded-full font-bold transition flex items-center justify-center text-sm border-2 ${isFilled ? 'bg-green-50 border-green-300 text-green-600 hover:bg-green-100' : 'bg-[#eef2ff] border-transparent text-blue-500 opacity-50 cursor-not-allowed'}`;
+    
+    if (isFilled) {
+      btn.onclick = () => toggleDeleteSelection(i, btn);
+    }
+    grid.appendChild(btn);
+  }
+  document.getElementById('pmDeleteFavModal').classList.remove('hidden');
+}
+
+function closeDeleteFavModal() { document.getElementById('pmDeleteFavModal').classList.add('hidden'); }
+
+function toggleDeleteSelection(idx, btn) {
+  if (slotsToDelete.includes(idx)) {
+    slotsToDelete = slotsToDelete.filter(i => i !== idx);
+    btn.classList.remove('ring-4', 'ring-red-500', 'border-red-500');
+  } else {
+    slotsToDelete.push(idx);
+    btn.classList.add('ring-4', 'ring-red-500', 'border-red-500');
+  }
+}
+
+function confirmDeleteFavs() {
+  if(slotsToDelete.length === 0) {
+    closeDeleteFavModal();
+    return;
+  }
+  slotsToDelete.forEach(idx => {
+    pmData.favorites[idx] = null;
+  });
+  saveProjectData();
+  updateFavoritesUI();
+  renderPMList();
+  closeDeleteFavModal();
+  showToast("Wyczyszczono wybrane sloty!");
+}
+
+// WYBÓR ULUBIONYCH - MODAL (ZAPISZ)
+function pmOpenFavModal(pid) {
+  pmActiveItem = pid;
+  const grid = document.getElementById('pmFavGrid');
+  grid.innerHTML = ''; 
+  
+  for(let i=0; i<10; i++) {
+    const btn = document.createElement('button');
+    const isFilled = pmData.favorites[i] !== null;
+    btn.className = `w-12 h-12 mx-auto rounded-full font-bold transition flex items-center justify-center text-sm border-2 ${isFilled ? 'bg-green-100 border-green-300 text-green-700' : 'bg-[#eef2ff] border-transparent text-blue-600 hover:bg-blue-100'}`;
+    btn.innerText = i + 1;
+    btn.onclick = () => { confirmSelectFavModal(i); };
+    grid.appendChild(btn);
+  }
+  document.getElementById('pmSelectFavModal').classList.remove('hidden');
+}
+function closeSelectFavModal() { document.getElementById('pmSelectFavModal').classList.add('hidden'); }
+function confirmSelectFavModal(idx) {
+  pmData.favorites[idx] = pmActiveItem;
+  saveProjectData(); updateFavoritesUI(); renderPMList(); 
+  closeSelectFavModal(); showToast(`Przypisano do slotu ${idx+1}`);
+}
+
+// --- MENEDŻER PROJEKTÓW (OVERLIB) ---
+function openProjectManager() { document.getElementById('projectModal').classList.remove('hidden'); renderPMList(); }
+function closeProjectManager() { document.getElementById('projectModal').classList.add('hidden'); }
+
+function getProjectFormatName() {
+  const name = document.getElementById('projectName').value.trim() || 'Nowy';
+  const type = document.getElementById('typeProject').checked ? 'Scena' : 'Postać';
+  return { name, type };
+}
+
+function pmCreateFolder() {
+  pmShowInput("Nazwa nowego folderu:", "Nowa Grupa", (val) => {
+    pmData.folders.push({ id: 'f_' + Date.now(), name: val, order: pmData.folders.length, open: true });
+    saveProjectData(); renderPMList();
+  });
+}
+
+function pmSaveAsNew() {
+  const { name, type } = getProjectFormatName();
+  const state = getAppState();
+  const newId = 'p_' + Date.now();
+  pmData.projects.push({ id: newId, folderId: null, name: name, type: type, data: state });
+  currentActiveProjectId = newId;
+  saveProjectData(); renderPMList(); updateFavoritesUI(); showToast("Zapisano jako nowy projekt!");
+}
+
+function pmOverwriteCurrent() {
+  if (!currentActiveProjectId) { showToast("Brak otwartego projektu z bazy. Użyj 'Zapisz jako nowy'.", true); return; }
+  const pIndex = pmData.projects.findIndex(p => p.id === currentActiveProjectId);
+  if (pIndex !== -1) {
+    const { name, type } = getProjectFormatName();
+    pmData.projects[pIndex].data = getAppState();
+    pmData.projects[pIndex].name = name; pmData.projects[pIndex].type = type;
+    saveProjectData(); renderPMList(); updateFavoritesUI(); showToast("Projekt nadpisany pomyślnie.");
+  }
+}
+
+function getPmSelected() { return Array.from(document.querySelectorAll('.pm-checkbox:checked')).map(cb => cb.value); }
+
+function pmLoadSelected() {
+  const sel = getPmSelected();
+  if (sel.length === 0) return showToast("Zaznacz projekt do wczytania.", true);
+  if (sel.length > 1) return showToast("Zaznacz tylko jeden projekt.", true);
+  const p = pmData.projects.find(x => x.id === sel[0]);
+  if (p) { loadAppState(p.data); currentActiveProjectId = p.id; closeProjectManager(); showToast(`Wczytano: ${p.name}`); }
+}
+
+function pmDeleteSelected() {
+  const sel = getPmSelected();
+  if (sel.length === 0) return;
+  if (confirm(`Czy na pewno chcesz usunąć ${sel.length} zaznaczonych projektów?`)) {
+    pmData.projects = pmData.projects.filter(p => !sel.includes(p.id));
+    for(let i=0; i<10; i++) { if (sel.includes(pmData.favorites[i])) pmData.favorites[i] = null; }
+    saveProjectData(); renderPMList(); updateFavoritesUI();
+  }
+}
+
+function renderPMList() {
+  const container = document.getElementById('pmListContainer'); container.innerHTML = '';
+  pmData.folders.sort((a,b) => a.order - b.order).forEach(f => {
+    let fDiv = document.createElement('div');
+    fDiv.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden";
+    fDiv.innerHTML = `
+      <div class="bg-gray-100 p-3 flex justify-between items-center cursor-pointer hover:bg-gray-200 transition" onclick="pmToggleFolder('${f.id}')">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-gray-700 w-5 text-center">${f.open ? '▼' : '▶'}</span>
+          <span class="text-xl">📁</span>
+          <span class="font-bold text-gray-800">${f.name}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="event.stopPropagation(); pmMoveFolderUp('${f.id}')" class="px-2 py-1 text-xs text-gray-500 hover:bg-white rounded">UP</button>
+          <button onclick="event.stopPropagation(); pmMoveFolderDown('${f.id}')" class="px-2 py-1 text-xs text-gray-500 hover:bg-white rounded">DOWN</button>
+          <button onclick="event.stopPropagation(); pmRenameFolder('${f.id}')" class="px-2 py-1 text-xs text-blue-600 hover:bg-white rounded font-bold">Zmień</button>
+          <button onclick="event.stopPropagation(); pmDeleteFolder('${f.id}')" class="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded font-bold">X</button>
+        </div>
+      </div>
+    `;
+    if (f.open) {
+      let content = document.createElement('div');
+      content.className = "p-2 space-y-1 ml-4 border-l-2 border-gray-100";
+      let projs = pmData.projects.filter(p => p.folderId === f.id);
+      if (projs.length === 0) content.innerHTML = `<div class="text-xs text-gray-400 p-2">Pusty folder</div>`;
+      else projs.forEach(p => content.appendChild(pmCreateProjectRow(p)));
+      fDiv.appendChild(content);
+    }
+    container.appendChild(fDiv);
+  });
+
+  const roots = pmData.projects.filter(p => p.folderId === null);
+  if(roots.length > 0) {
+    let rDiv = document.createElement('div');
+    rDiv.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-2 mt-4 space-y-1";
+    rDiv.innerHTML = `<div class="text-[10px] font-bold text-gray-400 mb-2 px-2 uppercase tracking-wider">Pliki luźne</div>`;
+    roots.forEach(p => rDiv.appendChild(pmCreateProjectRow(p)));
+    container.appendChild(rDiv);
+  }
+}
+
+function pmCreateProjectRow(p) {
+  let div = document.createElement('div');
+  let isFav = pmData.favorites.includes(p.id);
+  div.className = `flex justify-between items-center p-2 rounded-lg hover:bg-blue-50 border ${p.id === currentActiveProjectId ? 'border-blue-300 bg-blue-50' : 'border-transparent'}`;
+  div.innerHTML = `
+    <div class="flex items-center gap-3">
+      <input type="checkbox" class="w-4 h-4 pm-checkbox" value="${p.id}">
+      <span class="font-medium text-sm text-gray-800">${p.type}_${p.name}</span>
+      ${p.id === currentActiveProjectId ? '<span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">AKTYWNY</span>' : ''}
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="pmOpenFavModal('${p.id}')" title="Do Ulubionych" class="${isFav ? 'text-amber-500' : 'text-gray-300'} hover:text-amber-500"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></button>
+    </div>
+  `;
+  return div;
+}
+
+function pmToggleFolder(id) { let f = pmData.folders.find(x=>x.id===id); if(f){ f.open = !f.open; saveProjectData(); renderPMList(); } }
+function pmRenameFolder(id) { let f = pmData.folders.find(x=>x.id===id); if(f){ pmShowInput("Nowa nazwa folderu:", f.name, val => { if(val){ f.name = val; saveProjectData(); renderPMList(); }}); } }
+function pmDeleteFolder(id) {
+  if(confirm("Czy usunąć folder i wszystkie projekty w nim?")) {
+    pmData.projects = pmData.projects.filter(p => p.folderId !== id);
+    pmData.folders = pmData.folders.filter(f => f.id !== id);
+    saveProjectData(); renderPMList(); updateFavoritesUI();
+  }
+}
+function pmMoveFolderUp(id) { let idx = pmData.folders.findIndex(x=>x.id===id); if(idx>0){ let t = pmData.folders[idx].order; pmData.folders[idx].order = pmData.folders[idx-1].order; pmData.folders[idx-1].order = t; saveProjectData(); renderPMList(); } }
+function pmMoveFolderDown(id) { let idx = pmData.folders.findIndex(x=>x.id===id); if(idx<pmData.folders.length-1){ let t = pmData.folders[idx].order; pmData.folders[idx].order = pmData.folders[idx+1].order; pmData.folders[idx+1].order = t; saveProjectData(); renderPMList(); } }
+
+function pmShowInput(title, def, cb) {
+  document.getElementById('pmInputTitle').innerText = title;
+  document.getElementById('pmInputValue').value = def;
+  document.getElementById('pmInputModal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('pmInputValue').focus(), 50);
+  pmCallback = cb;
+}
+function pmCloseInputModal() { document.getElementById('pmInputModal').classList.add('hidden'); }
+function pmConfirmInputModal() { let v = document.getElementById('pmInputValue').value.trim(); pmCloseInputModal(); if(pmCallback) pmCallback(v); }
+
+// PRZENOSZENIE MASOWE
+function pmMoveSelected() {
+  const sel = getPmSelected();
+  if(sel.length === 0) { alert("Zaznacz projekty do przeniesienia."); return; }
+  pmActiveItemsToMove = sel;
+  let selElem = document.getElementById('pmFolderSelect');
+  selElem.innerHTML = `<option value="null">-- Pliki luźne (Główny) --</option>`;
+  pmData.folders.forEach(f => selElem.innerHTML += `<option value="${f.id}">📁 ${f.name}</option>`);
+  document.getElementById('pmSelectFolderModal').classList.remove('hidden');
+}
+function closeSelectFolderModal() { document.getElementById('pmSelectFolderModal').classList.add('hidden'); }
+function pmConfirmFolderModal() {
+  let fId = document.getElementById('pmFolderSelect').value;
+  if (fId === 'null') fId = null;
+  if (pmActiveItemsToMove && pmActiveItemsToMove.length > 0) {
+    pmData.projects.forEach(p => { if (pmActiveItemsToMove.includes(p.id)) p.folderId = fId; });
+  }
+  pmActiveItemsToMove = null;
+  saveProjectData(); renderPMList(); closeSelectFolderModal(); showToast("Pliki przeniesione!");
+}
+
+// --- LOGIKA STANU I FORMULARZA (Z V4.22) ---
+
+function getAppState() {
+  const state = { addedCharacters: JSON.parse(JSON.stringify(addedCharacters)), planesData: [...planesData], sceneMode: currentSceneMode, projectType: document.getElementById('typeProject').checked ? 'project' : 'character' };
+  inputIds.forEach(id => { state[id] = getValue(id); });
+  if(document.getElementById('glowingEyes')) state.glowingEyes = document.getElementById('glowingEyes').checked;
+  if(document.getElementById('naturalAsymmetry')) state.naturalAsymmetry = document.getElementById('naturalAsymmetry').checked;
+  const selectedEff = []; document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEff.push(cb.value));
+  state.effects = selectedEff;
+  return state;
+}
+
+function loadAppState(state) {
+  inputIds.forEach(id => { if(state[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = state[id]; });
+  if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = state.glowingEyes || false;
+  if(document.getElementById('naturalAsymmetry')) document.getElementById('naturalAsymmetry').checked = state.naturalAsymmetry || false;
+  document.querySelectorAll('.effect-item').forEach(cb => { cb.checked = state.effects ? state.effects.includes(cb.value) : false; });
+  addedCharacters = state.addedCharacters || [];
+  if (state.sceneMode) setSceneMode(state.sceneMode); else setSceneMode('scene');
+  if (state.planesData) planesData = state.planesData; else planesData = [''];
+  if (state.projectType === 'project') document.getElementById('typeProject').checked = true; else document.getElementById('typeCharacter').checked = true;
+  
+  if (currentSceneMode === 'planes') renderPlanes();
+  toggleProjectType(); toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
+  toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
+  toggleCustomTimeOfDay(); toggleCustomWeather(); toggleCustomEars(); toggleCustomEyebrows();
+  toggleCustomBangs(); toggleCustomTail(); toggleCustomHorns();
+  
+  renderAddedCharacters(); generatePrompt();
+}
+
+function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
+function clearEffects(noneCheckbox) { if (noneCheckbox.checked) document.querySelectorAll('.effect-item').forEach(cb => cb.checked = false); generatePrompt(); }
 
 function toggleProjectType() {
   const isChar = document.getElementById('typeCharacter').checked;
   const wrapper = document.getElementById('characterTraitsWrapper');
-  if (!isChar) {
-      wrapper.style.opacity = '0.2';
-      wrapper.style.pointerEvents = 'none';
-  } else {
-      wrapper.style.opacity = '1';
-      wrapper.style.pointerEvents = 'auto';
-  }
+  if (!isChar) { wrapper.style.opacity = '0.2'; wrapper.style.pointerEvents = 'none'; } 
+  else { wrapper.style.opacity = '1'; wrapper.style.pointerEvents = 'auto'; }
   generatePrompt();
 }
 
@@ -1097,132 +1442,57 @@ function toggleGenderUI() {
   generatePrompt();
 }
 
-function toggleCustomStyle() {
-  const style = getValue('style');
-  const container = document.getElementById('customStyleContainer');
-  if(container) container.classList.toggle('hidden', style !== 'custom');
-  generatePrompt();
+function toggleCustomStyle() { if(document.getElementById('customStyleContainer')) document.getElementById('customStyleContainer').classList.toggle('hidden', getValue('style') !== 'custom'); generatePrompt(); }
+function toggleCustomTimeOfDay() { if(document.getElementById('customTimeOfDayContainer')) document.getElementById('customTimeOfDayContainer').classList.toggle('hidden', getValue('timeOfDay') !== 'custom'); generatePrompt(); }
+function toggleCustomWeather() { if(document.getElementById('customWeatherContainer')) document.getElementById('customWeatherContainer').classList.toggle('hidden', getValue('weather') !== 'custom'); generatePrompt(); }
+function toggleCustomHair() { if(document.getElementById('customHairContainer')) document.getElementById('customHairContainer').classList.toggle('hidden', getValue('hairStyle') !== 'custom'); generatePrompt(); }
+function toggleCustomLength() { if(document.getElementById('customLengthContainer')) document.getElementById('customLengthContainer').classList.toggle('hidden', getValue('hairLength') !== 'custom'); generatePrompt(); }
+function toggleCustomEmotion() { if(document.getElementById('customEmotionContainer')) document.getElementById('customEmotionContainer').classList.toggle('hidden', getValue('emotion') !== 'custom'); generatePrompt(); }
+function toggleCustomEyeColor() { if(document.getElementById('customEyeColorContainer')) document.getElementById('customEyeColorContainer').classList.toggle('hidden', getValue('eyeColor') !== 'custom'); generatePrompt(); }
+function toggleCustomSkinTone() { if(document.getElementById('customSkinToneContainer')) document.getElementById('customSkinToneContainer').classList.toggle('hidden', getValue('skinTone') !== 'custom'); generatePrompt(); }
+function toggleCustomHairColor() { if(document.getElementById('customHairColorContainer')) document.getElementById('customHairColorContainer').classList.toggle('hidden', getValue('hairColor') !== 'custom'); generatePrompt(); }
+function toggleCustomEars() { if(document.getElementById('customEarsContainer')) document.getElementById('customEarsContainer').classList.toggle('hidden', getValue('ears') !== 'custom'); generatePrompt(); }
+function toggleCustomEyebrows() { if(document.getElementById('customEyebrowsContainer')) document.getElementById('customEyebrowsContainer').classList.toggle('hidden', getValue('eyebrows') !== 'custom'); generatePrompt(); }
+function toggleCustomBangs() { if(document.getElementById('customBangsContainer')) document.getElementById('customBangsContainer').classList.toggle('hidden', getValue('bangs') !== 'custom'); generatePrompt(); }
+function toggleCustomTail() { if(document.getElementById('customTailContainer')) document.getElementById('customTailContainer').classList.toggle('hidden', getValue('tail') !== 'custom'); generatePrompt(); }
+function toggleCustomHorns() { if(document.getElementById('customHornsContainer')) document.getElementById('customHornsContainer').classList.toggle('hidden', getValue('horns') !== 'custom'); generatePrompt(); }
+
+function showTooltip(e, text) { const tooltip = document.getElementById('customTooltip'); tooltip.innerText = text; tooltip.classList.remove('hidden'); const rect = e.target.getBoundingClientRect(); tooltip.style.left = `${rect.left + rect.width / 2}px`; tooltip.style.top = `${rect.top}px`; }
+function hideTooltip() { document.getElementById('customTooltip').classList.add('hidden'); }
+
+let toastTimer;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').innerText = msg;
+  t.style.transition = 'none'; t.style.opacity = '1';
+  if(isError) t.classList.replace('bg-gray-900', 'bg-red-600'); else t.classList.replace('bg-red-600', 'bg-gray-900');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.transition = 'opacity 0.5s ease-out'; t.style.opacity = '0'; }, 2000);
 }
 
-function toggleCustomTimeOfDay() {
-  if(document.getElementById('customTimeOfDayContainer')) document.getElementById('customTimeOfDayContainer').classList.toggle('hidden', getValue('timeOfDay') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomWeather() {
-  if(document.getElementById('customWeatherContainer')) document.getElementById('customWeatherContainer').classList.toggle('hidden', getValue('weather') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomHair() {
-  if(document.getElementById('customHairContainer')) document.getElementById('customHairContainer').classList.toggle('hidden', getValue('hairStyle') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomLength() {
-  if(document.getElementById('customLengthContainer')) document.getElementById('customLengthContainer').classList.toggle('hidden', getValue('hairLength') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomEmotion() {
-  if(document.getElementById('customEmotionContainer')) document.getElementById('customEmotionContainer').classList.toggle('hidden', getValue('emotion') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomEyeColor() {
-  if(document.getElementById('customEyeColorContainer')) document.getElementById('customEyeColorContainer').classList.toggle('hidden', getValue('eyeColor') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomSkinTone() {
-  if(document.getElementById('customSkinToneContainer')) document.getElementById('customSkinToneContainer').classList.toggle('hidden', getValue('skinTone') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomHairColor() {
-  if(document.getElementById('customHairColorContainer')) document.getElementById('customHairColorContainer').classList.toggle('hidden', getValue('hairColor') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomEars() {
-  if(document.getElementById('customEarsContainer')) document.getElementById('customEarsContainer').classList.toggle('hidden', getValue('ears') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomEyebrows() {
-  if(document.getElementById('customEyebrowsContainer')) document.getElementById('customEyebrowsContainer').classList.toggle('hidden', getValue('eyebrows') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomBangs() {
-  if(document.getElementById('customBangsContainer')) document.getElementById('customBangsContainer').classList.toggle('hidden', getValue('bangs') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomTail() {
-  if(document.getElementById('customTailContainer')) document.getElementById('customTailContainer').classList.toggle('hidden', getValue('tail') !== 'custom');
-  generatePrompt();
-}
-
-function toggleCustomHorns() {
-  if(document.getElementById('customHornsContainer')) document.getElementById('customHornsContainer').classList.toggle('hidden', getValue('horns') !== 'custom');
-  generatePrompt();
-}
-
-function showToast(message, isSuccess = true) {
-  const t = document.getElementById('dynamicToast');
-  if(t) {
-    t.innerHTML = message;
-    t.classList.add('show');
-    setTimeout(() => { t.classList.remove('show'); }, 2500);
-  }
-}
-
-// ==== OBSŁUGA @ MENTIONS ====
-document.addEventListener('input', (e) => {
-  if (e.target.id === 'scene' || e.target.id === 'planeBackground' || e.target.id.startsWith('plane_')) {
-      checkMention(e.target);
-  }
-});
-
-document.addEventListener('keydown', (e) => {
-  if (mentionState.active && (e.target.id === 'scene' || e.target.id === 'planeBackground' || e.target.id.startsWith('plane_'))) {
-      handleMentionKeydown(e);
-  }
-});
-
-document.addEventListener('click', (e) => {
-  if (mentionState.active && !e.target.closest('#mentionDropdown')) {
-      closeMention();
-  }
-});
+// ----- @ MENTIONS -----
+document.addEventListener('input', (e) => { if (e.target.id === 'scene' || e.target.id === 'planeBackground' || e.target.id.startsWith('plane_')) checkMention(e.target); });
+document.addEventListener('keydown', (e) => { if (mentionState.active && (e.target.id === 'scene' || e.target.id === 'planeBackground' || e.target.id.startsWith('plane_'))) handleMentionKeydown(e); });
+document.addEventListener('click', (e) => { if (mentionState.active && !e.target.closest('#mentionDropdown')) closeMention(); });
 
 function getMentionList() {
   let list = [];
   const isCharMode = document.getElementById('typeCharacter').checked;
   if (isCharMode) {
-      const projName = getValue('projectName').trim() || 'Unknown';
+      const projName = getValue('projectName').trim() || 'Postać_główna';
       list.push({ label: projName, insert: `Character_(${projName})` });
   }
-  addedCharacters.forEach(c => {
-      list.push({ label: c.name, insert: `Character_(${c.name})` });
-  });
+  addedCharacters.forEach(c => { let n = c.name || 'Postać'; list.push({ label: n, insert: `Character_(${n})` }); });
   return list;
 }
 
 function checkMention(inputEl) {
-  const val = inputEl.value;
-  const cursor = inputEl.selectionStart;
-  const textBeforeCursor = val.substring(0, cursor);
-  const atIndex = textBeforeCursor.lastIndexOf('@');
-
+  const val = inputEl.value; const cursor = inputEl.selectionStart;
+  const textBeforeCursor = val.substring(0, cursor); const atIndex = textBeforeCursor.lastIndexOf('@');
   if (atIndex !== -1) {
       if (atIndex === 0 || /[\s\n]/.test(textBeforeCursor.charAt(atIndex - 1))) {
           const filterText = textBeforeCursor.substring(atIndex + 1);
-          if (!/[\s\n]/.test(filterText)) {
-              openMention(inputEl, atIndex, filterText);
-              return;
-          }
+          if (!/[\s\n]/.test(filterText)) { openMention(inputEl, atIndex, filterText); return; }
       }
   }
   closeMention();
@@ -1231,97 +1501,56 @@ function checkMention(inputEl) {
 function openMention(inputEl, startIndex, filter) {
   const list = getMentionList();
   const filtered = list.filter(item => item.label.toLowerCase().includes(filter.toLowerCase()));
-  
-  if (filtered.length === 0) {
-      closeMention();
-      return;
-  }
-
+  if (filtered.length === 0) { closeMention(); return; }
   mentionState = { active: true, input: inputEl, startIndex: startIndex, filter: filter, selectedIndex: 0, items: filtered };
   renderMentionDropdown();
 }
 
 function renderMentionDropdown() {
-  const dropdown = document.getElementById('mentionDropdown');
-  dropdown.innerHTML = '';
+  const dropdown = document.getElementById('mentionDropdown'); dropdown.innerHTML = '';
   mentionState.items.forEach((item, index) => {
       const div = document.createElement('div');
       div.className = `px-4 py-3 cursor-pointer border-b border-gray-100 last:border-0 font-semibold ${index === mentionState.selectedIndex ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'}`;
       div.innerText = item.label;
-      div.onmousedown = (e) => {
-          e.preventDefault(); 
-          selectMention(index);
-      };
+      div.onmousedown = (e) => { e.preventDefault(); selectMention(index); };
       dropdown.appendChild(div);
   });
-
   const rect = mentionState.input.getBoundingClientRect();
-  dropdown.style.left = rect.left + 'px';
-  dropdown.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-  dropdown.style.width = rect.width + 'px';
+  dropdown.style.left = rect.left + 'px'; dropdown.style.top = (rect.bottom + window.scrollY + 4) + 'px'; dropdown.style.width = rect.width + 'px';
   dropdown.classList.remove('hidden');
 }
 
-function closeMention() {
-  mentionState.active = false;
-  document.getElementById('mentionDropdown').classList.add('hidden');
-}
-
+function closeMention() { mentionState.active = false; document.getElementById('mentionDropdown').classList.add('hidden'); }
 function handleMentionKeydown(e) {
-  if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      mentionState.selectedIndex = (mentionState.selectedIndex + 1) % mentionState.items.length;
-      renderMentionDropdown();
-  } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      mentionState.selectedIndex = (mentionState.selectedIndex - 1 + mentionState.items.length) % mentionState.items.length;
-      renderMentionDropdown();
-  } else if (e.key === 'Enter' || e.key === 'Tab') {
-      e.preventDefault();
-      selectMention(mentionState.selectedIndex);
-  } else if (e.key === 'Escape') {
-      closeMention();
-  }
+  if (e.key === 'ArrowDown') { e.preventDefault(); mentionState.selectedIndex = (mentionState.selectedIndex + 1) % mentionState.items.length; renderMentionDropdown(); } 
+  else if (e.key === 'ArrowUp') { e.preventDefault(); mentionState.selectedIndex = (mentionState.selectedIndex - 1 + mentionState.items.length) % mentionState.items.length; renderMentionDropdown(); } 
+  else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); selectMention(mentionState.selectedIndex); } 
+  else if (e.key === 'Escape') { closeMention(); }
 }
-
 function selectMention(index) {
-  const item = mentionState.items[index];
-  const inputEl = mentionState.input;
-  const val = inputEl.value;
-  const cursor = inputEl.selectionStart;
-  
-  const before = val.substring(0, mentionState.startIndex);
-  const after = val.substring(cursor);
-  
+  const item = mentionState.items[index]; const inputEl = mentionState.input; const val = inputEl.value; const cursor = inputEl.selectionStart;
+  const before = val.substring(0, mentionState.startIndex); const after = val.substring(cursor);
   inputEl.value = before + item.insert + " " + after;
-  
   const newCursor = mentionState.startIndex + item.insert.length + 1;
   inputEl.setSelectionRange(newCursor, newCursor);
-  
   closeMention();
-  if (inputEl.id.startsWith('plane_')) {
-      const idx = parseInt(inputEl.id.split('_')[1]);
-      planesData[idx] = inputEl.value;
-  }
+  if (inputEl.id.startsWith('plane_')) { const idx = parseInt(inputEl.id.split('_')[1]); planesData[idx] = inputEl.value; }
   generatePrompt();
 }
 
-// Obsługa Plany
+// ----- PLANY I TŁUMACZ -----
 function setSceneMode(mode) {
   currentSceneMode = mode;
   document.getElementById('tabScene').classList.toggle('bg-blue-600', mode === 'scene');
   document.getElementById('tabScene').classList.toggle('text-white', mode === 'scene');
   document.getElementById('tabScene').classList.toggle('bg-gray-200', mode !== 'scene');
   document.getElementById('tabScene').classList.toggle('text-gray-700', mode !== 'scene');
-
   document.getElementById('tabPlanes').classList.toggle('bg-blue-600', mode === 'planes');
   document.getElementById('tabPlanes').classList.toggle('text-white', mode === 'planes');
   document.getElementById('tabPlanes').classList.toggle('bg-gray-200', mode !== 'planes');
   document.getElementById('tabPlanes').classList.toggle('text-gray-700', mode !== 'planes');
-
   document.getElementById('sceneModeContainer').classList.toggle('hidden', mode !== 'scene');
   document.getElementById('planesModeContainer').classList.toggle('hidden', mode !== 'planes');
-  
   if (mode === 'planes') renderPlanes();
   generatePrompt();
 }
@@ -1341,478 +1570,131 @@ function renderPlanes() {
         </div>
       </div>
     `;
-    
     if (idx < planesData.length - 1) {
       container.innerHTML += `
         <div class="flex justify-center relative z-10" style="margin-top: 2px; margin-bottom: -18px;">
           <button onclick="swapPlanes(${idx})" class="bg-white hover:bg-gray-100 text-gray-500 rounded-full p-1.5 border border-gray-300 shadow-sm transition-colors" title="Zamień miejscami">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16V4m0 0L4 8m4-4l4 4 M16 8v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16V4m0 0L4 8m4-4l4 4 M16 8v12m0 0l4-4m-4 4l-4-4" /></svg>
           </button>
         </div>
       `;
     }
   });
 }
-
-function updatePlane(idx, val) {
-  planesData[idx] = val;
-  generatePrompt();
-}
-
-function addPlane() {
-  planesData.push('');
-  renderPlanes();
-}
-
-function removePlane(idx) {
-  planesData.splice(idx, 1);
-  renderPlanes();
-  generatePrompt();
-}
-
-function swapPlanes(idx) {
-  if (idx < planesData.length - 1) {
-    const temp = planesData[idx];
-    planesData[idx] = planesData[idx+1];
-    planesData[idx+1] = temp;
-    renderPlanes();
-    generatePrompt();
-  }
-}
+function updatePlane(idx, val) { planesData[idx] = val; generatePrompt(); }
+function addPlane() { planesData.push(''); renderPlanes(); }
+function removePlane(idx) { planesData.splice(idx, 1); renderPlanes(); generatePrompt(); }
+function swapPlanes(idx) { if (idx < planesData.length - 1) { const temp = planesData[idx]; planesData[idx] = planesData[idx+1]; planesData[idx+1] = temp; renderPlanes(); generatePrompt(); } }
 
 async function translatePlane(idx) {
   const inputEl = document.getElementById(`plane_${idx}`);
   if(!inputEl) return;
-  const text = inputEl.value.trim();
-  if (!text) return;
-  
-  const originalBg = inputEl.style.backgroundColor;
-  inputEl.style.backgroundColor = '#e0f2fe';
-  inputEl.disabled = true;
-  
+  const text = inputEl.value.trim(); if (!text) return;
+  const originalBg = inputEl.style.backgroundColor; inputEl.style.backgroundColor = '#e0f2fe'; inputEl.disabled = true;
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=pl&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await fetch(url); const data = await response.json();
     let translated = "";
-    if (data && data[0]) {
-        data[0].forEach(chunk => { if (chunk[0]) translated += chunk[0]; });
-    }
-    if (translated) {
-        inputEl.value = translated;
-        updatePlane(idx, inputEl.value);
-    }
-  } catch (e) { 
-    showToast("Błąd tłumaczenia. Sprawdź połączenie.", false); 
-  } finally {
-    inputEl.style.backgroundColor = originalBg;
-    inputEl.disabled = false;
-  }
+    if (data && data[0]) { data[0].forEach(chunk => { if (chunk[0]) translated += chunk[0]; }); }
+    if (translated) { inputEl.value = translated; updatePlane(idx, inputEl.value); }
+  } catch (e) { showToast("Błąd tłumaczenia.", true); } finally { inputEl.style.backgroundColor = originalBg; inputEl.disabled = false; }
 }
 
 async function translateText(inputId) {
   const inputEl = document.getElementById(inputId);
   if(!inputEl) return;
-  const text = inputEl.value.trim();
-  if (!text) return;
-  
-  const originalBg = inputEl.style.backgroundColor;
-  inputEl.style.backgroundColor = '#e0f2fe';
-  inputEl.disabled = true;
-  
+  const text = inputEl.value.trim(); if (!text) return;
+  const originalBg = inputEl.style.backgroundColor; inputEl.style.backgroundColor = '#e0f2fe'; inputEl.disabled = true;
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=pl&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await fetch(url); const data = await response.json();
     let translated = "";
-    if (data && data[0]) {
-        data[0].forEach(chunk => { if (chunk[0]) translated += chunk[0]; });
-    }
-    if (translated) {
-        inputEl.value = translated;
-        generatePrompt();
-    }
-  } catch (e) { 
-    showToast("Błąd tłumaczenia. Sprawdź połączenie.", false); 
-  } finally {
-    inputEl.style.backgroundColor = originalBg;
-    inputEl.disabled = false;
-  }
+    if (data && data[0]) { data[0].forEach(chunk => { if (chunk[0]) translated += chunk[0]; }); }
+    if (translated) { inputEl.value = translated; generatePrompt(); }
+  } catch (e) { showToast("Błąd tłumaczenia.", true); } finally { inputEl.style.backgroundColor = originalBg; inputEl.disabled = false; }
 }
 
-function resetToDefaults() {
-  const def = {
-    projectName: '', notes: '', scene: '',
-    planeBackground: '',
-    additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
-    timeOfDay: 'none', timeOfDayCustomDesc: '', weather: 'none', weatherCustomDesc: '', lightsShadows: 'none', visualBoosters: 'none',
-    gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', earsCustomDesc: '', eyeColor: 'blue', eyeColorCustomDesc: '',
-    emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', eyebrowsCustomDesc: '', freckles: 'none',
-    hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', bangsCustomDesc: '', sidelocks: 'none',
-    height: 'normal', headSize: 'normal',
-    body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', tailCustomDesc: '', horns: 'none', hornsCustomDesc: '', feet: 'normal feet', sweat: 'none',
-    stubble: 'none', beard: 'none', moustache: 'none'
-  };
-  Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
-  if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = false;
-  if(document.getElementById('naturalAsymmetry')) document.getElementById('naturalAsymmetry').checked = false;
-  document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
-  document.getElementById('typeCharacter').checked = true;
-  
-  addedCharacters = [];
-  planesData = [''];
-  setSceneMode('scene');
-  
-  toggleProjectType();
-  toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
-  toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
-  toggleCustomTimeOfDay(); toggleCustomWeather(); toggleCustomEars(); toggleCustomEyebrows();
-  toggleCustomBangs(); toggleCustomTail(); toggleCustomHorns();
-  
-  renderAddedCharacters(); generatePrompt();
-  showToast('Przywrócono domyślne');
-}
-
-function updatePresetButtons() {
-  for(let i=1; i<=10; i++) {
-    const loadBtn = document.getElementById('load-btn-' + i);
-    const saveBtn = document.getElementById('save-btn-' + i);
-    const data = localStorage.getItem('rpg_preset_' + i);
-    
-    if(data) {
-      if(loadBtn) {
-        loadBtn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
-        loadBtn.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
-      }
-      if(saveBtn) {
-        saveBtn.classList.remove('bg-blue-100', 'text-blue-800');
-        saveBtn.classList.add('bg-green-100', 'text-green-700', 'border', 'border-green-300');
-      }
-    } else {
-      if(loadBtn) {
-        loadBtn.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
-        loadBtn.classList.remove('bg-green-100', 'text-green-700', 'border-green-300');
-      }
-      if(saveBtn) {
-        saveBtn.classList.add('bg-blue-100', 'text-blue-800');
-        saveBtn.classList.remove('bg-green-100', 'text-green-700', 'border', 'border-green-300');
-      }
-    }
-  }
-}
-
-function bindTooltip(elementsSelector, actionFn) {
-  const tooltip = document.getElementById('customTooltip');
-  if(!tooltip) return;
-
-  document.querySelectorAll(elementsSelector).forEach(btn => {
-    let timer;
-    let isFired = false;
-    const slot = btn.getAttribute('data-slot');
-    
-    const showT = () => {
-      const data = localStorage.getItem('rpg_preset_' + slot);
-      if(!data) return;
-      const parsed = JSON.parse(data);
-      tooltip.innerText = parsed.projectName || 'Zapis ' + slot;
-      const rect = btn.getBoundingClientRect();
-      tooltip.style.left = rect.left + (rect.width / 2) + 'px';
-      tooltip.style.top = rect.top - 8 + 'px';
-      tooltip.classList.remove('hidden');
-    };
-    
-    const hideT = () => tooltip.classList.add('hidden');
-    
-    btn.addEventListener('mouseenter', showT);
-    btn.addEventListener('mouseleave', hideT);
-    
-    btn.addEventListener('touchstart', (e) => {
-      isFired = false;
-      timer = setTimeout(() => { isFired = true; showT(); }, 500);
-    }, {passive: true});
-    
-    btn.addEventListener('touchend', (e) => {
-      clearTimeout(timer);
-      hideT();
-      if (!isFired) {
-        e.preventDefault();
-        if(actionFn) actionFn(slot);
-      }
-    });
-    
-    btn.addEventListener('touchmove', () => { clearTimeout(timer); hideT(); });
-    
-    btn.addEventListener('click', (e) => {
-      if (e.pointerType === "mouse" || e.pointerType === "") {
-        if(actionFn) actionFn(slot);
-      }
-    });
-  });
-}
-
-function openSaveModal() { 
-  updatePresetButtons();
-  document.getElementById('saveModal').classList.remove('hidden'); 
-}
-function closeSaveModal() { document.getElementById('saveModal').classList.add('hidden'); }
-function openNotesModal() { document.getElementById('notesModal').classList.remove('hidden'); }
-function closeNotesModal() { document.getElementById('notesModal').classList.add('hidden'); }
-
-function buildDeleteModalGrid() {
-  const grid = document.getElementById('deleteModalGrid');
-  if(!grid) return;
-  grid.innerHTML = '';
-  for(let i=1; i<=10; i++) {
-    const btn = document.createElement('button');
-    btn.id = 'del-btn-' + i;
-    btn.className = 'w-10 h-10 rounded-full font-bold transition-all mx-auto';
-    btn.innerText = i;
-    btn.onclick = () => toggleDeleteSlot(i);
-    btn.onmouseenter = () => {
-      const data = localStorage.getItem('rpg_preset_' + i);
-      if(!data) return;
-      const tooltip = document.getElementById('customTooltip');
-      if(tooltip) {
-        tooltip.innerText = JSON.parse(data).projectName || 'Zapis ' + i;
-        const rect = btn.getBoundingClientRect();
-        tooltip.style.left = rect.left + (rect.width / 2) + 'px';
-        tooltip.style.top = rect.top - 8 + 'px';
-        tooltip.classList.remove('hidden');
-      }
-    };
-    btn.onmouseleave = () => {
-      if(document.getElementById('customTooltip')) document.getElementById('customTooltip').classList.add('hidden');
-    };
-    grid.appendChild(btn);
-  }
-}
-
-function openDeleteModal() {
-  deleteSelection.clear();
-  buildDeleteModalGrid();
-  updateDeleteModalButtons();
-  document.getElementById('deleteModal').classList.remove('hidden');
-}
-function closeDeleteModal() { document.getElementById('deleteModal').classList.add('hidden'); }
-
-function toggleDeleteSlot(slot) {
-  const data = localStorage.getItem('rpg_preset_' + slot);
-  if(!data) return;
-  if(deleteSelection.has(slot)) deleteSelection.delete(slot);
-  else deleteSelection.add(slot);
-  updateDeleteModalButtons();
-}
-
-function updateDeleteModalButtons() {
-  for(let i=1; i<=10; i++) {
-    const btn = document.getElementById('del-btn-' + i);
-    if(!btn) continue;
-    const data = localStorage.getItem('rpg_preset_' + i);
-    if(data) {
-      btn.classList.remove('opacity-50', 'bg-gray-100', 'text-gray-400');
-      btn.classList.add('bg-green-100', 'text-green-700');
-    } else {
-      btn.classList.add('opacity-50', 'bg-gray-100', 'text-gray-400');
-      btn.classList.remove('bg-green-100', 'text-green-700', 'ring-4', 'ring-red-500');
-    }
-    if(deleteSelection.has(i)) {
-      btn.classList.add('ring-4', 'ring-red-500', 'bg-red-50');
-      btn.classList.remove('bg-green-100');
-    } else {
-      btn.classList.remove('ring-4', 'ring-red-500', 'bg-red-50');
-    }
-  }
-}
-
-function confirmDelete() {
-  if(deleteSelection.size === 0) return;
-  deleteSelection.forEach(slot => {
-    localStorage.removeItem('rpg_preset_' + slot);
-  });
-  showToast('Usunięto wybrane zapisy!');
-  updatePresetButtons();
-  closeDeleteModal();
-}
-
-function savePreset(slot) {
-  const state = {};
-  inputIds.forEach(id => { state[id] = getValue(id); });
-  if(document.getElementById('glowingEyes')) state.glowingEyes = document.getElementById('glowingEyes').checked;
-  if(document.getElementById('naturalAsymmetry')) state.naturalAsymmetry = document.getElementById('naturalAsymmetry').checked;
-  
-  const selectedEff = [];
-  document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEff.push(cb.value));
-  state.effects = selectedEff;
-  state.addedCharacters = addedCharacters;
-  
-  state.sceneMode = currentSceneMode;
-  state.planesData = planesData;
-  state.projectType = document.getElementById('typeProject').checked ? 'project' : 'character';
-  
-  localStorage.setItem('rpg_preset_' + slot, JSON.stringify(state));
-  updatePresetButtons();
-  closeSaveModal();
-  showToast(`Zapisano preset ${slot}`);
-}
-
-function loadPreset(slot) {
-  const data = localStorage.getItem('rpg_preset_' + slot);
-  if(data) {
-    const state = JSON.parse(data);
-    inputIds.forEach(id => { if(state[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = state[id]; });
-    if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = state.glowingEyes || false;
-    if(document.getElementById('naturalAsymmetry')) document.getElementById('naturalAsymmetry').checked = state.naturalAsymmetry || false;
-    
-    document.querySelectorAll('.effect-item').forEach(cb => {
-      cb.checked = state.effects ? state.effects.includes(cb.value) : false;
-    });
-    addedCharacters = state.addedCharacters || [];
-    
-    if (state.sceneMode) setSceneMode(state.sceneMode);
-    else setSceneMode('scene');
-    
-    if (state.planesData) planesData = state.planesData;
-    else planesData = [''];
-    
-    if (state.projectType === 'project') document.getElementById('typeProject').checked = true;
-    else document.getElementById('typeCharacter').checked = true;
-    
-    if (currentSceneMode === 'planes') renderPlanes();
-
-    toggleProjectType();
-    toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
-    toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor();
-    toggleCustomTimeOfDay(); toggleCustomWeather(); toggleCustomEars(); toggleCustomEyebrows();
-    toggleCustomBangs(); toggleCustomTail(); toggleCustomHorns();
-    
+// ----- DODAWANIE POSTACI POBOCZNYCH -----
+function addCopiedCharacter() {
+  const copiedDataStr = localStorage.getItem('copiedCharacter');
+  if (!copiedDataStr) { showToast('Brak skopiowanej postaci', true); return; }
+  try {
+    const copiedData = JSON.parse(copiedDataStr);
+    addedCharacters.push({ type: 'copied', id: Date.now(), name: copiedData.projectName || 'Poboczna', text: copiedData.characterText });
     renderAddedCharacters(); generatePrompt();
-    showToast(`Wczytano preset ${slot}`);
-  }
+  } catch(e) { showToast('Błąd odczytu', true); }
+}
+
+function removeCharacter(id) {
+  addedCharacters = addedCharacters.filter(c => c.id !== id);
+  renderAddedCharacters(); generatePrompt();
 }
 
 function renderAddedCharacters() {
   const container = document.getElementById('addedCharactersList');
   if(!container) return;
   container.innerHTML = '';
-  addedCharacters.forEach((char, index) => {
+  addedCharacters.forEach((char) => {
     const row = document.createElement('div');
     row.className = 'flex items-center gap-2';
     row.innerHTML = `
-      <button onclick="removeCharacter(${index})" class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 font-bold text-lg leading-none transition-colors" title="Usuń postać">-</button>
+      <button onclick="removeCharacter(${char.id})" class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 font-bold text-lg leading-none transition-colors" title="Usuń postać">-</button>
       <input type="text" value="${char.name}" disabled class="flex-1 bg-white rounded-xl border border-indigo-200 p-2 text-sm text-indigo-900 font-semibold cursor-not-allowed">
     `;
     container.appendChild(row);
   });
-  const addRow = document.createElement('div');
-  addRow.className = 'flex items-center gap-2';
-  addRow.innerHTML = `
-    <button onclick="addCharacter()" class="w-8 h-8 flex items-center justify-center bg-green-100 text-green-600 rounded-full hover:bg-green-200 font-bold text-lg leading-none transition-colors" title="Dodaj skopiowaną postać">+</button>
-    <input type="text" placeholder="${localStorage.getItem('copiedCharacter') ? 'Kliknij +, aby wkleić ze schowka' : 'Brak skopiowanej postaci'}" disabled class="flex-1 bg-indigo-50/50 rounded-xl border border-indigo-100 p-2 text-sm text-indigo-400 cursor-not-allowed italic">
-  `;
-  container.appendChild(addRow);
-}
-
-function addCharacter() {
-  const copiedDataStr = localStorage.getItem('copiedCharacter');
-  if (!copiedDataStr) { showToast('Jeszcze nie skopiowałeś żadnej postaci', false); return; }
-  try {
-    const copiedData = JSON.parse(copiedDataStr);
-    addedCharacters.push({ name: copiedData.projectName || 'Nieznany projekt', text: copiedData.characterText });
-    renderAddedCharacters();
-    generatePrompt();
-  } catch(e) { showToast('Błąd odczytu skopiowanej postaci', false); }
-}
-
-function removeCharacter(index) {
-  addedCharacters.splice(index, 1);
-  renderAddedCharacters();
-  generatePrompt();
 }
 
 function copyCharacter() {
   const currentPromptText = getCharacterBlock();
-  const projName = getValue('projectName') || 'Projekt bez nazwy';
+  const projName = getValue('projectName') || 'Postać_główna';
   const dataToSave = { projectName: projName, characterText: currentPromptText };
   localStorage.setItem('copiedCharacter', JSON.stringify(dataToSave));
-  renderAddedCharacters();
-  showToast('Skopiowano postać!');
+  showToast('Skopiowano główną postać!');
 }
 
 function getCharacterBlock() {
-  const nudity = getValue('nudity');
-  const gender = getValue('gender');
-  const subj = (gender === 'female' || gender === 'none') ? 'She' : 'He';
-  const objPos = (gender === 'female' || gender === 'none') ? 'Her' : 'His';
-  
+  const nudity = getValue('nudity'); const gender = getValue('gender');
+  const subj = (gender === 'female' || gender === 'none') ? 'She' : 'He'; const objPos = (gender === 'female' || gender === 'none') ? 'Her' : 'His';
   let faceParts = [];
   if(getValue('age') !== 'none') faceParts.push(`${getValue('age')} ${gender !== 'none' ? gender : 'character'}`);
   let face = faceParts.length > 0 ? `The character is ${faceParts.join(' ')}. ` : 'The character is here. ';
-  
-  let emo = getValue('emotion');
-  if (emo === 'custom') emo = getValue('emotionCustomDesc');
+  let emo = getValue('emotion') === 'custom' ? getValue('emotionCustomDesc') : getValue('emotion');
   if(emo && emo !== 'none') face += `${subj} is displaying a ${emo} expression. `;
-  
-  let skin = getValue('skinTone');
-  if (skin === 'custom') skin = getValue('skinToneCustomDesc');
+  let skin = getValue('skinTone') === 'custom' ? getValue('skinToneCustomDesc') : getValue('skinTone');
   if(skin && skin !== 'none') face += `${subj} has ${skin} skin${getValue('tan') !== 'none' ? ' with ' + getValue('tan') : ''}. `;
-  
   let eyePart = "";
   if(document.getElementById('glowingEyes') && document.getElementById('glowingEyes').checked) eyePart += "Glowing ";
-  let eyeColor = getValue('eyeColor');
-  if (eyeColor === 'custom') eyeColor = getValue('eyeColorCustomDesc');
+  let eyeColor = getValue('eyeColor') === 'custom' ? getValue('eyeColorCustomDesc') : getValue('eyeColor');
   if (eyeColor && eyeColor !== 'none') eyePart += eyeColor;
   if(eyePart) face += `${eyePart} eyes, `;
-  
   if(document.getElementById('naturalAsymmetry') && document.getElementById('naturalAsymmetry').checked) face += `natural facial asymmetry, `;
-  
-  let ears = getValue('ears');
-  if (ears === 'custom') ears = getValue('earsCustomDesc');
+  let ears = getValue('ears') === 'custom' ? getValue('earsCustomDesc') : getValue('ears');
   if(ears && ears !== 'none') face += `${ears} ears, `;
-  
-  let eyebrows = getValue('eyebrows');
-  if (eyebrows === 'custom') eyebrows = getValue('eyebrowsCustomDesc');
+  let eyebrows = getValue('eyebrows') === 'custom' ? getValue('eyebrowsCustomDesc') : getValue('eyebrows');
   if(eyebrows && eyebrows !== 'none') face += `and ${eyebrows} eyebrows. `;
-  
   if(getValue('freckles') !== 'none') face += `There are ${getValue('freckles')}. `;
   if(getValue('teeth') !== 'none') face += `${objPos} teeth are visible as ${getValue('teeth')}. `;
-  
   if (gender === 'male') {
     if (getValue('stubble') !== 'none') face += `${subj} has ${getValue('stubble')}. `;
     if (getValue('beard') !== 'none') face += `${subj} wears a ${getValue('beard')}. `;
     if (getValue('moustache') !== 'none') face += `${subj} has a ${getValue('moustache')}. `;
   }
-  
   let hairStr = "";
-  if (getValue('hairLength') === 'bald' || getValue('hairStyle') === 'bald') {
-    hairStr = `${subj} is bald.`;
-  } else {
-    let hairC = getValue('hairColor');
-    if (hairC === 'custom') hairC = getValue('hairColorCustomDesc');
-    else if (hairC === 'none') hairC = '';
-    
+  if (getValue('hairLength') === 'bald' || getValue('hairStyle') === 'bald') { hairStr = `${subj} is bald.`; } 
+  else {
+    let hairC = getValue('hairColor') === 'custom' ? getValue('hairColorCustomDesc') : (getValue('hairColor') === 'none' ? '' : getValue('hairColor'));
     let hairL = getValue('hairLength') === 'custom' ? getValue('hairLengthCustomDesc') : (getValue('hairLength') !== 'none' ? getValue('hairLength') : '');
     let hairT = getValue('hairType') !== 'none' ? getValue('hairType') : '';
     let hairS = getValue('hairStyle') === 'custom' ? getValue('hairCustomDesc') : (getValue('hairStyle') !== 'none' ? getValue('hairStyle') : '');
     if(hairC || hairL || hairT || hairS) hairStr = `${objPos} hair is ${hairC} ${hairL} ${hairT}, styled as ${hairS}. `;
   }
-  
-  let bangs = getValue('bangs');
-  if (bangs === 'custom') bangs = getValue('bangsCustomDesc');
+  let bangs = getValue('bangs') === 'custom' ? getValue('bangsCustomDesc') : getValue('bangs');
   if (bangs && bangs !== 'none' && getValue('hairLength') !== 'bald') hairStr += `${subj} has ${bangs}. `;
-  
   if (getValue('sidelocks') !== 'none') hairStr += `${subj} features ${getValue('sidelocks')}.`;
-  
   let bodyDetails = [];
-  if(getValue('height') !== 'none') {
-    const heightMap = { "very short": "very short proportions", "short": "short", "normal": "of average height", "tall": "tall", "very tall": "very tall" };
-    bodyDetails.push(heightMap[getValue('height')]);
-  }
-  if(getValue('headSize') !== 'none') {
-    const headMap = { "normal": "head 1/6 of height", "large": "head 1/5 of height", "very large": "head 1/4 of height" };
-    bodyDetails.push(headMap[getValue('headSize')]);
-  }
+  if(getValue('height') !== 'none') bodyDetails.push(getValue('height') === 'normal' ? 'of average height' : getValue('height'));
+  if(getValue('headSize') !== 'none') bodyDetails.push(getValue('headSize') === 'normal' ? 'head 1/6 of height' : (getValue('headSize')==='large' ? 'head 1/5 of height' : 'head 1/4 of height'));
   if(getValue('body') !== 'none') bodyDetails.push(`body type: ${getValue('body')}`);
   if(gender === 'female' && getValue('chest') !== 'none') bodyDetails.push(getValue('chest'));
   if(getValue('hips') !== 'none') bodyDetails.push(getValue('hips'));
@@ -1820,26 +1702,15 @@ function getCharacterBlock() {
   if(getValue('feet') !== 'none') bodyDetails.push(getValue('feet'));
   if(getValue('sweat') !== 'none') bodyDetails.push(sweatMap[getValue('sweat')]);
   let bodyStr = bodyDetails.length > 0 ? bodyDetails.join(', ') + ". " : "";
-  
-  let tail = getValue('tail');
-  if (tail === 'custom') tail = getValue('tailCustomDesc');
+  let tail = getValue('tail') === 'custom' ? getValue('tailCustomDesc') : getValue('tail');
   if (tail && tail !== 'none') bodyStr += `${subj} has a ${tail}. `;
-  
-  let horns = getValue('horns');
-  if (horns === 'custom') horns = getValue('hornsCustomDesc');
+  let horns = getValue('horns') === 'custom' ? getValue('hornsCustomDesc') : getValue('horns');
   if (horns && horns !== 'none') face += ` ${subj} has ${horns}. `;
-  
   let cloth = "";
-  if (nudity === 'dressed') {
-    let outStr = getValue('outfit').trim();
-    if(outStr) cloth = `${subj} is ${outStr}.`;
-  }
+  if (nudity === 'dressed') { let outStr = getValue('outfit').trim(); if(outStr) cloth = `${subj} is ${outStr}.`; }
   else if (nudity === 'nudeFlower') cloth = `${subj} is naked, only a flower covers the crotch area.`;
   else if (nudity !== 'none') cloth = `${subj} is ${nudity}.${getValue('intimateHair') !== 'none' ? ' Intimate area is ' + getValue('intimateHair') + '.' : ''}`;
-  
-  let additional = getValue('additionalFeatures').trim();
-  if (additional) additional = `Additional features: ${additional}.`;
-  
+  let additional = getValue('additionalFeatures').trim(); if (additional) additional = `Additional features: ${additional}.`;
   let block = [face, hairStr, bodyStr, cloth, additional].map(b => b.trim()).filter(b => b.length > 0).join('\n');
   return block.replace(/\s+\./g, '.').replace(/\.{2,}/g, '.');
 }
@@ -1850,287 +1721,157 @@ function generatePrompt() {
   if(document.getElementById('outfitContainer')) document.getElementById('outfitContainer').classList.toggle('hidden', nudity !== 'dressed');
   
   let settingBlock = "[Scene]:\n";
-  if (currentSceneMode === 'scene') {
-    const s = getValue('scene').trim();
-    if(s) settingBlock += s;
-  } else {
+  if (currentSceneMode === 'scene') { const s = getValue('scene').trim(); if(s) settingBlock += s; } 
+  else {
     const ordinals = ["Foreground", "Second plane", "Third plane", "Fourth plane", "Fifth plane", "Sixth plane", "Seventh plane", "Eighth plane", "Ninth plane", "Tenth plane"];
     let planesArr = [];
-    planesData.forEach((p, idx) => {
-        if(p.trim()) {
-            const prefix = ordinals[idx] || `Level ${idx+1} plane`;
-            planesArr.push(`${prefix}:\n${p.trim()}`);
-        }
-    });
+    planesData.forEach((p, idx) => { if(p.trim()) planesArr.push(`${ordinals[idx] || `Level ${idx+1} plane`}:\n${p.trim()}`); });
     const bg = getValue('planeBackground').trim();
-    if (bg) {
-        planesArr.push(`Background layer:\n${bg}`);
-    }
+    if (bg) planesArr.push(`Background layer:\n${bg}`);
     settingBlock += planesArr.join('\n\n');
   }
 
   const timeOfDay = getValue('timeOfDay');
-  if (timeOfDay === 'custom') {
-      const tDesc = getValue('timeOfDayCustomDesc').trim();
-      if (tDesc) settingBlock += `\nTime of day: ${tDesc}`;
-  } else if (timeOfDay && timeOfDay !== 'none') {
-      settingBlock += `\nTime of day: ${timeOfDay}`;
-  }
-
+  if (timeOfDay === 'custom') { const tDesc = getValue('timeOfDayCustomDesc').trim(); if (tDesc) settingBlock += `\nTime of day: ${tDesc}`; } 
+  else if (timeOfDay && timeOfDay !== 'none') settingBlock += `\nTime of day: ${timeOfDay}`;
   const weather = getValue('weather');
-  if (weather === 'custom') {
-      const wDesc = getValue('weatherCustomDesc').trim();
-      if (wDesc) settingBlock += `\nWeather: ${wDesc}`;
-  } else if (weather && weather !== 'none') {
-      settingBlock += `\nWeather: ${weather}`;
-  }
+  if (weather === 'custom') { const wDesc = getValue('weatherCustomDesc').trim(); if (wDesc) settingBlock += `\nWeather: ${wDesc}`; } 
+  else if (weather && weather !== 'none') settingBlock += `\nWeather: ${weather}`;
 
-  let colorBlock = "";
-  const colorKey = getValue('color');
-  if (colorKey !== 'none' && colorsMap[colorKey]) {
-      colorBlock = `[Color]:\n${colorsMap[colorKey]}`;
-  }
+  let colorBlock = ""; const colorKey = getValue('color'); if (colorKey !== 'none' && colorsMap[colorKey]) colorBlock = `[Color]:\n${colorsMap[colorKey]}`;
   
   let charactersBlock = "";
   const projName = getValue('projectName').trim() || 'Unknown';
   const isCharacterMode = document.getElementById('typeCharacter').checked;
-
-  if (isCharacterMode) {
-    let char1Text = getCharacterBlock();
-    charactersBlock += `[Characters]:\nCharacter_(${projName})\n${char1Text}`;
-  }
+  if (isCharacterMode) { let char1Text = getCharacterBlock(); charactersBlock += `[Characters]:\nCharacter_(${projName})\n${char1Text}`; }
 
   addedCharacters.forEach((char) => {
-    if(charactersBlock === "") charactersBlock = "[Characters]:";
-    else charactersBlock += `\n\n`;
+    if(charactersBlock === "") charactersBlock = "[Characters]:"; else charactersBlock += `\n\n`;
     charactersBlock += `Character_(${char.name})\n${char.text}`;
   });
   
   const styleKey = getValue('style');
   let styleBlock = "";
-  if(styleKey === 'custom') {
-    const customDesc = getValue('styleCustomDesc').trim();
-    if(customDesc) styleBlock = `[Style]:\n${customDesc}`;
-  } else if(styleKey !== 'none' && styles[styleKey]) {
-    styleBlock = "[Style]:\n";
-    if(styleKey === 'hyperrealism') styleBlock += hyperTagBlock + "\n";
-    styleBlock += styles[styleKey].full;
-  }
+  if(styleKey === 'custom') { const customDesc = getValue('styleCustomDesc').trim(); if(customDesc) styleBlock = `[Style]:\n${customDesc}`; } 
+  else if(styleKey !== 'none' && styles[styleKey]) { styleBlock = "[Style]:\n"; if(styleKey === 'hyperrealism' || styleKey === 'realistic') styleBlock += hyperTagBlock + "\n"; styleBlock += styles[styleKey].full; }
   
-  let lightShadowsBlock = "";
-  const lsKey = getValue('lightsShadows');
-  if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) {
-    lightShadowsBlock = `[Light and Shadows]:\n${lightsShadowsMap[lsKey]}`;
-  }
-  
-  let boosterBlock = "";
-  const bKey = getValue('visualBoosters');
-  if(bKey && bKey !== 'none' && boostersMap[bKey]) {
-    boosterBlock = `[Booster]:\n${boostersMap[bKey]}`;
-  }
+  let lightShadowsBlock = ""; const lsKey = getValue('lightsShadows'); if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) lightShadowsBlock = `[Light and Shadows]:\n${lightsShadowsMap[lsKey]}`;
+  let boosterBlock = ""; const bKey = getValue('visualBoosters'); if(bKey && bKey !== 'none' && boostersMap[bKey]) boosterBlock = `[Booster]:\n${boostersMap[bKey]}`;
 
-  let effectsBlock = "";
-  const selectedEffects = [];
-  document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
+  let effectsBlock = ""; const selectedEffects = []; document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
   let effectLine = selectedEffects.join(', ');
-  
-  let cameraBlock = "";
-  const shotKey = getValue('shot');
-  const lensKey = getValue('lens');
-  let camParts = [];
-  
-  if (lensKey && lensKey !== 'none') {
-    camParts.push(`${lensKey} lens`);
-  }
-  if (shotKey && shotKey !== 'none' && shots[shotKey]) {
-    camParts.push(shots[shotKey].replace("Camera: ", ""));
-  }
+  let cameraBlock = ""; const shotKey = getValue('shot'); const lensKey = getValue('lens'); let camParts = [];
+  if (lensKey && lensKey !== 'none') camParts.push(`${lensKey} lens`);
+  if (shotKey && shotKey !== 'none' && shots[shotKey]) camParts.push(shots[shotKey].replace("Camera: ", ""));
   let camLine = camParts.length > 0 ? `Camera: ${camParts.join(', ')}` : "";
-
-  if (effectLine || camLine) {
-    effectsBlock = "[Effect]:\n";
-    if (effectLine) effectsBlock += effectLine;
-    if (effectLine && camLine) effectsBlock += " ";
-    if (camLine) effectsBlock += camLine;
-  }
+  if (effectLine || camLine) { effectsBlock = "[Effect]:\n"; if (effectLine) effectsBlock += effectLine; if (effectLine && camLine) effectsBlock += " "; if (camLine) effectsBlock += camLine; }
 
   let rulesBlock = "";
   let totalCharacters = addedCharacters.length + (isCharacterMode ? 1 : 0);
-  if (totalCharacters > 1) { 
-    rulesBlock = "[Rules]:\nEach Character_X must strictly follow its own reference. No mixing of attributes between characters. Each character must remain visually distinct in body type, face, and outfit.\nEach Character_X must match its assigned position in the scene. Do not swap character roles or positions.";
-  }
+  if (totalCharacters > 1) { rulesBlock = "[Rules]:\nEach Character_X must strictly follow its own reference. No mixing of attributes between characters. Each character must remain visually distinct in body type, face, and outfit.\nEach Character_X must match its assigned position in the scene. Do not swap character roles or positions."; }
 
-  let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, lightShadowsBlock, boosterBlock, effectsBlock, rulesBlock]
-    .map(b => b.trim())
-    .filter(b => b.length > 0)
-    .join('\n\n');
-    
+  let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, lightShadowsBlock, boosterBlock, effectsBlock, rulesBlock].map(b => b.trim()).filter(b => b.length > 0).join('\n\n');
   if(document.getElementById('promptOutput')) document.getElementById('promptOutput').value = finalPrompt;
 }
 
-function copyPrompt() {
-  const output = document.getElementById('promptOutput');
-  if(!output) return;
-  output.select();
-  document.execCommand('copy');
-  showToast('Skopiowano prompt!');
-}
+function copyPrompt() { const output = document.getElementById('promptOutput'); if(!output) return; output.select(); document.execCommand('copy'); showToast('Skopiowano prompt!'); }
 
 function copyCharacterSheet() {
   let charText = getCharacterBlock();
+  const styleKey = getValue('style'); let styleBlock = "";
+  if(styleKey === 'custom') { const customDesc = getValue('styleCustomDesc').trim(); if(customDesc) styleBlock = customDesc; } 
+  else if(styleKey !== 'none' && styles[styleKey]) { if(styleKey === 'hyperrealism' || styleKey === 'realistic') styleBlock = hyperTagBlock + "\n"; styleBlock += styles[styleKey].full; }
 
-  const styleKey = getValue('style');
-  let styleBlock = "";
-  if(styleKey === 'custom') {
-    const customDesc = getValue('styleCustomDesc').trim();
-    if(customDesc) styleBlock = customDesc;
-  } else if(styleKey !== 'none' && styles[styleKey]) {
-    if(styleKey === 'hyperrealism') styleBlock = hyperTagBlock + "\n";
-    styleBlock += styles[styleKey].full;
-  }
+  let lsBlock = ""; const lsKey = getValue('lightsShadows'); if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) lsBlock = lightsShadowsMap[lsKey];
+  let bBlock = ""; const bKey = getValue('visualBoosters'); if(bKey && bKey !== 'none' && boostersMap[bKey]) bBlock = boostersMap[bKey];
 
-  let lsBlock = "";
-  const lsKey = getValue('lightsShadows');
-  if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) {
-    lsBlock = lightsShadowsMap[lsKey];
-  }
-  
-  let bBlock = "";
-  const bKey = getValue('visualBoosters');
-  if(bKey && bKey !== 'none' && boostersMap[bKey]) {
-    bBlock = boostersMap[bKey];
-  }
+  let sheetPrompt = `Professional character turnaround model sheet, pure white background.\nLAYOUT FORMAT:\nExactly two horizontal rows perfectly aligned.\nTOP ROW (Full Body):\nFront full body view, neutral standing pose |\nTwo perfectly identical characters in full body side profile, standing directly face to face in perfect symmetrical mirror opposition, mirroring each other’s pose and features exactly like a reflection, separated by a small gap, not touching, their hair not touching |\nBack full body view in neutral standing pose.\nBOTTOM ROW (Headshots):\nTwo identical characters in headshot composition: one displayed in full front head view facing straight toward the camera, the other in 3/4 view from the right side looking toward the left, both having exactly the same facial features and appearance, perfectly symmetrical in design, placed side by side with a small gap between them.\nEvery character has exactly the same facial expression.\nCHARACTER:\n${charText}`;
 
-  let sheetPrompt = `Professional character turnaround model sheet, pure white background.
-LAYOUT FORMAT:
-Exactly two horizontal rows perfectly aligned.
-TOP ROW (Full Body):
-Front full body view, neutral standing pose |
-Two perfectly identical characters in full body side profile, standing directly face to face in perfect symmetrical mirror opposition, mirroring each other’s pose and features exactly like a reflection, separated by a small gap, not touching, their hair not touching |
-Back full body view in neutral standing pose.
-BOTTOM ROW (Headshots):
-Two identical characters in headshot composition: one displayed in full front head view facing straight toward the camera, the other in 3/4 view from the right side looking toward the left, both having exactly the same facial features and appearance, perfectly symmetrical in design, placed side by side with a small gap between them.
-Every character has exactly the same facial expression.
-CHARACTER:
-${charText}`;
+  if (styleBlock) sheetPrompt += `\nSTYLE:\n${styleBlock}`;
+  if (lsBlock) sheetPrompt += `\nLIGHT AND SHADOWS:\n${lsBlock}`;
+  if (bBlock) sheetPrompt += `\nBOOSTER:\n${bBlock}`;
+  sheetPrompt += `\nNEGATIVE CONSTRAINTS:\nNo text, no watermarks, no grid lines, no duplicate profiles, no identical side views, no mirrored duplication errors, no dynamic posing, no extra limbs, no chibi proportions, no shortened legs, no compressed anatomy.`;
 
-  if (styleBlock) {
-    sheetPrompt += `\nSTYLE:\n${styleBlock}`;
-  }
-  if (lsBlock) {
-    sheetPrompt += `\nLIGHT AND SHADOWS:\n${lsBlock}`;
-  }
-  if (bBlock) {
-    sheetPrompt += `\nBOOSTER:\n${bBlock}`;
-  }
-
-  sheetPrompt += `\nNEGATIVE CONSTRAINTS:
-No text, no watermarks, no grid lines, no duplicate profiles, no identical side views, no mirrored duplication errors, no dynamic posing, no extra limbs, no chibi proportions, no shortened legs, no compressed anatomy.`;
-
-  const tempTextArea = document.createElement('textarea');
-  tempTextArea.value = sheetPrompt;
-  document.body.appendChild(tempTextArea);
-  tempTextArea.select();
-  document.execCommand('copy');
-  document.body.removeChild(tempTextArea);
-
+  const tempTextArea = document.createElement('textarea'); tempTextArea.value = sheetPrompt; document.body.appendChild(tempTextArea);
+  tempTextArea.select(); document.execCommand('copy'); document.body.removeChild(tempTextArea);
   showToast('Character sheet skopiowany!');
 }
 
-function exportRPGProfile() {
-  const profileData = { 
-    slots: {}, 
-    notes: document.getElementById('notes') ? document.getElementById('notes').value : (localStorage.getItem('rpg_notes') || ''), 
-    version: "4.22" 
-  };
-  for(let i = 1; i <= 10; i++) {
-    const data = localStorage.getItem('rpg_preset_' + i);
-    if(data) {
-      try { profileData.slots[i] = JSON.parse(data); } catch(e) {}
-    }
-  }
-  const copiedChar = localStorage.getItem('copiedCharacter');
-  if(copiedChar) profileData.copiedCharacter = JSON.parse(copiedChar);
-
-  const dataStr = JSON.stringify(profileData, null, 2);
-  const blob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = "RPG_Prompt_Generator_Profile_v4.22.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  showToast('Profil został wyeksportowany!');
+// ----- IMPORT / EXPORT -----
+function exportProfile() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pmData));
+  const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", "rpg_projects_backup_v5.6.json");
+  document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove();
+  showToast("Profil wyeksportowany pomyślnie!");
 }
 
-function importRPGProfile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
+function importProfile(event) {
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = (e) => {
     try {
-      const importedData = JSON.parse(e.target.result);
-      if(importedData.slots) {
-        Object.keys(importedData.slots).forEach(slot => {
-          localStorage.setItem('rpg_preset_' + slot, JSON.stringify(importedData.slots[slot]));
-        });
-      }
-      if(importedData.notes !== undefined) localStorage.setItem('rpg_notes', importedData.notes);
-      if(importedData.copiedCharacter) localStorage.setItem('copiedCharacter', JSON.stringify(importedData.copiedCharacter));
-      
-      alert('Profil v' + (importedData.version || 'Starsza') + ' został pomyślnie wczytany!');
-      location.reload();
-    } catch (error) {
-      console.error("Błąd parsowania pliku profilu:", error);
-      alert("Błąd! Nieprawidłowy lub uszkodzony plik profilu.");
-    }
+      const imported = JSON.parse(e.target.result);
+      if (imported.slots) { 
+         Object.keys(imported.slots).forEach(slotNum => {
+            let p = { id: 'old_import_' + Date.now() + '_' + slotNum, folderId: null, name: imported.slots[slotNum].projectName || `Import Slot ${slotNum}`, type: imported.slots[slotNum].projectType === 'project' ? 'Scena' : 'Postać', data: imported.slots[slotNum] };
+            pmData.projects.push(p); pmData.favorites[slotNum - 1] = p.id;
+         });
+         saveProjectData(); updateFavoritesUI(); if(!document.getElementById('projectModal').classList.contains('hidden')) renderPMList();
+         showToast("Stary profil (v4.22) zaimportowany jako nowe pliki!");
+      } else if (imported.projects !== undefined && imported.favorites !== undefined) {
+         pmData = imported; saveProjectData(); updateFavoritesUI();
+         if(!document.getElementById('projectModal').classList.contains('hidden')) renderPMList();
+         showToast("Profil zaimportowany pomyślnie!");
+      } else { alert("Błąd struktury pliku."); }
+    } catch (error) { alert("Uszkodzony plik JSON."); }
   };
-  reader.readAsText(file);
-  event.target.value = '';
+  reader.readAsText(file); event.target.value = '';
+}
+
+function openNotesModal() { document.getElementById('notesModal').classList.remove('hidden'); }
+function closeNotesModal() { document.getElementById('notesModal').classList.add('hidden'); }
+
+function resetToDefaults() {
+  const def = {
+    projectName: '', notes: '', scene: '', planeBackground: '', additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
+    timeOfDay: 'none', timeOfDayCustomDesc: '', weather: 'none', weatherCustomDesc: '', lightsShadows: 'none', visualBoosters: 'none', gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', earsCustomDesc: '', eyeColor: 'blue', eyeColorCustomDesc: '',
+    emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', eyebrowsCustomDesc: '', freckles: 'none', hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', bangsCustomDesc: '', sidelocks: 'none',
+    height: 'normal', headSize: 'normal', body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', tailCustomDesc: '', horns: 'none', hornsCustomDesc: '', feet: 'normal feet', sweat: 'none', stubble: 'none', beard: 'none', moustache: 'none'
+  };
+  Object.keys(def).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = def[id]; });
+  if(document.getElementById('glowingEyes')) document.getElementById('glowingEyes').checked = false;
+  if(document.getElementById('naturalAsymmetry')) document.getElementById('naturalAsymmetry').checked = false;
+  document.querySelectorAll('.effect-check').forEach(cb => cb.checked = false);
+  document.getElementById('typeCharacter').checked = true;
+  
+  addedCharacters = []; planesData = [''];
+  setSceneMode('scene'); toggleProjectType(); toggleGenderUI(); toggleCustomHair(); toggleCustomLength(); toggleCustomStyle(); 
+  toggleCustomEmotion(); toggleCustomEyeColor(); toggleCustomSkinTone(); toggleCustomHairColor(); toggleCustomTimeOfDay(); toggleCustomWeather(); toggleCustomEars(); toggleCustomEyebrows();
+  toggleCustomBangs(); toggleCustomTail(); toggleCustomHorns();
+  
+  renderAddedCharacters(); generatePrompt(); showToast('Przywrócono domyślne');
 }
 
 window.onload = () => {
-  renderAddedCharacters();
-  updatePresetButtons();
-  
-  bindTooltip('.preset-btn', loadPreset);
-  bindTooltip('.save-slot-btn', savePreset);
-  
+  loadProjectData(); renderAddedCharacters(); updateFavoritesUI();
   const savedNotes = localStorage.getItem('rpg_notes');
-  if(savedNotes && document.getElementById('notes')) {
-    document.getElementById('notes').value = savedNotes;
-  }
-  
-  if(document.getElementById('notes')) {
-    document.getElementById('notes').addEventListener('input', function(e) {
-      localStorage.setItem('rpg_notes', e.target.value);
-    });
-  }
+  if(savedNotes && document.getElementById('notes')) document.getElementById('notes').value = savedNotes;
+  if(document.getElementById('notes')) { document.getElementById('notes').addEventListener('input', function(e) { localStorage.setItem('rpg_notes', e.target.value); }); }
 
   document.querySelectorAll('select, textarea, input').forEach(el => {
-    if (el.id === 'notes' || el.id.startsWith('plane_')) return;
+    if (el.id === 'notes' || el.id.startsWith('plane_') || el.classList.contains('pm-checkbox')) return;
     el.addEventListener('change', () => {
-      if (el.classList.contains('effect-item')) {
-        const noneCheckbox = document.getElementById('effect-none');
-        if(noneCheckbox) noneCheckbox.checked = false;
-      }
+      if (el.classList.contains('effect-item')) { const noneCheckbox = document.getElementById('effect-none'); if(noneCheckbox) noneCheckbox.checked = false; }
       generatePrompt();
     });
     if(el.type !== 'text' && el.type !== 'checkbox' && el.type !== 'radio') el.addEventListener('input', generatePrompt);
   });
   
   ['projectName', 'scene', 'planeBackground', 'outfit', 'additionalFeatures', 'hairLengthCustomDesc', 'hairCustomDesc', 'styleCustomDesc', 'emotionCustomDesc', 'eyeColorCustomDesc', 'skinToneCustomDesc', 'hairColorCustomDesc', 'timeOfDayCustomDesc', 'weatherCustomDesc', 'earsCustomDesc', 'eyebrowsCustomDesc', 'bangsCustomDesc', 'tailCustomDesc', 'hornsCustomDesc'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('input', generatePrompt);
+    const el = document.getElementById(id); if(el) el.addEventListener('input', generatePrompt);
   });
   
-  toggleProjectType();
-  generatePrompt();
+  toggleProjectType(); generatePrompt();
 };
 </script>
 </body>

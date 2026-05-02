@@ -184,6 +184,17 @@
   </div>
 </div>
 
+<!-- NOWY MODAL: Potwierdzenie usunięcia postaci -->
+<div id="deleteCharModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white p-6 rounded-3xl shadow-2xl w-80 text-center">
+    <h3 class="font-bold text-lg mb-6 text-gray-800">Czy na pewno chcesz usunąć postać?</h3>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteCharModal()" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold transition-colors">Anuluj</button>
+      <button onclick="confirmRemoveCharacter()" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors">Tak</button>
+    </div>
+  </div>
+</div>
+
 <div class="max-w-[1600px] w-full mx-auto px-4 sm:px-6 mb-6">
   <div class="flex flex-wrap gap-3 items-center justify-between">
     <div class="flex flex-wrap gap-2">
@@ -981,7 +992,7 @@
           <div id="customTailContainer" class="hidden mb-4">
             <label class="block font-semibold mb-2 text-gray-700">Własny ogon</label>
             <div class="flex flex-col sm:flex-row gap-2">
-              <input id="tailCustomDesc" type="text" placeholder="np. ogromny smoczy ogon" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <input id="tailCustomDesc" type="text" placeholder="np. ogrom smoczy ogon" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
               <button onclick="translateText('tailCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
@@ -1103,6 +1114,7 @@ let pmCallback = null;
 let pmActiveItemsToMove = null;
 let pmActiveItem = null; // item wybrany do zapisania w ulubionych
 let slotsToDelete = []; // sloty wybrane do wyczyszczenia
+let charToDeleteId = null; // ID postaci do usunięcia z promptu
 
 function loadProjectData() {
   const saved = localStorage.getItem('rpg_pm_data_v56');
@@ -1154,28 +1166,25 @@ function updateFavoritesUI() {
     btn.innerText = i + 1;
     btn.className = `slot-btn ${isFilled ? 'slot-filled' : 'slot-empty'}`;
     
-    // Obsługa Tooltip: Myszką
     btn.addEventListener('mouseenter', (e) => showTooltip(e, isFilled ? `Wczytaj: ${proj.type}_${proj.name}` : "Pusty slot. Zapisz projekt jako plik, aby go tutaj przypisać."));
     btn.addEventListener('mouseleave', hideTooltip);
     
-    // Obsługa Tooltip: Przytrzymanie palcem na mobile
     let pressTimer;
     btn.addEventListener('touchstart', (e) => {
       btn.dataset.longpressed = 'false';
       pressTimer = window.setTimeout(() => {
         showTooltip(e, isFilled ? `Wczytaj: ${proj.type}_${proj.name}` : "Pusty slot.");
         btn.dataset.longpressed = 'true';
-      }, 500); // Wyzwolenie nazwy po pół sekundy
+      }, 500);
     }, {passive: true});
     
     btn.addEventListener('touchend', (e) => {
       clearTimeout(pressTimer);
-      setTimeout(() => hideTooltip(), 1500); // Pozwala użytkownikowi zobaczyć co kliknął po oderwaniu palca
+      setTimeout(() => hideTooltip(), 1500);
     });
     
     btn.onclick = (e) => {
       e.preventDefault();
-      // Jeśli przytrzymał palec, blokujemy samo wczytywanie po puszczeniu
       if(btn.dataset.longpressed === 'true') {
         btn.dataset.longpressed = 'false';
         return; 
@@ -1204,7 +1213,6 @@ function openDeleteFavModal() {
     const btn = document.createElement('button');
     btn.innerText = i + 1;
     
-    // Podobne do UI głównego
     btn.className = `w-12 h-12 mx-auto rounded-full font-bold transition flex items-center justify-center text-sm border-2 ${isFilled ? 'bg-green-50 border-green-300 text-green-600 hover:bg-green-100' : 'bg-[#eef2ff] border-transparent text-blue-500 opacity-50 cursor-not-allowed'}`;
     
     if (isFilled) {
@@ -1322,6 +1330,17 @@ function pmDeleteSelected() {
   }
 }
 
+function pmAddCharacterToCurrent(pid) {
+  const proj = pmData.projects.find(p => p.id === pid);
+  if(proj) {
+    const charText = getCharacterBlock(proj.data);
+    addedCharacters.push({ type: 'from_pm', id: Date.now(), name: proj.name || 'Poboczna', text: charText, active: true });
+    renderAddedCharacters();
+    generatePrompt();
+    showToast('Postać dodana');
+  }
+}
+
 function renderPMList() {
   const container = document.getElementById('pmListContainer'); container.innerHTML = '';
   pmData.folders.sort((a,b) => a.order - b.order).forEach(f => {
@@ -1374,6 +1393,7 @@ function pmCreateProjectRow(p) {
       ${p.id === currentActiveProjectId ? '<span class="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">AKTYWNY</span>' : ''}
     </div>
     <div class="flex items-center gap-3">
+      ${p.type === 'character' || p.type === 'Postać' ? `<button onclick="pmAddCharacterToCurrent('${p.id}')" title="Dodaj jako postać poboczną" class="text-blue-500 hover:text-blue-700 font-bold text-xl leading-none transition-colors w-6 flex justify-center">+</button>` : ''}
       <button onclick="pmOpenFavModal('${p.id}')" title="Do Ulubionych" class="${isFav ? 'text-amber-500' : 'text-gray-300'} hover:text-amber-500"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></button>
     </div>
   `;
@@ -1498,7 +1518,10 @@ function showToast(msg, isError = false) {
   t.style.transition = 'none'; t.style.opacity = '1';
   if(isError) t.classList.replace('bg-gray-900', 'bg-red-600'); else t.classList.replace('bg-red-600', 'bg-gray-900');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.style.transition = 'opacity 0.5s ease-out'; t.style.opacity = '0'; }, 2000);
+  toastTimer = setTimeout(() => { 
+    t.style.transition = 'opacity 2s ease-out'; 
+    t.style.opacity = '0'; 
+  }, 2000);
 }
 
 // ----- @ MENTIONS -----
@@ -1513,7 +1536,11 @@ function getMentionList() {
       const projName = getValue('projectName').trim() || 'Postać_główna';
       list.push({ label: projName, insert: `Character_(${projName})` });
   }
-  addedCharacters.forEach(c => { let n = c.name || 'Postać'; list.push({ label: n, insert: `Character_(${n})` }); });
+  addedCharacters.forEach(c => { 
+      if (c.active !== false) {
+          let n = c.name || 'Postać'; list.push({ label: n, insert: `Character_(${n})` }); 
+      }
+  });
   return list;
 }
 
@@ -1651,14 +1678,37 @@ function addCopiedCharacter() {
   if (!copiedDataStr) { showToast('Brak skopiowanej postaci', true); return; }
   try {
     const copiedData = JSON.parse(copiedDataStr);
-    addedCharacters.push({ type: 'copied', id: Date.now(), name: copiedData.projectName || 'Poboczna', text: copiedData.characterText });
+    addedCharacters.push({ type: 'copied', id: Date.now(), name: copiedData.projectName || 'Poboczna', text: copiedData.characterText, active: true });
     renderAddedCharacters(); generatePrompt();
   } catch(e) { showToast('Błąd odczytu', true); }
 }
 
-function removeCharacter(id) {
-  addedCharacters = addedCharacters.filter(c => c.id !== id);
-  renderAddedCharacters(); generatePrompt();
+function promptRemoveCharacter(id) {
+  charToDeleteId = id;
+  document.getElementById('deleteCharModal').classList.remove('hidden');
+}
+
+function closeDeleteCharModal() {
+  document.getElementById('deleteCharModal').classList.add('hidden');
+  charToDeleteId = null;
+}
+
+function confirmRemoveCharacter() {
+  if (charToDeleteId) {
+    addedCharacters = addedCharacters.filter(c => c.id !== charToDeleteId);
+    renderAddedCharacters(); 
+    generatePrompt();
+  }
+  closeDeleteCharModal();
+}
+
+function toggleCharacterActive(id) {
+  const char = addedCharacters.find(c => c.id === id);
+  if(char) {
+    char.active = !char.active;
+    renderAddedCharacters();
+    generatePrompt();
+  }
 }
 
 function renderAddedCharacters() {
@@ -1666,11 +1716,18 @@ function renderAddedCharacters() {
   if(!container) return;
   container.innerHTML = '';
   addedCharacters.forEach((char) => {
+    if (char.active === undefined) char.active = true;
     const row = document.createElement('div');
-    row.className = 'flex items-center gap-2';
+    row.className = `flex items-center gap-2 transition-opacity ${char.active ? 'opacity-100' : 'opacity-60'}`;
+    
     row.innerHTML = `
-      <button onclick="removeCharacter(${char.id})" class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 font-bold text-lg leading-none transition-colors" title="Usuń postać">-</button>
-      <input type="text" value="${char.name}" disabled class="flex-1 bg-white rounded-xl border border-indigo-200 p-2 text-sm text-indigo-900 font-semibold cursor-not-allowed">
+      <button onclick="toggleCharacterActive(${char.id})" class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" title="${char.active ? 'Wyłącz postać w prompcie' : 'Włącz postać w prompcie'}">
+        ${char.active 
+          ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>` 
+          : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>`}
+      </button>
+      <input type="text" value="${char.name}" disabled class="flex-1 bg-white rounded-xl border border-indigo-200 p-2 text-sm ${char.active ? 'text-indigo-900' : 'text-gray-500'} font-semibold cursor-not-allowed">
+      <button onclick="promptRemoveCharacter(${char.id})" class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 font-bold text-lg leading-none transition-colors" title="Usuń postać">-</button>
     `;
     container.appendChild(row);
   });
@@ -1684,64 +1741,68 @@ function copyCharacter() {
   showToast('Skopiowano główną postać!');
 }
 
-function getCharacterBlock() {
-  const nudity = getValue('nudity'); const gender = getValue('gender');
+function getCharacterBlock(state = null) {
+  const v = (id) => state ? (state[id] !== undefined ? state[id] : '') : getValue(id);
+  const isChecked = (id) => state ? !!state[id] : (document.getElementById(id) && document.getElementById(id).checked);
+
+  const nudity = v('nudity') || 'none'; const gender = v('gender') || 'none';
   const subj = (gender === 'female' || gender === 'none') ? 'She' : 'He'; const objPos = (gender === 'female' || gender === 'none') ? 'Her' : 'His';
   let faceParts = [];
-  if(getValue('age') !== 'none') faceParts.push(`${getValue('age')} ${gender !== 'none' ? gender : 'character'}`);
+  if(v('age') !== 'none' && v('age') !== '') faceParts.push(`${v('age')} ${gender !== 'none' ? gender : 'character'}`);
   let face = faceParts.length > 0 ? `The character is ${faceParts.join(' ')}. ` : 'The character is here. ';
-  let emo = getValue('emotion') === 'custom' ? getValue('emotionCustomDesc') : getValue('emotion');
+  let emo = v('emotion') === 'custom' ? v('emotionCustomDesc') : v('emotion');
   if(emo && emo !== 'none') face += `${subj} is displaying a ${emo} expression. `;
-  let skin = getValue('skinTone') === 'custom' ? getValue('skinToneCustomDesc') : getValue('skinTone');
-  if(skin && skin !== 'none') face += `${subj} has ${skin} skin${getValue('tan') !== 'none' ? ' with ' + getValue('tan') : ''}. `;
+  let skin = v('skinTone') === 'custom' ? v('skinToneCustomDesc') : v('skinTone');
+  if(skin && skin !== 'none') face += `${subj} has ${skin} skin${v('tan') !== 'none' && v('tan') !== '' ? ' with ' + v('tan') : ''}. `;
   let eyePart = "";
-  if(document.getElementById('glowingEyes') && document.getElementById('glowingEyes').checked) eyePart += "Glowing ";
-  let eyeColor = getValue('eyeColor') === 'custom' ? getValue('eyeColorCustomDesc') : getValue('eyeColor');
+  if(isChecked('glowingEyes')) eyePart += "Glowing ";
+  let eyeColor = v('eyeColor') === 'custom' ? v('eyeColorCustomDesc') : v('eyeColor');
   if (eyeColor && eyeColor !== 'none') eyePart += eyeColor;
   if(eyePart) face += `${eyePart} eyes, `;
-  if(document.getElementById('naturalAsymmetry') && document.getElementById('naturalAsymmetry').checked) face += `natural facial asymmetry, `;
-  let ears = getValue('ears') === 'custom' ? getValue('earsCustomDesc') : getValue('ears');
+  if(isChecked('naturalAsymmetry')) face += `natural facial asymmetry, `;
+  let ears = v('ears') === 'custom' ? v('earsCustomDesc') : v('ears');
   if(ears && ears !== 'none') face += `${ears} ears, `;
-  let eyebrows = getValue('eyebrows') === 'custom' ? getValue('eyebrowsCustomDesc') : getValue('eyebrows');
+  let eyebrows = v('eyebrows') === 'custom' ? v('eyebrowsCustomDesc') : v('eyebrows');
   if(eyebrows && eyebrows !== 'none') face += `and ${eyebrows} eyebrows. `;
-  if(getValue('freckles') !== 'none') face += `There are ${getValue('freckles')}. `;
-  if(getValue('teeth') !== 'none') face += `${objPos} teeth are visible as ${getValue('teeth')}. `;
+  if(v('freckles') !== 'none' && v('freckles') !== '') face += `There are ${v('freckles')}. `;
+  if(v('teeth') !== 'none' && v('teeth') !== '') face += `${objPos} teeth are visible as ${v('teeth')}. `;
   if (gender === 'male') {
-    if (getValue('stubble') !== 'none') face += `${subj} has ${getValue('stubble')}. `;
-    if (getValue('beard') !== 'none') face += `${subj} wears a ${getValue('beard')}. `;
-    if (getValue('moustache') !== 'none') face += `${subj} has a ${getValue('moustache')}. `;
+    if (v('stubble') !== 'none' && v('stubble') !== '') face += `${subj} has ${v('stubble')}. `;
+    if (v('beard') !== 'none' && v('beard') !== '') face += `${subj} wears a ${v('beard')}. `;
+    if (v('moustache') !== 'none' && v('moustache') !== '') face += `${subj} has a ${v('moustache')}. `;
   }
   let hairStr = "";
-  if (getValue('hairLength') === 'bald' || getValue('hairStyle') === 'bald') { hairStr = `${subj} is bald.`; } 
+  if (v('hairLength') === 'bald' || v('hairStyle') === 'bald') { hairStr = `${subj} is bald.`; } 
   else {
-    let hairC = getValue('hairColor') === 'custom' ? getValue('hairColorCustomDesc') : (getValue('hairColor') === 'none' ? '' : getValue('hairColor'));
-    let hairL = getValue('hairLength') === 'custom' ? getValue('hairLengthCustomDesc') : (getValue('hairLength') !== 'none' ? getValue('hairLength') : '');
-    let hairT = getValue('hairType') !== 'none' ? getValue('hairType') : '';
-    let hairS = getValue('hairStyle') === 'custom' ? getValue('hairCustomDesc') : (getValue('hairStyle') !== 'none' ? getValue('hairStyle') : '');
+    let hairC = v('hairColor') === 'custom' ? v('hairColorCustomDesc') : (v('hairColor') === 'none' ? '' : v('hairColor'));
+    let hairL = v('hairLength') === 'custom' ? v('hairLengthCustomDesc') : (v('hairLength') !== 'none' ? v('hairLength') : '');
+    let hairT = v('hairType') !== 'none' ? v('hairType') : '';
+    let hairS = v('hairStyle') === 'custom' ? v('hairCustomDesc') : (v('hairStyle') !== 'none' ? v('hairStyle') : '');
     if(hairC || hairL || hairT || hairS) hairStr = `${objPos} hair is ${hairC} ${hairL} ${hairT}, styled as ${hairS}. `;
   }
-  let bangs = getValue('bangs') === 'custom' ? getValue('bangsCustomDesc') : getValue('bangs');
-  if (bangs && bangs !== 'none' && getValue('hairLength') !== 'bald') hairStr += `${subj} has ${bangs}. `;
-  if (getValue('sidelocks') !== 'none') hairStr += `${subj} features ${getValue('sidelocks')}.`;
+  let bangs = v('bangs') === 'custom' ? v('bangsCustomDesc') : v('bangs');
+  if (bangs && bangs !== 'none' && v('hairLength') !== 'bald') hairStr += `${subj} has ${bangs}. `;
+  if (v('sidelocks') !== 'none' && v('sidelocks') !== '') hairStr += `${subj} features ${v('sidelocks')}.`;
   let bodyDetails = [];
-  if(getValue('height') !== 'none') bodyDetails.push(getValue('height') === 'normal' ? 'of average height' : getValue('height'));
-  if(getValue('headSize') !== 'none') bodyDetails.push(getValue('headSize') === 'normal' ? 'head 1/6 of height' : (getValue('headSize')==='large' ? 'head 1/5 of height' : 'head 1/4 of height'));
-  if(getValue('body') !== 'none') bodyDetails.push(`body type: ${getValue('body')}`);
-  if(gender === 'female' && getValue('chest') !== 'none') bodyDetails.push(getValue('chest'));
-  if(getValue('hips') !== 'none') bodyDetails.push(getValue('hips'));
-  if(getValue('thighs') !== 'none') bodyDetails.push(getValue('thighs'));
-  if(getValue('feet') !== 'none') bodyDetails.push(getValue('feet'));
-  if(getValue('sweat') !== 'none') bodyDetails.push(sweatMap[getValue('sweat')]);
+  if(v('height') !== 'none' && v('height') !== '') bodyDetails.push(v('height') === 'normal' ? 'of average height' : v('height'));
+  if(v('headSize') !== 'none' && v('headSize') !== '') bodyDetails.push(v('headSize') === 'normal' ? 'head 1/6 of height' : (v('headSize')==='large' ? 'head 1/5 of height' : 'head 1/4 of height'));
+  if(v('body') !== 'none' && v('body') !== '') bodyDetails.push(`body type: ${v('body')}`);
+  if(gender === 'female' && v('chest') !== 'none' && v('chest') !== '') bodyDetails.push(v('chest'));
+  if(v('hips') !== 'none' && v('hips') !== '') bodyDetails.push(v('hips'));
+  if(v('thighs') !== 'none' && v('thighs') !== '') bodyDetails.push(v('thighs'));
+  if(v('feet') !== 'none' && v('feet') !== '') bodyDetails.push(v('feet'));
+  const sMapVal = v('sweat');
+  if(sMapVal !== 'none' && sMapVal !== '') bodyDetails.push(sweatMap[sMapVal]);
   let bodyStr = bodyDetails.length > 0 ? bodyDetails.join(', ') + ". " : "";
-  let tail = getValue('tail') === 'custom' ? getValue('tailCustomDesc') : getValue('tail');
+  let tail = v('tail') === 'custom' ? v('tailCustomDesc') : v('tail');
   if (tail && tail !== 'none') bodyStr += `${subj} has a ${tail}. `;
-  let horns = getValue('horns') === 'custom' ? getValue('hornsCustomDesc') : getValue('horns');
+  let horns = v('horns') === 'custom' ? v('hornsCustomDesc') : v('horns');
   if (horns && horns !== 'none') face += ` ${subj} has ${horns}. `;
   let cloth = "";
-  if (nudity === 'dressed') { let outStr = getValue('outfit').trim(); if(outStr) cloth = `${subj} is ${outStr}.`; }
+  if (nudity === 'dressed') { let outStr = v('outfit').trim(); if(outStr) cloth = `${subj} is ${outStr}.`; }
   else if (nudity === 'nudeFlower') cloth = `${subj} is naked, only a flower covers the crotch area.`;
-  else if (nudity !== 'none') cloth = `${subj} is ${nudity}.${getValue('intimateHair') !== 'none' ? ' Intimate area is ' + getValue('intimateHair') + '.' : ''}`;
-  let additional = getValue('additionalFeatures').trim(); if (additional) additional = `Additional features: ${additional}.`;
+  else if (nudity !== 'none' && nudity !== '') cloth = `${subj} is ${nudity}.${v('intimateHair') !== 'none' && v('intimateHair') !== '' ? ' Intimate area is ' + v('intimateHair') + '.' : ''}`;
+  let additional = v('additionalFeatures').trim(); if (additional) additional = `Additional features: ${additional}.`;
   let block = [face, hairStr, bodyStr, cloth, additional].map(b => b.trim()).filter(b => b.length > 0).join('\n');
   return block.replace(/\s+\./g, '.').replace(/\.{2,}/g, '.');
 }
@@ -1777,8 +1838,10 @@ function generatePrompt() {
   if (isCharacterMode) { let char1Text = getCharacterBlock(); charactersBlock += `[Characters]:\nCharacter_(${projName})\n${char1Text}`; }
 
   addedCharacters.forEach((char) => {
-    if(charactersBlock === "") charactersBlock = "[Characters]:"; else charactersBlock += `\n\n`;
-    charactersBlock += `Character_(${char.name})\n${char.text}`;
+    if (char.active !== false) {
+        if(charactersBlock === "") charactersBlock = "[Characters]:"; else charactersBlock += `\n\n`;
+        charactersBlock += `Character_(${char.name})\n${char.text}`;
+    }
   });
   
   const styleKey = getValue('style');
@@ -1798,7 +1861,8 @@ function generatePrompt() {
   if (effectLine || camLine) { effectsBlock = "[Effect]:\n"; if (effectLine) effectsBlock += effectLine; if (effectLine && camLine) effectsBlock += " "; if (camLine) effectsBlock += camLine; }
 
   let rulesBlock = "";
-  let totalCharacters = addedCharacters.length + (isCharacterMode ? 1 : 0);
+  let activeAddedCount = addedCharacters.filter(c => c.active !== false).length;
+  let totalCharacters = activeAddedCount + (isCharacterMode ? 1 : 0);
   if (totalCharacters > 1) { rulesBlock = "[Rules]:\nEach Character_X must strictly follow its own reference. No mixing of attributes between characters. Each character must remain visually distinct in body type, face, and outfit.\nEach Character_X must match its assigned position in the scene. Do not swap character roles or positions."; }
 
   let finalPrompt = [settingBlock, colorBlock, charactersBlock, styleBlock, lightShadowsBlock, boosterBlock, effectsBlock, rulesBlock].map(b => b.trim()).filter(b => b.length > 0).join('\n\n');

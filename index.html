@@ -184,7 +184,6 @@
   </div>
 </div>
 
-<!-- NOWY MODAL: Potwierdzenie usunięcia postaci -->
 <div id="deleteCharModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm">
   <div class="bg-white p-6 rounded-3xl shadow-2xl w-80 text-center">
     <h3 class="font-bold text-lg mb-6 text-gray-800">Czy na pewno chcesz usunąć postać?</h3>
@@ -192,6 +191,35 @@
       <button onclick="closeDeleteCharModal()" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold transition-colors">Anuluj</button>
       <button onclick="confirmRemoveCharacter()" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors">Tak</button>
     </div>
+  </div>
+</div>
+
+<div id="genericInfoModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+  <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col relative">
+    <button onclick="closeInfoModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-3xl font-bold leading-none">&times;</button>
+    <h3 class="font-bold text-xl mb-4 text-blue-600 border-b pb-2">Informacje</h3>
+    <div id="infoModalContent" class="overflow-y-auto pr-2 space-y-4 text-sm text-gray-700 leading-relaxed pm-scroll"></div>
+  </div>
+</div>
+
+<div id="saveCustomStyleModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white p-6 rounded-3xl shadow-2xl w-96">
+    <h3 class="font-bold text-lg mb-4 text-gray-800">Zapisz własny styl</h3>
+    <input type="text" id="customStyleNameInput" placeholder="Nazwa stylu..." class="w-full border-2 border-gray-200 p-3 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700" onkeydown="if(event.key === 'Enter') confirmSaveCustomStyle()">
+    <div class="flex justify-end gap-2">
+      <button onclick="closeSaveCustomStyleModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl font-bold">Anuluj</button>
+      <button onclick="confirmSaveCustomStyle()" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">Zapisz</button>
+    </div>
+  </div>
+</div>
+
+<div id="manageCustomStylesModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+  <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-lg max-h-[70vh] flex flex-col relative">
+    <div class="flex justify-between items-center mb-4 border-b pb-2">
+      <h3 class="font-bold text-lg text-gray-800">Zarządzaj własnymi stylami</h3>
+      <button onclick="closeManageCustomStylesModal()" class="text-gray-400 hover:text-red-500 text-3xl font-bold leading-none">&times;</button>
+    </div>
+    <div id="customStylesList" class="overflow-y-auto space-y-2 flex-1 pm-scroll"></div>
   </div>
 </div>
 
@@ -286,40 +314,62 @@
         
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div class="visual-wrapper">
-            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Styl</label>
+            <label class="w-full text-xs font-bold text-gray-500 uppercase visual-label relative">
+              Styl 
+              <button onclick="openManageCustomStylesModal()" class="absolute right-0 top-0 text-blue-500 hover:text-blue-700" title="Zarządzaj własnymi stylami">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              </button>
+            </label>
             <select id="style" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomStyle()">
               <option value="none">brak</option>
-              <option value="hyperrealism" selected>hyperrealism</option>
-              <option value="realistic">Realistic</option>
-              <option value="reality">Reality</option>
-              <option value="movieGrain">Movie Grain</option>
-              <option value="illustrationWow">Illustration WOW</option>
-              <option value="painterlySprite">painterly</option>
-              <option value="pixelArtGame">pixel game</option>
-              <option value="pixelIllustration">pixel illustration</option>
-              <option value="illustration">ilustracja</option>
-              <option value="watercolor">watercolor</option>
-              <option value="waifu">waifu</option>
-              <option value="pixar">pixar</option>
-              <option value="anime">anime</option>
-              <option value="cartoon2d">2d cartoon</option>
-              <option value="pencil">Pencil</option>
-              <option value="cursetPhoto">Curset Photo</option>
-              <option value="claymation">Claymation</option>
-              <option value="crayon">Crayon</option>
-              <option value="disney2d">Disney 2D</option>
-              <option value="disney3d">Disney 3D</option>
-              <option value="disneySketch">Disney sketch</option>
-              <option value="conceptSketch">Concept sketch</option>
-              <option value="conceptArt">Concept Art</option>
-              <option value="oilPainting">Oil Painting</option>
-              <option value="stylizedFantasy">Stylized fantasy</option>
-              <option value="frazzeta">Frazzeta</option>
-              <option value="barok">Barok</option>
-              <option value="gorillaz">Gorrillaz</option>
+              <optgroup label="Realizm">
+                <option value="hyperrealism" selected>hyperrealism</option>
+                <option value="realistic">Realistic</option>
+                <option value="reality">Reality</option>
+                <option value="movieGrain">Movie Grain</option>
+                <option value="modernPhotorealism">Modern Photorealism</option>
+                <option value="digicam2000s">2000s Digicam</option>
+                <option value="vintage80s">80s Vintage Photo</option>
+                <option value="analogueFilm">Analogue Film</option>
+                <option value="vintageCellphone">Vintage Cellphone Selfie</option>
+              </optgroup>
+              <optgroup label="Ilustracje">
+                <option value="illustrationWow">Illustration WOW</option>
+                <option value="painterlySprite">Painterly</option>
+                <option value="illustration">Ilustracja</option>
+                <option value="waifu">Waifu</option>
+                <option value="anime">anime</option>
+                <option value="cartoon2d">2D cartoon</option>
+                <option value="pixar">Pixar</option>
+                <option value="disney2d">Disney 2D</option>
+                <option value="disney3d">Disney 3D</option>
+                <option value="disneySketch">Disney sketch</option>
+                <option value="conceptSketch">Concept sketch</option>
+                <option value="conceptArt">Concept Art</option>
+              </optgroup>
+              <optgroup label="Pixel">
+                <option value="pixelArtGame">pixel game</option>
+                <option value="pixelIllustration">pixel illustration</option>
+              </optgroup>
+              <optgroup label="Artistic">
+                <option value="pencil">Pencil</option>
+                <option value="oilPainting">Oil Painting</option>
+                <option value="barok">Barok</option>
+                <option value="crayon">Crayon</option>
+                <option value="watercolor">watercolor</option>
+              </optgroup>
+              <optgroup label="Stylizowane">
+                <option value="claymation">Claymation</option>
+                <option value="frazzeta">Frazetta</option>
+                <option value="gorillaz">Gorillaz</option>
+                <option value="cursetPhoto">Cursed Photo</option>
+                <option value="stylizedFantasy">Stylized fantasy</option>
+              </optgroup>
+              <optgroup label="Własne" id="customStylesOptGroup"></optgroup>
               <option value="custom">własny (opisz niżej)</option>
             </select>
           </div>
+
           <div class="visual-wrapper">
             <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Ujęcie</label>
             <select id="shot" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
@@ -345,18 +395,99 @@
               <option value="panoramic">panoramic</option>
             </select>
           </div>
+
           <div class="visual-wrapper">
-            <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Obiektyw</label>
-            <select id="lens" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+            <label class="w-full flex items-end justify-center gap-1 text-xs font-bold text-gray-500 uppercase visual-label relative">
+              Kamera 
+              <button onclick="openInfoModal('camera')" class="text-blue-500 hover:text-blue-700 bg-blue-50 rounded-full w-4 h-4 flex items-center justify-center text-[10px] absolute right-0 top-0 border border-blue-200">i</button>
+            </label>
+            <select id="camera" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="none" selected>brak</option>
-              <option value="20mm">20mm</option>
-              <option value="25mm">25mm</option>
-              <option value="35mm">35mm</option>
-              <option value="50mm">50mm</option>
-              <option value="70mm">70mm</option>
-              <option value="100mm">100mm</option>
+              <optgroup label="Sony">
+                <option value="Sony A7IV">Sony A7IV</option>
+                <option value="Sony A7R V">Sony A7R V</option>
+                <option value="Sony A7S III">Sony A7S III</option>
+                <option value="Sony A1">Sony A1</option>
+                <option value="Sony A7C II">Sony A7C II</option>
+              </optgroup>
+              <optgroup label="Canon">
+                <option value="Canon 5D Mark IV">Canon 5D Mark IV</option>
+                <option value="Canon EOS R5">Canon EOS R5</option>
+                <option value="Canon EOS R5 Mark II">Canon EOS R5 Mark II</option>
+                <option value="Canon EOS R3">Canon EOS R3</option>
+                <option value="Canon 5D Mark III">Canon 5D Mark III</option>
+              </optgroup>
+              <optgroup label="Hasselblad">
+                <option value="Hasselblad X2D 100C">Hasselblad X2D 100C</option>
+                <option value="Hasselblad 907X 50C">Hasselblad 907X 50C</option>
+                <option value="Hasselblad X1D II 50C">Hasselblad X1D II 50C</option>
+              </optgroup>
+              <optgroup label="Fujifilm">
+                <option value="Fujifilm X-T5">Fujifilm X-T5</option>
+                <option value="Fujifilm X100V / X100VI">Fujifilm X100V / X100VI</option>
+                <option value="Fujifilm GFX 100 II / GFX100S">Fujifilm GFX 100 II / GFX100S</option>
+              </optgroup>
+              <optgroup label="Nikon">
+                <option value="Nikon Z7 II / Z8 / Z9">Nikon Z7 II / Z8 / Z9</option>
+                <option value="Nikon D850">Nikon D850</option>
+              </optgroup>
+              <optgroup label="Leica">
+                <option value="Leica M11 / M10-R">Leica M11 / M10-R</option>
+                <option value="Leica Q3">Leica Q3</option>
+                <option value="Leica SL2-S / SL3">Leica SL2-S / SL3</option>
+              </optgroup>
+              <optgroup label="Różne">
+                <option value="Phase One XF IQ4 150MP">Phase One XF IQ4 150MP</option>
+                <option value="Pentax 645Z">Pentax 645Z</option>
+                <option value="Olympus OM-1">Olympus OM-1</option>
+                <option value="Panasonic Lumix S5 II / GH6">Panasonic Lumix S5 II / GH6</option>
+              </optgroup>
+              <optgroup label="Filmowe">
+                <option value="Arri Alexa 65">Arri Alexa 65</option>
+                <option value="Arri Alexa Mini LF">Arri Alexa Mini LF</option>
+                <option value="RED V-Raptor">RED V-Raptor</option>
+                <option value="RED Komodo">RED Komodo</option>
+                <option value="Blackmagic URSA Cine 12K">Blackmagic URSA Cine 12K</option>
+                <option value="Sony Venice 2">Sony Venice 2</option>
+              </optgroup>
             </select>
           </div>
+
+          <div class="visual-wrapper">
+            <label class="w-full flex items-end justify-center gap-1 text-xs font-bold text-gray-500 uppercase visual-label relative">
+              Obiektyw 
+              <button onclick="openInfoModal('lens')" class="text-blue-500 hover:text-blue-700 bg-blue-50 rounded-full w-4 h-4 flex items-center justify-center text-[10px] absolute right-0 top-0 border border-blue-200">i</button>
+            </label>
+            <select id="lens" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="none" selected>brak</option>
+              <option value="8-14mm">8-14mm</option>
+              <option value="14-24mm">14-24mm</option>
+              <option value="24-35mm">24-35mm</option>
+              <option value="35-50mm">35-50mm</option>
+              <option value="50-85mm">50-85mm</option>
+              <option value="70-135mm">70-135mm</option>
+              <option value="100-200mm">100-200mm</option>
+              <option value="200mm+">200mm+</option>
+            </select>
+          </div>
+          
+          <div class="visual-wrapper">
+            <label class="w-full flex items-end justify-center gap-1 text-[11px] font-bold text-gray-500 uppercase visual-label relative">
+              Przysłona 
+              <button onclick="openInfoModal('aperture')" class="text-blue-500 hover:text-blue-700 bg-blue-50 rounded-full w-4 h-4 flex items-center justify-center text-[10px] absolute right-0 top-0 border border-blue-200">i</button>
+            </label>
+            <select id="aperture" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="none" selected>brak</option>
+              <option value="f/0.95 – f/1.4">f/0.95 – f/1.4</option>
+              <option value="f/1.4 – f/2.8">f/1.4 – f/2.8</option>
+              <option value="f/2.8 – f/4">f/2.8 – f/4</option>
+              <option value="f/4 – f/5.6">f/4 – f/5.6</option>
+              <option value="f/5.6 – f/8">f/5.6 – f/8</option>
+              <option value="f/8 – f/16">f/8 – f/16</option>
+              <option value="f/16 – f/22">f/16 – f/22</option>
+            </select>
+          </div>
+
           <div class="visual-wrapper">
             <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Kolor</label>
             <select id="color" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
@@ -373,6 +504,7 @@
               <option value="muted">muted</option>
             </select>
           </div>
+
           <div class="visual-wrapper">
             <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Pora dnia</label>
             <select id="timeOfDay" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomTimeOfDay()">
@@ -390,6 +522,7 @@
               <option value="custom">własna (opisz niżej)</option>
             </select>
           </div>
+
           <div class="visual-wrapper">
             <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Pogoda</label>
             <select id="weather" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white" onchange="toggleCustomWeather()">
@@ -410,6 +543,7 @@
               <option value="custom">własna (opisz niżej)</option>
             </select>
           </div>
+
           <div class="visual-wrapper">
             <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Światła i Cienie</label>
             <select id="lightsShadows" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
@@ -426,6 +560,7 @@
               <option value="ambient-occlusion">Realistyczne AO</option>
             </select>
           </div>
+
           <div class="visual-wrapper">
             <label class="block text-xs font-bold text-gray-500 uppercase visual-label">Visual Boosters</label>
             <select id="visualBoosters" class="w-full rounded-xl border border-gray-300 p-2 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
@@ -444,6 +579,7 @@
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="styleCustomDesc" type="text" placeholder="np. dark fantasy oil painting..." class="flex-1 w-full rounded-xl border border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <button onclick="translateText('styleCustomDesc')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors">PL ➜ EN</button>
+            <button onclick="openSaveCustomStyleModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors shadow-sm">Zapisz</button>
           </div>
         </div>
 
@@ -992,7 +1128,7 @@
           <div id="customTailContainer" class="hidden mb-4">
             <label class="block font-semibold mb-2 text-gray-700">Własny ogon</label>
             <div class="flex flex-col sm:flex-row gap-2">
-              <input id="tailCustomDesc" type="text" placeholder="np. ogrom smoczy ogon" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+              <input id="tailCustomDesc" type="text" placeholder="np. ogromny smoczy ogon" class="flex-1 w-full rounded-2xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
               <button onclick="translateText('tailCustomDesc')" class="bg-blue-100 px-4 py-3 sm:py-2 rounded-2xl text-xs font-bold transition-colors shrink-0 w-full sm:w-auto">PL ➜ EN</button>
             </div>
           </div>
@@ -1023,7 +1159,10 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
               Skopiuj Prompt
             </button>
-            <button onclick="copyCharacter()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 font-bold py-3 px-8 rounded-lg transition-all">
+            <button onclick="copyPromptNoLines()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition transform hover:scale-[1.02] text-sm flex justify-center items-center gap-2">
+              Skopiuj bez enterów
+            </button>
+            <button onclick="copyCharacter()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border border-indigo-300 font-bold py-3 px-8 rounded-lg transition-all mt-2">
               Kopiuj postać
             </button>
             <div class="flex flex-col items-center mt-2">
@@ -1062,6 +1201,11 @@ const styles = {
   realistic: { full: `hyperrealistic skin with visible pores and imperfections, realistic sweat and oil, photorealistic face with detailed eyes and natural catchlights, realistic atmospheric particles and depth, RAW photo, film grain, shot on Sony A7R IV 85mm f/1.4, physically based rendering, global illumination, no plastic skin, no AI artifacts, maximum realism` }, 
   reality: { full: `Reality photography, no AI gloss, no artificial perfection, raw unfiltered appearance, authentic skin variations, natural environmental noise and texture, maximum organic fidelity, avoids all common generative artifacts` }, 
   movieGrain: { full: `shot on Kodak Portra 800 or Cinestill 800T, heavy natural film grain, subtle color shifts and halation, scanned from real negative, organic film texture over entire image` }, 
+  modernPhotorealism: { full: `Contemporary, high-fidelity photography with perfect lighting and composition.` },
+  digicam2000s: { full: `Early digital camera aesthetic—saturated colors, specific color cast, casual framing.` },
+  vintage80s: { full: `Warm tones, visible grain, faded quality of 1980s film.` },
+  analogueFilm: { full: `35mm film characteristics—grain texture, color desaturation, organic imperfections.` },
+  vintageCellphone: { full: `Low-resolution, poor lighting, color characteristics of early smartphone cameras.` },
   illustrationWow: { full: `Stylized fantasy character illustration, highly plastic and malleable forms, soft sculpted shapes, exaggerated mass and weight distribution, squash-and-stretch influence, elastic anatomy, gesture-driven design, bold readable silhouette, dynamic shape rhythm, appealing asymmetry cartoon-rooted stylization with semi-realistic rendering, simplified but expressive anatomy, slightly exaggerated proportions, organic flowing shapes instead of rigid structure painterly digital art, soft brush strokes, visible brush energy, subtle texture brushwork, smooth but lively gradients, soft painterly shading, forms defined by light rather than hard edges warm cinematic lighting, soft volumetric glow, rich color transitions, saturated but natural palette, gentle rim light, atmospheric depth whimsical yet mature fantasy aesthetic, expressive and tactile form language, cute but grounded proportions, animated film concept art with realistic lighting depth.` }, 
   painterlySprite: { full: "a stylized fantasy illustration with visible brush texture and painterly shading." }, 
   pixelArtGame: { full: "a crisp pixel art game scene with 8-bit aesthetic." }, 
@@ -1094,8 +1238,21 @@ const sweatMap = { "light": "lightly sweated skin", "medium": "moderately sweate
 const effectsMap = { "tilt-shift": "tilt-shift effect", "golden-hour": "golden hour", "bokeh": "bokeh", "soft-focus": "soft focus", "dof": "shallow depth of field", "chromatic": "chromatic aberrations", "light-leaks": "light leaks", "rear-projection": "rear projection", "lens-flare": "lens flare", "long-exposure": "long exposure", "silhouette": "silhouette" };
 const colorsMap = { "neon": "neon color grading", "cool-toned-sterile": "cool-toned sterile colors", "vibrant": "vibrant color grading", "warm": "warm color grading", "cool-toned": "cool-toned color grading", "pastel": "pastel color grading", "duotone": "duotone color grading", "monochrome": "monochrome", "bright": "bright color grading", "muted": "muted color grading" };
 
+// --- BAZA INFORMACJI DO MODALI ---
+const infoData = {
+  lens: `<b>8-14mm (Fisheye / Ultra-wide):</b> Ekstremalnie szeroki kąt z silnym zniekształceniem beczkowym. Daje wrażenie ogromnej przestrzeni i dramatycznej perspektywy. Idealny do krajobrazów, architektury, wnętrz i kreatywnych, surrealistycznych ujęć.<br><br><b>14-24mm (Wide angle):</b> Klasyczny szerokokątny obiektyw. Dramatyczna perspektywa, poczucie głębi i przestrzeni. Świetny do krajobrazów, miejskich pejzaży i zdjęć środowiskowych.<br><br><b>24-35mm (Wide-standard):</b> Naturalnie szeroki kadr bez przesadnego zniekształcenia. Dobry do fotografii ulicznej, reportażu i zdjęć z kontekstem otoczenia.<br><br><b>35-50mm (Natural / Versatile):</b> Najbliższy polu widzenia ludzkiego oka. Uniwersalny, naturalny framing – portrety, street, codzienne zdjęcia.<br><br><b>50-85mm (Portrait / Short tele):</b> Klasyczny zakres portretowy. Piękne spłaszczenie perspektywy, bardzo korzystne dla twarzy i sylwetki.<br><br><b>70-135mm (Medium telephoto):</b> Mocna kompresja i izolacja obiektu. Świetny do portretów z ładnym bokeh i do zdjęć, gdzie chcemy „wyrwać” model z tła.<br><br><b>100-200mm (Telephoto):</b> Silna separacja od tła, spłaszczona perspektywa. Idealny do portretów, mody i zdjęć, gdzie tło ma być mocno rozmyte.<br><br><b>200mm+ (Super telephoto):</b> Ekstremalna kompresja i bardzo silne oddzielenie obiektu od tła. Używany do wildlife, sportu, koncertów i dramatycznych ujęć z daleka.`,
+  aperture: `<b>f/0.95 – f/1.4:</b> Ekstremalnie płytka głębia ostrości. Marzycielski, kremowy bokeh i maksymalna izolacja obiektu. Efekt „dreamy” i bardzo artystyczny.<br><br><b>f/1.4 – f/2.8:</b> Płytka głębia ostrości z pięknym rozmyciem tła. Najczęściej używany zakres do portretów i zdjęć, gdzie chcemy wyróżnić model.<br><br><b>f/2.8 – f/4:</b> Dobry kompromis między pięknym bokeh a ostrością. Świetny do portretów w słabym oświetleniu i zdjęć w ruchu.<br><br><b>f/4 – f/5.6:</b> Uniwersalny zakres – umiarkowana głębia, dobra ostrość na całej scenie. Idealny do codziennych zdjęć i reportażu.<br><br><b>f/5.6 – f/8:</b> Zrównoważona ostrość i głębia. Bardzo bezpieczny wybór do większości zdjęć krajobrazowych i grupowych.<br><br><b>f/8 – f/16:</b> Duża głębia ostrości – wszystko od pierwszego planu do tła jest ostre. Klasyka krajobrazu i architektury.<br><br><b>f/16 – f/22:</b> Maksymalna głębia ostrości (hiperogniskowa). Używany przy krajobrazach, ale powyżej f/16 pojawia się dyfrakcja i lekka miękkość.`,
+  camera: `<b>Sony A7IV</b> – uniwersalny wybór, naturalny wygląd, idealny do portretów i streetu<br><br><b>Sony A7R V</b> – najwyższa rozdzielczość, rewelacyjny do krajobrazu i detali<br><br><b>Sony A7S III</b> – najlepszy w słabym oświetleniu, filmowy look<br><br><b>Sony A1</b> – wszechstronny flagowiec, świetny balans<br><br><b>Sony A7C II</b> – kompaktowy, idealny do podróży i codziennego użytku<br><br><b>Canon 5D Mark IV</b> – klasyczny, ciepły kolor, świetny do portretów i ślubów<br><br><b>Canon EOS R5</b> – nowoczesny Canon look, bardzo ostry i plastyczny<br><br><b>Canon EOS R5 Mark II</b> – najnowszy Canon, jeszcze lepsza skóra i kolor<br><br><b>Canon EOS R3</b> – szybki, do reportażu i sportu<br><br><b>Canon 5D Mark III</b> – legenda, charakterystyczny Canonowy klimat<br><br><b>Hasselblad X2D 100C</b> – średni format, ogromna głębia i premium jakość<br><br><b>Hasselblad 907X 50C</b> – stylowy, „filmowy” wygląd średniego formatu<br><br><b>Hasselblad X1D II 50C</b> – czysty, kliniczny obraz<br><br><b>Fujifilm X-T5</b> – piękny Fuji kolor + grain, bardzo filmowy<br><br><b>Fujifilm X100V / X100VI</b> – ikona streetu, analogowy vibe<br><br><b>Fujifilm GFX 100 II / GFX100S</b> – średni format w lżejszej obudowie<br><br><b>Nikon Z7 II / Z8 / Z9</b> – ekstremalna ostrość, neutralny, czysty obraz<br><br><b>Nikon D850</b> – klasyczna lustrzanka, rewelacyjna dynamika<br><br><b>Leica M11 / M10-R</b> – kliniczna ostrość i „Leica look”<br><br><b>Leica Q3</b> – pełnoklatkowy kompakt premium<br><br><b>Leica SL2-S / SL3</b> – nowoczesna Leica, bardzo plastyczna<br><br><b>Phase One XF IQ4 150MP</b> – absolutny szczyt jakości i rozdzielczości<br><br><b>Pentax 645Z</b> – średni format w rozsądnej cenie<br><br><b>Olympus OM-1</b> – kompaktowy, świetny do podróży<br><br><b>Panasonic Lumix S5 II / GH6</b> – świetny kolor i stabilizacja<br><br><b>Arri Alexa 65</b> – król kinematografii, najbardziej „filmowy” obraz<br><br><b>Arri Alexa Mini LF</b> – lżejsza wersja Alexy, nadal premium<br><br><b>RED V-Raptor</b> – wysoka rozdzielczość, dynamiczny obraz<br><br><b>RED Komodo</b> – kompaktowa, czerwona „magia”<br><br><b>Blackmagic URSA Cine 12K</b> – ogromna rozdzielczość, bardzo ostry obraz<br><br><b>Sony Venice 2</b> – nowoczesny filmowy look Sony`
+};
+
+function openInfoModal(type) {
+  document.getElementById('infoModalContent').innerHTML = infoData[type];
+  document.getElementById('genericInfoModal').classList.remove('hidden');
+}
+function closeInfoModal() { document.getElementById('genericInfoModal').classList.add('hidden'); }
+
 const inputIds = [
-  'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'lens', 'style', 'styleCustomDesc', 'color',
+  'projectName', 'notes', 'scene', 'planeBackground', 'additionalFeatures', 'nudity', 'intimateHair', 'outfit', 'shot', 'lens', 'camera', 'aperture', 'style', 'styleCustomDesc', 'color',
   'timeOfDay', 'timeOfDayCustomDesc', 'weather', 'weatherCustomDesc', 'lightsShadows', 'visualBoosters',
   'gender', 'age', 'skinTone', 'skinToneCustomDesc', 'tan', 'stubble', 'beard', 'moustache',
   'ears', 'earsCustomDesc', 'eyeColor', 'eyeColorCustomDesc', 'emotion', 'emotionCustomDesc', 'teeth', 'eyebrows', 'eyebrowsCustomDesc', 'freckles',
@@ -1109,12 +1266,13 @@ let planesData = [''];
 let mentionState = { active: false, input: null, startIndex: -1, filter: '', selectedIndex: 0, items: [] };
 
 let pmData = { folders: [], projects: [], favorites: [null, null, null, null, null, null, null, null, null, null] };
+let customStyles = [];
 let currentActiveProjectId = null;
 let pmCallback = null;
 let pmActiveItemsToMove = null;
-let pmActiveItem = null; // item wybrany do zapisania w ulubionych
-let slotsToDelete = []; // sloty wybrane do wyczyszczenia
-let charToDeleteId = null; // ID postaci do usunięcia z promptu
+let pmActiveItem = null; 
+let slotsToDelete = []; 
+let charToDeleteId = null; 
 
 function loadProjectData() {
   const saved = localStorage.getItem('rpg_pm_data_v56');
@@ -1127,22 +1285,87 @@ function loadProjectData() {
         let parsed = JSON.parse(oldData);
         pmData.projects = parsed.projects || [];
         pmData.folders = parsed.folders || [];
-        
         if (parsed.favorites) {
-          if (Array.isArray(parsed.favorites)) {
-            for(let i=0; i<10; i++) pmData.favorites[i] = parsed.favorites[i] || null;
-          } else {
-            for(let i=0; i<10; i++) pmData.favorites[i] = parsed.favorites[i] || null;
-          }
+          if (Array.isArray(parsed.favorites)) { for(let i=0; i<10; i++) pmData.favorites[i] = parsed.favorites[i] || null; } 
+          else { for(let i=0; i<10; i++) pmData.favorites[i] = parsed.favorites[i] || null; }
         }
         saveProjectData();
       } catch(e) {}
     }
   }
   updateFavoritesUI();
+
+  // Wczytywanie własnych stylów
+  const savedCustomStyles = localStorage.getItem('rpg_custom_styles');
+  if (savedCustomStyles) { try { customStyles = JSON.parse(savedCustomStyles); } catch(e) {} }
+  renderCustomStyles();
 }
 
 function saveProjectData() { localStorage.setItem('rpg_pm_data_v56', JSON.stringify(pmData)); }
+function saveCustomStylesData() { localStorage.setItem('rpg_custom_styles', JSON.stringify(customStyles)); }
+
+// --- SYSTEM ZARZĄDZANIA WŁASNYMI STYLAMI ---
+function renderCustomStyles() {
+  let optGroup = document.getElementById('customStylesOptGroup');
+  if (!optGroup) return;
+  optGroup.innerHTML = '';
+  customStyles.forEach(cs => {
+    let opt = document.createElement('option');
+    opt.value = 'cs_' + cs.id;
+    opt.innerText = cs.name;
+    optGroup.appendChild(opt);
+  });
+}
+
+function openSaveCustomStyleModal() {
+  document.getElementById('customStyleNameInput').value = '';
+  document.getElementById('saveCustomStyleModal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('customStyleNameInput').focus(), 50);
+}
+function closeSaveCustomStyleModal() { document.getElementById('saveCustomStyleModal').classList.add('hidden'); }
+
+function confirmSaveCustomStyle() {
+  const name = document.getElementById('customStyleNameInput').value.trim();
+  const desc = document.getElementById('styleCustomDesc').value.trim();
+  if(!name || !desc) { showToast('Wprowadź nazwę i opis stylu!', true); return; }
+  
+  const newId = Date.now().toString();
+  customStyles.push({ id: newId, name: name, prompt: desc });
+  saveCustomStylesData();
+  renderCustomStyles();
+  closeSaveCustomStyleModal();
+  document.getElementById('style').value = 'cs_' + newId;
+  toggleCustomStyle();
+  showToast('Zapisano własny styl!');
+}
+
+function openManageCustomStylesModal() {
+  const list = document.getElementById('customStylesList');
+  list.innerHTML = '';
+  if(customStyles.length === 0) list.innerHTML = '<p class="text-gray-500 text-sm italic">Brak własnych stylów.</p>';
+  customStyles.forEach(cs => {
+    list.innerHTML += `
+      <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <span class="font-bold text-gray-700">${cs.name}</span>
+        <button onclick="deleteCustomStyle('${cs.id}')" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-lg text-xs font-bold transition">Usuń</button>
+      </div>
+    `;
+  });
+  document.getElementById('manageCustomStylesModal').classList.remove('hidden');
+}
+function closeManageCustomStylesModal() { document.getElementById('manageCustomStylesModal').classList.add('hidden'); }
+
+function deleteCustomStyle(id) {
+  customStyles = customStyles.filter(cs => cs.id !== id);
+  saveCustomStylesData();
+  renderCustomStyles();
+  openManageCustomStylesModal();
+  if(document.getElementById('style').value === 'cs_' + id) {
+    document.getElementById('style').value = 'none';
+    toggleCustomStyle();
+  }
+  generatePrompt();
+}
 
 function getAutoProjectName() {
   const nameInput = document.getElementById('projectName').value.trim();
@@ -1250,7 +1473,6 @@ function confirmDeleteFavs() {
   showToast("Wyczyszczono wybrane sloty!");
 }
 
-// WYBÓR ULUBIONYCH - MODAL (ZAPISZ)
 function pmOpenFavModal(pid) {
   pmActiveItem = pid;
   const grid = document.getElementById('pmFavGrid');
@@ -1273,7 +1495,6 @@ function confirmSelectFavModal(idx) {
   closeSelectFavModal(); showToast(`Przypisano do slotu ${idx+1}`);
 }
 
-// --- MENEDŻER PROJEKTÓW (OVERLIB) ---
 function openProjectManager() { document.getElementById('projectModal').classList.remove('hidden'); renderPMList(); }
 function closeProjectManager() { document.getElementById('projectModal').classList.add('hidden'); }
 
@@ -1422,7 +1643,6 @@ function pmShowInput(title, def, cb) {
 function pmCloseInputModal() { document.getElementById('pmInputModal').classList.add('hidden'); }
 function pmConfirmInputModal() { let v = document.getElementById('pmInputValue').value.trim(); pmCloseInputModal(); if(pmCallback) pmCallback(v); }
 
-// PRZENOSZENIE MASOWE
 function pmMoveSelected() {
   const sel = getPmSelected();
   if(sel.length === 0) { alert("Zaznacz projekty do przeniesienia."); return; }
@@ -1442,7 +1662,6 @@ function pmConfirmFolderModal() {
   pmActiveItemsToMove = null;
   saveProjectData(); renderPMList(); closeSelectFolderModal(); showToast("Pliki przeniesione!");
 }
-
 
 // --- LOGIKA STANU I FORMULARZA ---
 
@@ -1733,14 +1952,6 @@ function renderAddedCharacters() {
   });
 }
 
-function copyCharacter() {
-  const currentPromptText = getCharacterBlock();
-  const projName = getValue('projectName') || 'Postać_główna';
-  const dataToSave = { projectName: projName, characterText: currentPromptText };
-  localStorage.setItem('copiedCharacter', JSON.stringify(dataToSave));
-  showToast('Skopiowano główną postać!');
-}
-
 function getCharacterBlock(state = null) {
   const v = (id) => state ? (state[id] !== undefined ? state[id] : '') : getValue(id);
   const isChecked = (id) => state ? !!state[id] : (document.getElementById(id) && document.getElementById(id).checked);
@@ -1846,19 +2057,58 @@ function generatePrompt() {
   
   const styleKey = getValue('style');
   let styleBlock = "";
-  if(styleKey === 'custom') { const customDesc = getValue('styleCustomDesc').trim(); if(customDesc) styleBlock = `[Style]:\n${customDesc}`; } 
-  else if(styleKey !== 'none' && styles[styleKey]) { styleBlock = "[Style]:\n"; if(styleKey === 'hyperrealism' || styleKey === 'realistic') styleBlock += hyperTagBlock + "\n"; styleBlock += styles[styleKey].full; }
+  if(styleKey === 'custom') { 
+      const customDesc = getValue('styleCustomDesc').trim(); 
+      if(customDesc) styleBlock = `[Style]:\n${customDesc}`; 
+  } else if (styleKey.startsWith('cs_')) {
+      const cs = customStyles.find(c => c.id === styleKey.substring(3));
+      if(cs) styleBlock = `[Style]:\n${cs.prompt}`;
+  } else if(styleKey !== 'none' && styles[styleKey]) { 
+      styleBlock = "[Style]:\n"; 
+      if(styleKey === 'hyperrealism' || styleKey === 'realistic') styleBlock += hyperTagBlock + "\n"; 
+      styleBlock += styles[styleKey].full; 
+  }
   
   let lightShadowsBlock = ""; const lsKey = getValue('lightsShadows'); if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) lightShadowsBlock = `[Light and Shadows]:\n${lightsShadowsMap[lsKey]}`;
   let boosterBlock = ""; const bKey = getValue('visualBoosters'); if(bKey && bKey !== 'none' && boostersMap[bKey]) boosterBlock = `[Booster]:\n${boostersMap[bKey]}`;
 
   let effectsBlock = ""; const selectedEffects = []; document.querySelectorAll('.effect-item:checked').forEach(cb => selectedEffects.push(effectsMap[cb.value]));
   let effectLine = selectedEffects.join(', ');
-  let cameraBlock = ""; const shotKey = getValue('shot'); const lensKey = getValue('lens'); let camParts = [];
+  
+  // Kamera, Obiektyw, Przysłona
+  let camParts = [];
+  const camKey = getValue('camera');
+  const lensKey = getValue('lens');
+  const apertureKey = getValue('aperture');
+  const shotKey = getValue('shot');
+
+  if (camKey && camKey !== 'none') camParts.push(camKey);
   if (lensKey && lensKey !== 'none') camParts.push(`${lensKey} lens`);
-  if (shotKey && shotKey !== 'none' && shots[shotKey]) camParts.push(shots[shotKey].replace("Camera: ", ""));
-  let camLine = camParts.length > 0 ? `Camera: ${camParts.join(', ')}` : "";
-  if (effectLine || camLine) { effectsBlock = "[Effect]:\n"; if (effectLine) effectsBlock += effectLine; if (effectLine && camLine) effectsBlock += " "; if (camLine) effectsBlock += camLine; }
+  
+  let camString = camParts.join(', ');
+  if (apertureKey && apertureKey !== 'none') {
+      camString += camString ? ` at ${apertureKey}` : `Aperture ${apertureKey}`;
+  }
+
+  let finalCamLineParts = [];
+  let shotStr = (shotKey && shotKey !== 'none' && shots[shotKey]) ? shots[shotKey].replace("Camera: ", "") : "";
+
+  if (camString && shotStr) {
+      finalCamLineParts.push(`Camera: ${camString}, ${shotStr}`);
+  } else if (camString) {
+      finalCamLineParts.push(`Camera: ${camString}`);
+  } else if (shotStr) {
+      finalCamLineParts.push(`Camera: ${shotStr}`);
+  }
+  
+  let camLine = finalCamLineParts.join(' ');
+
+  if (effectLine || camLine) { 
+      effectsBlock = "[Effect]:\n"; 
+      if (effectLine) effectsBlock += effectLine; 
+      if (effectLine && camLine) effectsBlock += " "; 
+      if (camLine) effectsBlock += camLine; 
+  }
 
   let rulesBlock = "";
   let activeAddedCount = addedCharacters.filter(c => c.active !== false).length;
@@ -1871,11 +2121,33 @@ function generatePrompt() {
 
 function copyPrompt() { const output = document.getElementById('promptOutput'); if(!output) return; output.select(); document.execCommand('copy'); showToast('Skopiowano prompt!'); }
 
+function copyPromptNoLines() {
+  const output = document.getElementById('promptOutput'); 
+  if(!output) return; 
+  const originalText = output.value;
+  const noLinesText = originalText.replace(/\n/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  const tempTextArea = document.createElement('textarea'); 
+  tempTextArea.value = noLinesText; 
+  document.body.appendChild(tempTextArea);
+  tempTextArea.select(); 
+  document.execCommand('copy'); 
+  document.body.removeChild(tempTextArea);
+  showToast('Skopiowano bez enterów!');
+}
+
 function copyCharacterSheet() {
   let charText = getCharacterBlock();
   const styleKey = getValue('style'); let styleBlock = "";
-  if(styleKey === 'custom') { const customDesc = getValue('styleCustomDesc').trim(); if(customDesc) styleBlock = customDesc; } 
-  else if(styleKey !== 'none' && styles[styleKey]) { if(styleKey === 'hyperrealism' || styleKey === 'realistic') styleBlock = hyperTagBlock + "\n"; styleBlock += styles[styleKey].full; }
+  if(styleKey === 'custom') { 
+      const customDesc = getValue('styleCustomDesc').trim(); 
+      if(customDesc) styleBlock = customDesc; 
+  } else if (styleKey.startsWith('cs_')) {
+      const cs = customStyles.find(c => c.id === styleKey.substring(3));
+      if(cs) styleBlock = cs.prompt;
+  } else if(styleKey !== 'none' && styles[styleKey]) { 
+      if(styleKey === 'hyperrealism' || styleKey === 'realistic') styleBlock = hyperTagBlock + "\n"; 
+      styleBlock += styles[styleKey].full; 
+  }
 
   let lsBlock = ""; const lsKey = getValue('lightsShadows'); if(lsKey && lsKey !== 'none' && lightsShadowsMap[lsKey]) lsBlock = lightsShadowsMap[lsKey];
   let bBlock = ""; const bKey = getValue('visualBoosters'); if(bKey && bKey !== 'none' && boostersMap[bKey]) bBlock = boostersMap[bKey];
@@ -1928,7 +2200,7 @@ function closeNotesModal() { document.getElementById('notesModal').classList.add
 
 function resetToDefaults() {
   const def = {
-    projectName: '', notes: '', scene: '', planeBackground: '', additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
+    projectName: '', notes: '', scene: '', planeBackground: '', additionalFeatures: '', nudity: 'dressed', outfit: '', shot: 'fullBody', lens: 'none', camera: 'none', aperture: 'none', style: 'hyperrealism', styleCustomDesc: '', color: 'none',
     timeOfDay: 'none', timeOfDayCustomDesc: '', weather: 'none', weatherCustomDesc: '', lightsShadows: 'none', visualBoosters: 'none', gender: 'female', age: 'adult', skinTone: 'fair', skinToneCustomDesc: '', tan: 'none', ears: 'human', earsCustomDesc: '', eyeColor: 'blue', eyeColorCustomDesc: '',
     emotion: 'neutral', emotionCustomDesc: '', teeth: 'normal teeth', eyebrows: 'normal', eyebrowsCustomDesc: '', freckles: 'none', hairColor: 'black', hairColorCustomDesc: '', hairLength: 'medium', hairLengthCustomDesc: '', hairType: 'straight', hairStyle: 'loose', hairCustomDesc: '', bangs: 'none', bangsCustomDesc: '', sidelocks: 'none',
     height: 'normal', headSize: 'normal', body: 'normal', chest: 'medium breasts', hips: 'normal hips', thighs: 'normal thighs', tail: 'none', tailCustomDesc: '', horns: 'none', hornsCustomDesc: '', feet: 'normal feet', sweat: 'none', stubble: 'none', beard: 'none', moustache: 'none'
